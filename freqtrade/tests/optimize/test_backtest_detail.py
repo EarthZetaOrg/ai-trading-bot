@@ -5,11 +5,11 @@ from unittest.mock import MagicMock
 import pytest
 from pandas import DataFrame
 
-from freqtrade.data.history import get_timeframe
-from freqtrade.optimize.backtesting import Backtesting
-from freqtrade.strategy.interface import SellType
-from freqtrade.tests.conftest import patch_exchange
-from freqtrade.tests.optimize import (BTContainer, BTrade,
+from earthzetaorg.data.history import get_timeframe
+from earthzetaorg.optimize.backtesting import Backtesting
+from earthzetaorg.strategy.interface import SellType
+from earthzetaorg.tests.conftest import patch_exchange
+from earthzetaorg.tests.optimize import (BTContainer, BTrade,
                                       _build_backtest_dataframe,
                                       _get_frame_time_from_offset,
                                       tests_ticker_interval)
@@ -289,7 +289,7 @@ def test_backtest_results(default_conf, fee, mocker, caplog, data) -> None:
     default_conf["trailing_stop_positive_offset"] = data.trailing_stop_positive_offset
     default_conf["experimental"] = {"use_sell_signal": data.use_sell_signal}
 
-    mocker.patch("freqtrade.exchange.Exchange.get_fee", MagicMock(return_value=0.0))
+    mocker.patch("earthzetaorg.exchange.Exchange.get_fee", MagicMock(return_value=0.0))
     patch_exchange(mocker)
     frame = _build_backtest_dataframe(data.data)
     backtesting = Backtesting(default_conf)

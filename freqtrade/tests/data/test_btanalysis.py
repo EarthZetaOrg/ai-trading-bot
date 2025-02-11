@@ -4,16 +4,16 @@ import pytest
 from arrow import Arrow
 from pandas import DataFrame, to_datetime
 
-from freqtrade.configuration import TimeRange
-from freqtrade.data.btanalysis import (BT_DATA_COLUMNS,
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data.btanalysis import (BT_DATA_COLUMNS,
                                        combine_tickers_with_mean,
                                        create_cum_profit,
                                        extract_trades_of_period,
                                        load_backtest_data, load_trades,
                                        load_trades_from_db)
-from freqtrade.data.history import (load_data, load_pair_history,
+from earthzetaorg.data.history import (load_data, load_pair_history,
                                     make_testdata_path)
-from freqtrade.tests.test_persistence import create_mock_trades
+from earthzetaorg.tests.test_persistence import create_mock_trades
 
 
 def test_load_backtest_data():
@@ -37,7 +37,7 @@ def test_load_trades_db(default_conf, fee, mocker):
 
     create_mock_trades(fee)
     # remove init so it does not init again
-    init_mock = mocker.patch('freqtrade.persistence.init', MagicMock())
+    init_mock = mocker.patch('earthzetaorg.persistence.init', MagicMock())
 
     trades = load_trades_from_db(db_url=default_conf['db_url'])
     assert init_mock.call_count == 1
@@ -86,8 +86,8 @@ def test_extract_trades_of_period():
 
 
 def test_load_trades(default_conf, mocker):
-    db_mock = mocker.patch("freqtrade.data.btanalysis.load_trades_from_db", MagicMock())
-    bt_mock = mocker.patch("freqtrade.data.btanalysis.load_backtest_data", MagicMock())
+    db_mock = mocker.patch("earthzetaorg.data.btanalysis.load_trades_from_db", MagicMock())
+    bt_mock = mocker.patch("earthzetaorg.data.btanalysis.load_backtest_data", MagicMock())
 
     load_trades("DB",
                 db_url=default_conf.get('db_url'),

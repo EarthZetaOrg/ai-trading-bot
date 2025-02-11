@@ -7,14 +7,14 @@ from unittest.mock import ANY, MagicMock, PropertyMock
 import pytest
 from numpy import isnan
 
-from freqtrade import DependencyException, TemporaryError
-from freqtrade.edge import PairInfo
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.persistence import Trade
-from freqtrade.rpc import RPC, RPCException
-from freqtrade.rpc.fiat_convert import CryptoToFiatConverter
-from freqtrade.state import State
-from freqtrade.tests.conftest import patch_exchange, patch_get_signal
+from earthzetaorg import DependencyException, TemporaryError
+from earthzetaorg.edge import PairInfo
+from earthzetaorg.earthzetaorgbot import earthzetaorgBot
+from earthzetaorg.persistence import Trade
+from earthzetaorg.rpc import RPC, RPCException
+from earthzetaorg.rpc.fiat_convert import CryptoToFiatConverter
+from earthzetaorg.state import State
+from earthzetaorg.tests.conftest import patch_exchange, patch_get_signal
 
 
 # Functions for recurrent object patching
@@ -27,24 +27,24 @@ def prec_satoshi(a, b) -> float:
 
 # Unit tests
 def test_rpc_trade_status(default_conf, ticker, fee, markets, mocker) -> None:
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
 
-    freqtradebot.state = State.RUNNING
+    earthzetaorgbot.state = State.RUNNING
     with pytest.raises(RPCException, match=r'.*no active trade*'):
         rpc._rpc_trade_status()
 
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     results = rpc._rpc_trade_status()
     assert {
         'trade_id': 1,
@@ -68,10 +68,10 @@ def test_rpc_trade_status(default_conf, ticker, fee, markets, mocker) -> None:
         'open_order': '(limit buy rem=0.00000000)'
     } == results[0]
 
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(side_effect=DependencyException(f"Pair 'ETH/BTC' not available")))
     # invalidate ticker cache
-    rpc._freqtrade.exchange._cached_ticker = {}
+    rpc._earthzetaorg.exchange._cached_ticker = {}
     results = rpc._rpc_trade_status()
     assert isnan(results[0]['current_profit'])
     assert isnan(results[0]['current_rate'])
@@ -100,32 +100,32 @@ def test_rpc_trade_status(default_conf, ticker, fee, markets, mocker) -> None:
 
 def test_rpc_status_table(default_conf, ticker, fee, markets, mocker) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
 
-    freqtradebot.state = State.RUNNING
+    earthzetaorgbot.state = State.RUNNING
     with pytest.raises(RPCException, match=r'.*no active order*'):
         rpc._rpc_status_table()
 
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     result = rpc._rpc_status_table()
     assert 'instantly' in result['Since'].all()
     assert 'ETH/BTC' in result['Pair'].all()
     assert '-0.59%' in result['Profit'].all()
 
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(side_effect=DependencyException(f"Pair 'ETH/BTC' not available")))
     # invalidate ticker cache
-    rpc._freqtrade.exchange._cached_ticker = {}
+    rpc._earthzetaorg.exchange._cached_ticker = {}
     result = rpc._rpc_status_table()
     assert 'instantly' in result['Since'].all()
     assert 'ETH/BTC' in result['Pair'].all()
@@ -135,23 +135,23 @@ def test_rpc_status_table(default_conf, ticker, fee, markets, mocker) -> None:
 def test_rpc_daily_profit(default_conf, update, ticker, fee,
                           limit_buy_order, limit_sell_order, markets, mocker) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
     stake_currency = default_conf['stake_currency']
     fiat_display_currency = default_conf['fiat_display_currency']
 
-    rpc = RPC(freqtradebot)
+    rpc = RPC(earthzetaorgbot)
     rpc._fiat_converter = CryptoToFiatConverter()
     # Create some test data
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     trade = Trade.query.first()
     assert trade
 
@@ -183,53 +183,53 @@ def test_rpc_daily_profit(default_conf, update, ticker, fee,
 def test_rpc_trade_statistics(default_conf, ticker, ticker_sell_up, fee,
                               limit_buy_order, limit_sell_order, markets, mocker) -> None:
     mocker.patch.multiple(
-        'freqtrade.rpc.fiat_convert.Market',
+        'earthzetaorg.rpc.fiat_convert.Market',
         ticker=MagicMock(return_value={'price_usd': 15000.0}),
     )
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.rpc.CryptoToFiatConverter._find_price', return_value=15000.0)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.rpc.CryptoToFiatConverter._find_price', return_value=15000.0)
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
     stake_currency = default_conf['stake_currency']
     fiat_display_currency = default_conf['fiat_display_currency']
 
-    rpc = RPC(freqtradebot)
+    rpc = RPC(earthzetaorgbot)
     rpc._fiat_converter = CryptoToFiatConverter()
 
     with pytest.raises(RPCException, match=r'.*no closed trade*'):
         rpc._rpc_trade_statistics(stake_currency, fiat_display_currency)
 
     # Create some test data
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     trade = Trade.query.first()
     # Simulate fulfilled LIMIT_BUY order for trade
     trade.update(limit_buy_order)
 
     # Update the ticker with a market going up
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_up
     )
     trade.update(limit_sell_order)
     trade.close_date = datetime.utcnow()
     trade.is_open = False
 
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     trade = Trade.query.first()
     # Simulate fulfilled LIMIT_BUY order for trade
     trade.update(limit_buy_order)
 
     # Update the ticker with a market going up
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_up
     )
     trade.update(limit_sell_order)
@@ -251,10 +251,10 @@ def test_rpc_trade_statistics(default_conf, ticker, ticker_sell_up, fee,
     assert prec_satoshi(stats['best_rate'], 6.2)
 
     # Test non-available pair
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(side_effect=DependencyException(f"Pair 'ETH/BTC' not available")))
     # invalidate ticker cache
-    rpc._freqtrade.exchange._cached_ticker = {}
+    rpc._earthzetaorg.exchange._cached_ticker = {}
     stats = rpc._rpc_trade_statistics(stake_currency, fiat_display_currency)
     assert stats['trade_count'] == 2
     assert stats['first_trade_date'] == 'just now'
@@ -271,34 +271,34 @@ def test_rpc_trade_statistics_closed(mocker, default_conf, ticker, fee, markets,
                                      ticker_sell_up, limit_buy_order, limit_sell_order):
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.rpc.fiat_convert.Market',
+        'earthzetaorg.rpc.fiat_convert.Market',
         ticker=MagicMock(return_value={'price_usd': 15000.0}),
     )
-    mocker.patch('freqtrade.rpc.fiat_convert.CryptoToFiatConverter._find_price',
+    mocker.patch('earthzetaorg.rpc.fiat_convert.CryptoToFiatConverter._find_price',
                  return_value=15000.0)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
     stake_currency = default_conf['stake_currency']
     fiat_display_currency = default_conf['fiat_display_currency']
 
-    rpc = RPC(freqtradebot)
+    rpc = RPC(earthzetaorgbot)
 
     # Create some test data
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     trade = Trade.query.first()
     # Simulate fulfilled LIMIT_BUY order for trade
     trade.update(limit_buy_order)
     # Update the ticker with a market going up
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_up,
         get_fee=fee
     )
@@ -340,21 +340,21 @@ def test_rpc_balance_handle_error(default_conf, mocker):
     # ETH will be skipped due to mocked Error below
 
     mocker.patch.multiple(
-        'freqtrade.rpc.fiat_convert.Market',
+        'earthzetaorg.rpc.fiat_convert.Market',
         ticker=MagicMock(return_value={'price_usd': 15000.0}),
     )
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.rpc.CryptoToFiatConverter._find_price', return_value=15000.0)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.rpc.CryptoToFiatConverter._find_price', return_value=15000.0)
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=mock_balance),
         get_ticker=MagicMock(side_effect=TemporaryError('Could not load ticker due to xxx'))
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
     rpc._fiat_converter = CryptoToFiatConverter()
 
     result = rpc._rpc_balance(default_conf['fiat_display_currency'])
@@ -391,14 +391,14 @@ def test_rpc_balance_handle(default_conf, mocker):
     }
 
     mocker.patch.multiple(
-        'freqtrade.rpc.fiat_convert.Market',
+        'earthzetaorg.rpc.fiat_convert.Market',
         ticker=MagicMock(return_value={'price_usd': 15000.0}),
     )
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.rpc.CryptoToFiatConverter._find_price', return_value=15000.0)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.rpc.CryptoToFiatConverter._find_price', return_value=15000.0)
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=mock_balance),
         get_ticker=MagicMock(
             side_effect=lambda p, r: {'bid': 100} if p == "BTC/PAX" else {'bid': 0.01}),
@@ -406,9 +406,9 @@ def test_rpc_balance_handle(default_conf, mocker):
             side_effect=lambda a, b: f"{b}/{a}" if a == "PAX" else f"{a}/{b}")
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
     rpc._fiat_converter = CryptoToFiatConverter()
 
     result = rpc._rpc_balance(default_conf['fiat_display_currency'])
@@ -439,75 +439,75 @@ def test_rpc_balance_handle(default_conf, mocker):
 
 def test_rpc_start(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock()
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
-    freqtradebot.state = State.STOPPED
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
+    earthzetaorgbot.state = State.STOPPED
 
     result = rpc._rpc_start()
     assert {'status': 'starting trader ...'} == result
-    assert freqtradebot.state == State.RUNNING
+    assert earthzetaorgbot.state == State.RUNNING
 
     result = rpc._rpc_start()
     assert {'status': 'already running'} == result
-    assert freqtradebot.state == State.RUNNING
+    assert earthzetaorgbot.state == State.RUNNING
 
 
 def test_rpc_stop(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock()
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
-    freqtradebot.state = State.RUNNING
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
+    earthzetaorgbot.state = State.RUNNING
 
     result = rpc._rpc_stop()
     assert {'status': 'stopping trader ...'} == result
-    assert freqtradebot.state == State.STOPPED
+    assert earthzetaorgbot.state == State.STOPPED
 
     result = rpc._rpc_stop()
 
     assert {'status': 'already stopped'} == result
-    assert freqtradebot.state == State.STOPPED
+    assert earthzetaorgbot.state == State.STOPPED
 
 
 def test_rpc_stopbuy(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock()
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
-    freqtradebot.state = State.RUNNING
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
+    earthzetaorgbot.state = State.RUNNING
 
-    assert freqtradebot.config['max_open_trades'] != 0
+    assert earthzetaorgbot.config['max_open_trades'] != 0
     result = rpc._rpc_stopbuy()
     assert {'status': 'No more buy will occur from now. Run /reload_conf to reset.'} == result
-    assert freqtradebot.config['max_open_trades'] == 0
+    assert earthzetaorgbot.config['max_open_trades'] == 0
 
 
 def test_rpc_forcesell(default_conf, ticker, fee, mocker, markets) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
 
     cancel_order_mock = MagicMock()
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         cancel_order=cancel_order_mock,
         get_order=MagicMock(
@@ -521,42 +521,42 @@ def test_rpc_forcesell(default_conf, ticker, fee, mocker, markets) -> None:
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
 
-    freqtradebot.state = State.STOPPED
+    earthzetaorgbot.state = State.STOPPED
     with pytest.raises(RPCException, match=r'.*trader is not running*'):
         rpc._rpc_forcesell(None)
 
-    freqtradebot.state = State.RUNNING
+    earthzetaorgbot.state = State.RUNNING
     with pytest.raises(RPCException, match=r'.*invalid argument*'):
         rpc._rpc_forcesell(None)
 
     msg = rpc._rpc_forcesell('all')
     assert msg == {'result': 'Created sell orders for all open trades.'}
 
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     msg = rpc._rpc_forcesell('all')
     assert msg == {'result': 'Created sell orders for all open trades.'}
 
     msg = rpc._rpc_forcesell('1')
     assert msg == {'result': 'Created sell order for trade 1.'}
 
-    freqtradebot.state = State.STOPPED
+    earthzetaorgbot.state = State.STOPPED
     with pytest.raises(RPCException, match=r'.*trader is not running*'):
         rpc._rpc_forcesell(None)
 
     with pytest.raises(RPCException, match=r'.*trader is not running*'):
         rpc._rpc_forcesell('all')
 
-    freqtradebot.state = State.RUNNING
+    earthzetaorgbot.state = State.RUNNING
     assert cancel_order_mock.call_count == 0
     # make an limit-buy open trade
     trade = Trade.query.filter(Trade.id == '1').first()
     filled_amount = trade.amount / 2
     mocker.patch(
-        'freqtrade.exchange.Exchange.get_order',
+        'earthzetaorg.exchange.Exchange.get_order',
         return_value={
             'status': 'open',
             'type': 'limit',
@@ -570,12 +570,12 @@ def test_rpc_forcesell(default_conf, ticker, fee, mocker, markets) -> None:
     assert cancel_order_mock.call_count == 1
     assert trade.amount == filled_amount
 
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     trade = Trade.query.filter(Trade.id == '2').first()
     amount = trade.amount
     # make an limit-buy open trade, if there is no 'filled', don't sell it
     mocker.patch(
-        'freqtrade.exchange.Exchange.get_order',
+        'earthzetaorg.exchange.Exchange.get_order',
         return_value={
             'status': 'open',
             'type': 'limit',
@@ -589,10 +589,10 @@ def test_rpc_forcesell(default_conf, ticker, fee, mocker, markets) -> None:
     assert cancel_order_mock.call_count == 2
     assert trade.amount == amount
 
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     # make an limit-sell open trade
     mocker.patch(
-        'freqtrade.exchange.Exchange.get_order',
+        'earthzetaorg.exchange.Exchange.get_order',
         return_value={
             'status': 'open',
             'type': 'limit',
@@ -608,21 +608,21 @@ def test_rpc_forcesell(default_conf, ticker, fee, mocker, markets) -> None:
 def test_performance_handle(default_conf, ticker, limit_buy_order, fee,
                             limit_sell_order, markets, mocker) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
 
     # Create some test data
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     trade = Trade.query.first()
     assert trade
 
@@ -643,24 +643,24 @@ def test_performance_handle(default_conf, ticker, limit_buy_order, fee,
 
 def test_rpc_count(mocker, default_conf, ticker, fee, markets) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
 
     counts = rpc._rpc_count()
     assert counts["current"] == 0
 
     # Create some test data
-    freqtradebot.create_trades()
+    earthzetaorgbot.create_trades()
     counts = rpc._rpc_count()
     assert counts["current"] == 1
 
@@ -668,10 +668,10 @@ def test_rpc_count(mocker, default_conf, ticker, fee, markets) -> None:
 def test_rpcforcebuy(mocker, default_conf, ticker, fee, markets, limit_buy_order) -> None:
     default_conf['forcebuy_enable'] = True
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
     buy_mm = MagicMock(return_value={'id': limit_buy_order['id']})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
@@ -679,9 +679,9 @@ def test_rpcforcebuy(mocker, default_conf, ticker, fee, markets, limit_buy_order
         buy=buy_mm
     )
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
     pair = 'ETH/BTC'
     trade = rpc._rpc_forcebuy(pair, None)
     assert isinstance(trade, Trade)
@@ -704,9 +704,9 @@ def test_rpcforcebuy(mocker, default_conf, ticker, fee, markets, limit_buy_order
 
     # Test not buying
     default_conf['stake_amount'] = 0.0000001
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
     pair = 'TKN/BTC'
     trade = rpc._rpc_forcebuy(pair, None)
     assert trade is None
@@ -716,11 +716,11 @@ def test_rpcforcebuy_stopped(mocker, default_conf) -> None:
     default_conf['forcebuy_enable'] = True
     default_conf['initial_state'] = 'stopped'
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
     pair = 'ETH/BTC'
     with pytest.raises(RPCException, match=r'trader is not running'):
         rpc._rpc_forcebuy(pair, None)
@@ -728,11 +728,11 @@ def test_rpcforcebuy_stopped(mocker, default_conf) -> None:
 
 def test_rpcforcebuy_disabled(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
 
-    freqtradebot = FreqtradeBot(default_conf)
-    patch_get_signal(freqtradebot, (True, False))
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorgbot, (True, False))
+    rpc = RPC(earthzetaorgbot)
     pair = 'ETH/BTC'
     with pytest.raises(RPCException, match=r'Forcebuy not enabled.'):
         rpc._rpc_forcebuy(pair, None)
@@ -740,10 +740,10 @@ def test_rpcforcebuy_disabled(mocker, default_conf) -> None:
 
 def test_rpc_whitelist(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
 
-    freqtradebot = FreqtradeBot(default_conf)
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    rpc = RPC(earthzetaorgbot)
     ret = rpc._rpc_whitelist()
     assert ret['method'] == 'StaticPairList'
     assert ret['whitelist'] == default_conf['exchange']['pair_whitelist']
@@ -754,11 +754,11 @@ def test_rpc_whitelist_dynamic(mocker, default_conf) -> None:
     default_conf['pairlist'] = {'method': 'VolumePairList',
                                 'config': {'number_assets': 4}
                                 }
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=True))
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
 
-    freqtradebot = FreqtradeBot(default_conf)
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    rpc = RPC(earthzetaorgbot)
     ret = rpc._rpc_whitelist()
     assert ret['method'] == 'VolumePairList'
     assert ret['length'] == 4
@@ -767,10 +767,10 @@ def test_rpc_whitelist_dynamic(mocker, default_conf) -> None:
 
 def test_rpc_blacklist(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
 
-    freqtradebot = FreqtradeBot(default_conf)
-    rpc = RPC(freqtradebot)
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    rpc = RPC(earthzetaorgbot)
     ret = rpc._rpc_blacklist(None)
     assert ret['method'] == 'StaticPairList'
     assert len(ret['blacklist']) == 2
@@ -786,24 +786,24 @@ def test_rpc_blacklist(mocker, default_conf) -> None:
 
 def test_rpc_edge_disabled(mocker, default_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
-    freqtradebot = FreqtradeBot(default_conf)
-    rpc = RPC(freqtradebot)
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
+    earthzetaorgbot = earthzetaorgBot(default_conf)
+    rpc = RPC(earthzetaorgbot)
     with pytest.raises(RPCException, match=r'Edge is not enabled.'):
         rpc._rpc_edge()
 
 
 def test_rpc_edge_enabled(mocker, edge_conf) -> None:
     patch_exchange(mocker)
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'E/F': PairInfo(-0.02, 0.66, 3.71, 0.50, 1.71, 10, 60),
         }
     ))
-    freqtradebot = FreqtradeBot(edge_conf)
+    earthzetaorgbot = earthzetaorgBot(edge_conf)
 
-    rpc = RPC(freqtradebot)
+    rpc = RPC(earthzetaorgbot)
     ret = rpc._rpc_edge()
 
     assert len(ret) == 1

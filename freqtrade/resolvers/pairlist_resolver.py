@@ -6,9 +6,9 @@ This module load custom hyperopts
 import logging
 from pathlib import Path
 
-from freqtrade import OperationalException
-from freqtrade.pairlist.IPairList import IPairList
-from freqtrade.resolvers import IResolver
+from earthzetaorg import OperationalException
+from earthzetaorg.pairlist.IPairList import IPairList
+from earthzetaorg.resolvers import IResolver
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +20,12 @@ class PairListResolver(IResolver):
 
     __slots__ = ['pairlist']
 
-    def __init__(self, pairlist_name: str, freqtrade, config: dict) -> None:
+    def __init__(self, pairlist_name: str, earthzetaorg, config: dict) -> None:
         """
         Load the custom class from config parameter
         :param config: configuration dictionary or None
         """
-        self.pairlist = self._load_pairlist(pairlist_name, config, kwargs={'freqtrade': freqtrade,
+        self.pairlist = self._load_pairlist(pairlist_name, config, kwargs={'earthzetaorg': earthzetaorg,
                                                                            'config': config})
 
     def _load_pairlist(

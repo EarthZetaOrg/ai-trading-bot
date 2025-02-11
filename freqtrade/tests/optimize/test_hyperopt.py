@@ -9,17 +9,17 @@ from arrow import Arrow
 from filelock import Timeout
 from pathlib import Path
 
-from freqtrade import DependencyException, OperationalException
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.data.history import load_tickerdata_file
-from freqtrade.optimize import setup_configuration, start_hyperopt
-from freqtrade.optimize.default_hyperopt import DefaultHyperOpts
-from freqtrade.optimize.default_hyperopt_loss import DefaultHyperOptLoss
-from freqtrade.optimize.hyperopt import Hyperopt
-from freqtrade.resolvers.hyperopt_resolver import HyperOptResolver, HyperOptLossResolver
-from freqtrade.state import RunMode
-from freqtrade.strategy.interface import SellType
-from freqtrade.tests.conftest import (get_args, log_has, log_has_re,
+from earthzetaorg import DependencyException, OperationalException
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.data.history import load_tickerdata_file
+from earthzetaorg.optimize import setup_configuration, start_hyperopt
+from earthzetaorg.optimize.default_hyperopt import DefaultHyperOpts
+from earthzetaorg.optimize.default_hyperopt_loss import DefaultHyperOptLoss
+from earthzetaorg.optimize.hyperopt import Hyperopt
+from earthzetaorg.resolvers.hyperopt_resolver import HyperOptResolver, HyperOptLossResolver
+from earthzetaorg.state import RunMode
+from earthzetaorg.strategy.interface import SellType
+from earthzetaorg.tests.conftest import (get_args, log_has, log_has_re,
                                       patch_exchange,
                                       patched_configuration_load_config_file)
 
@@ -54,7 +54,7 @@ def create_trials(mocker, hyperopt) -> None:
       - we might have a pickle'd file so make sure that we return
         false when looking for it
     """
-    hyperopt.trials_file = Path('freqtrade/tests/optimize/ut_trials.pickle')
+    hyperopt.trials_file = Path('earthzetaorg/tests/optimize/ut_trials.pickle')
 
     mocker.patch.object(Path, "is_file", MagicMock(return_value=False))
     stat_mock = MagicMock()
@@ -62,7 +62,7 @@ def create_trials(mocker, hyperopt) -> None:
     mocker.patch.object(Path, "stat", MagicMock(return_value=False))
 
     mocker.patch.object(Path, "unlink", MagicMock(return_value=True))
-    mocker.patch('freqtrade.optimize.hyperopt.dump', return_value=None)
+    mocker.patch('earthzetaorg.optimize.hyperopt.dump', return_value=None)
 
     return [{'loss': 1, 'result': 'foo', 'params': {}}]
 
@@ -101,7 +101,7 @@ def test_setup_hyperopt_configuration_without_arguments(mocker, default_conf, ca
 def test_setup_hyperopt_configuration_with_arguments(mocker, default_conf, caplog) -> None:
     patched_configuration_load_config_file(mocker, default_conf)
     mocker.patch(
-        'freqtrade.configuration.configuration.create_datadir',
+        'earthzetaorg.configuration.configuration.create_datadir',
         lambda c, x: x
     )
 
@@ -163,7 +163,7 @@ def test_hyperoptresolver(mocker, default_conf, caplog) -> None:
     delattr(hyperopts, 'populate_buy_trend')
     delattr(hyperopts, 'populate_sell_trend')
     mocker.patch(
-        'freqtrade.resolvers.hyperopt_resolver.HyperOptResolver._load_hyperopt',
+        'earthzetaorg.resolvers.hyperopt_resolver.HyperOptResolver._load_hyperopt',
         MagicMock(return_value=hyperopts)
     )
     x = HyperOptResolver(default_conf, ).hyperopt
@@ -187,7 +187,7 @@ def test_hyperoptlossresolver(mocker, default_conf, caplog) -> None:
 
     hl = DefaultHyperOptLoss
     mocker.patch(
-        'freqtrade.resolvers.hyperopt_resolver.HyperOptLossResolver._load_hyperoptloss',
+        'earthzetaorg.resolvers.hyperopt_resolver.HyperOptLossResolver._load_hyperoptloss',
         MagicMock(return_value=hl)
     )
     x = HyperOptLossResolver(default_conf, ).hyperoptloss
@@ -204,7 +204,7 @@ def test_hyperoptlossresolver_wrongname(mocker, default_conf, caplog) -> None:
 def test_start(mocker, default_conf, caplog) -> None:
     start_mock = MagicMock()
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch('freqtrade.optimize.hyperopt.Hyperopt.start', start_mock)
+    mocker.patch('earthzetaorg.optimize.hyperopt.Hyperopt.start', start_mock)
     patch_exchange(mocker)
 
     args = [
@@ -218,15 +218,15 @@ def test_start(mocker, default_conf, caplog) -> None:
     import pprint
     pprint.pprint(caplog.record_tuples)
 
-    assert log_has('Starting freqtrade in Hyperopt mode', caplog)
+    assert log_has('Starting earthzetaorg in Hyperopt mode', caplog)
     assert start_mock.call_count == 1
 
 
 def test_start_no_data(mocker, default_conf, caplog) -> None:
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch('freqtrade.optimize.hyperopt.load_data', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.optimize.hyperopt.load_data', MagicMock(return_value={}))
     mocker.patch(
-        'freqtrade.optimize.hyperopt.get_timeframe',
+        'earthzetaorg.optimize.hyperopt.get_timeframe',
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13)))
     )
 
@@ -249,7 +249,7 @@ def test_start_no_data(mocker, default_conf, caplog) -> None:
 def test_start_failure(mocker, default_conf, caplog) -> None:
     start_mock = MagicMock()
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch('freqtrade.optimize.hyperopt.Hyperopt.start', start_mock)
+    mocker.patch('earthzetaorg.optimize.hyperopt.Hyperopt.start', start_mock)
     patch_exchange(mocker)
 
     args = [
@@ -267,7 +267,7 @@ def test_start_failure(mocker, default_conf, caplog) -> None:
 def test_start_filelock(mocker, default_conf, caplog) -> None:
     start_mock = MagicMock(side_effect=Timeout(Hyperopt.get_lock_filename(default_conf)))
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch('freqtrade.optimize.hyperopt.Hyperopt.start', start_mock)
+    mocker.patch('earthzetaorg.optimize.hyperopt.Hyperopt.start', start_mock)
     patch_exchange(mocker)
 
     args = [
@@ -277,7 +277,7 @@ def test_start_filelock(mocker, default_conf, caplog) -> None:
     ]
     args = get_args(args)
     start_hyperopt(args)
-    assert log_has("Another running instance of freqtrade Hyperopt detected.", caplog)
+    assert log_has("Another running instance of earthzetaorg Hyperopt detected.", caplog)
 
 
 def test_loss_calculation_prefer_correct_trade_count(default_conf, hyperopt_results) -> None:
@@ -376,20 +376,20 @@ def test_no_log_if_loss_does_not_improve(hyperopt, caplog) -> None:
 
 def test_save_trials_saves_trials(mocker, hyperopt, caplog) -> None:
     trials = create_trials(mocker, hyperopt)
-    mock_dump = mocker.patch('freqtrade.optimize.hyperopt.dump', return_value=None)
+    mock_dump = mocker.patch('earthzetaorg.optimize.hyperopt.dump', return_value=None)
     hyperopt.trials = trials
     hyperopt.save_trials()
 
-    trials_file = os.path.join('freqtrade', 'tests', 'optimize', 'ut_trials.pickle')
+    trials_file = os.path.join('earthzetaorg', 'tests', 'optimize', 'ut_trials.pickle')
     assert log_has("Saving 1 evaluations to '{}'".format(trials_file), caplog)
     mock_dump.assert_called_once()
 
 
 def test_read_trials_returns_trials_file(mocker, hyperopt, caplog) -> None:
     trials = create_trials(mocker, hyperopt)
-    mock_load = mocker.patch('freqtrade.optimize.hyperopt.load', return_value=trials)
+    mock_load = mocker.patch('earthzetaorg.optimize.hyperopt.load', return_value=trials)
     hyperopt_trial = hyperopt.read_trials()
-    trials_file = os.path.join('freqtrade', 'tests', 'optimize', 'ut_trials.pickle')
+    trials_file = os.path.join('earthzetaorg', 'tests', 'optimize', 'ut_trials.pickle')
     assert log_has("Reading Trials from '{}'".format(trials_file), caplog)
     assert hyperopt_trial == trials
     mock_load.assert_called_once()
@@ -409,15 +409,15 @@ def test_roi_table_generation(hyperopt) -> None:
 
 
 def test_start_calls_optimizer(mocker, default_conf, caplog, capsys) -> None:
-    dumper = mocker.patch('freqtrade.optimize.hyperopt.dump', MagicMock())
-    mocker.patch('freqtrade.optimize.hyperopt.load_data', MagicMock())
+    dumper = mocker.patch('earthzetaorg.optimize.hyperopt.dump', MagicMock())
+    mocker.patch('earthzetaorg.optimize.hyperopt.load_data', MagicMock())
     mocker.patch(
-        'freqtrade.optimize.hyperopt.get_timeframe',
+        'earthzetaorg.optimize.hyperopt.get_timeframe',
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13)))
     )
 
     parallel = mocker.patch(
-        'freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel',
+        'earthzetaorg.optimize.hyperopt.Hyperopt.run_optimizer_parallel',
         MagicMock(return_value=[{'loss': 1, 'results_explanation': 'foo result',
                                  'params': {'buy': {}, 'sell': {}, 'roi': {}, 'stoploss': 0.0}}])
     )
@@ -539,15 +539,15 @@ def test_generate_optimizer(mocker, default_conf) -> None:
     backtest_result = pd.DataFrame.from_records(trades, columns=labels)
 
     mocker.patch(
-        'freqtrade.optimize.hyperopt.Backtesting.backtest',
+        'earthzetaorg.optimize.hyperopt.Backtesting.backtest',
         MagicMock(return_value=backtest_result)
     )
     mocker.patch(
-        'freqtrade.optimize.hyperopt.get_timeframe',
+        'earthzetaorg.optimize.hyperopt.get_timeframe',
         MagicMock(return_value=(Arrow(2017, 12, 10), Arrow(2017, 12, 13)))
     )
     patch_exchange(mocker)
-    mocker.patch('freqtrade.optimize.hyperopt.load', MagicMock())
+    mocker.patch('earthzetaorg.optimize.hyperopt.load', MagicMock())
 
     optimizer_param = {
         'adx-value': 0,
@@ -597,8 +597,8 @@ def test_clean_hyperopt(mocker, default_conf, caplog):
                          'spaces': 'all',
                          'hyperopt_jobs': 1,
                          })
-    mocker.patch("freqtrade.optimize.hyperopt.Path.is_file", MagicMock(return_value=True))
-    unlinkmock = mocker.patch("freqtrade.optimize.hyperopt.Path.unlink", MagicMock())
+    mocker.patch("earthzetaorg.optimize.hyperopt.Path.is_file", MagicMock(return_value=True))
+    unlinkmock = mocker.patch("earthzetaorg.optimize.hyperopt.Path.unlink", MagicMock())
     h = Hyperopt(default_conf)
 
     assert unlinkmock.call_count == 2
@@ -614,8 +614,8 @@ def test_continue_hyperopt(mocker, default_conf, caplog):
                          'hyperopt_jobs': 1,
                          'hyperopt_continue': True
                          })
-    mocker.patch("freqtrade.optimize.hyperopt.Path.is_file", MagicMock(return_value=True))
-    unlinkmock = mocker.patch("freqtrade.optimize.hyperopt.Path.unlink", MagicMock())
+    mocker.patch("earthzetaorg.optimize.hyperopt.Path.is_file", MagicMock(return_value=True))
+    unlinkmock = mocker.patch("earthzetaorg.optimize.hyperopt.Path.unlink", MagicMock())
     Hyperopt(default_conf)
 
     assert unlinkmock.call_count == 0
@@ -623,15 +623,15 @@ def test_continue_hyperopt(mocker, default_conf, caplog):
 
 
 def test_print_json_spaces_all(mocker, default_conf, caplog, capsys) -> None:
-    dumper = mocker.patch('freqtrade.optimize.hyperopt.dump', MagicMock())
-    mocker.patch('freqtrade.optimize.hyperopt.load_data', MagicMock())
+    dumper = mocker.patch('earthzetaorg.optimize.hyperopt.dump', MagicMock())
+    mocker.patch('earthzetaorg.optimize.hyperopt.load_data', MagicMock())
     mocker.patch(
-        'freqtrade.optimize.hyperopt.get_timeframe',
+        'earthzetaorg.optimize.hyperopt.get_timeframe',
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13)))
     )
 
     parallel = mocker.patch(
-        'freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel',
+        'earthzetaorg.optimize.hyperopt.Hyperopt.run_optimizer_parallel',
         MagicMock(return_value=[{'loss': 1, 'results_explanation': 'foo result', 'params': {}}])
     )
     patch_exchange(mocker)
@@ -660,15 +660,15 @@ def test_print_json_spaces_all(mocker, default_conf, caplog, capsys) -> None:
 
 
 def test_print_json_spaces_roi_stoploss(mocker, default_conf, caplog, capsys) -> None:
-    dumper = mocker.patch('freqtrade.optimize.hyperopt.dump', MagicMock())
-    mocker.patch('freqtrade.optimize.hyperopt.load_data', MagicMock())
+    dumper = mocker.patch('earthzetaorg.optimize.hyperopt.dump', MagicMock())
+    mocker.patch('earthzetaorg.optimize.hyperopt.load_data', MagicMock())
     mocker.patch(
-        'freqtrade.optimize.hyperopt.get_timeframe',
+        'earthzetaorg.optimize.hyperopt.get_timeframe',
         MagicMock(return_value=(datetime(2017, 12, 10), datetime(2017, 12, 13)))
     )
 
     parallel = mocker.patch(
-        'freqtrade.optimize.hyperopt.Hyperopt.run_optimizer_parallel',
+        'earthzetaorg.optimize.hyperopt.Hyperopt.run_optimizer_parallel',
         MagicMock(return_value=[{'loss': 1, 'results_explanation': 'foo result', 'params': {}}])
     )
     patch_exchange(mocker)

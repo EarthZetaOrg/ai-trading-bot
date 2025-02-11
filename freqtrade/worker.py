@@ -1,5 +1,5 @@
 """
-Main Freqtrade worker class.
+Main earthzetaorg worker class.
 """
 import logging
 import time
@@ -8,12 +8,12 @@ from argparse import Namespace
 from typing import Any, Callable, Optional
 import sdnotify
 
-from freqtrade import (constants, OperationalException, TemporaryError,
+from earthzetaorg import (constants, OperationalException, TemporaryError,
                        __version__)
-from freqtrade.configuration import Configuration
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.state import State
-from freqtrade.rpc import RPCMessageType
+from earthzetaorg.configuration import Configuration
+from earthzetaorg.earthzetaorgbot import earthzetaorgBot
+from earthzetaorg.state import State
+from earthzetaorg.rpc import RPCMessageType
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class Worker(object):
     """
-    Freqtradebot worker class
+    earthzetaorgbot worker class
     """
 
     def __init__(self, args: Namespace, config=None) -> None:
@@ -48,7 +48,7 @@ class Worker(object):
             self._config = Configuration(self._args, None).get_config()
 
         # Init the instance of the bot
-        self.freqtrade = FreqtradeBot(self._config)
+        self.earthzetaorg = earthzetaorgBot(self._config)
 
         self._throttle_secs = self._config.get('internals', {}).get(
             'process_throttle_secs',
@@ -60,11 +60,11 @@ class Worker(object):
 
     @property
     def state(self) -> State:
-        return self.freqtrade.state
+        return self.earthzetaorg.state
 
     @state.setter
     def state(self, value: State) -> None:
-        self.freqtrade.state = value
+        self.earthzetaorg.state = value
 
     def run(self) -> None:
         state = None
@@ -79,19 +79,19 @@ class Worker(object):
         :param old_state: the previous service state from the previous call
         :return: current service state
         """
-        state = self.freqtrade.state
+        state = self.earthzetaorg.state
         if throttle_secs is None:
             throttle_secs = self._throttle_secs
 
         # Log state transition
         if state != old_state:
-            self.freqtrade.rpc.send_msg({
+            self.earthzetaorg.rpc.send_msg({
                 'type': RPCMessageType.STATUS_NOTIFICATION,
                 'status': f'{state.name.lower()}'
             })
             logger.info('Changing state to: %s', state.name)
             if state == State.RUNNING:
-                self.freqtrade.startup()
+                self.earthzetaorg.startup()
 
         if state == State.STOPPED:
             # Ping systemd watchdog before sleeping in the stopped state
@@ -130,23 +130,23 @@ class Worker(object):
     def _process(self) -> None:
         logger.debug("========================================")
         try:
-            self.freqtrade.process()
+            self.earthzetaorg.process()
         except TemporaryError as error:
             logger.warning(f"Error: {error}, retrying in {constants.RETRY_TIMEOUT} seconds...")
             time.sleep(constants.RETRY_TIMEOUT)
         except OperationalException:
             tb = traceback.format_exc()
             hint = 'Issue `/start` if you think it is safe to restart.'
-            self.freqtrade.rpc.send_msg({
+            self.earthzetaorg.rpc.send_msg({
                 'type': RPCMessageType.STATUS_NOTIFICATION,
                 'status': f'OperationalException:\n```\n{tb}```{hint}'
             })
             logger.exception('OperationalException. Stopping trader ...')
-            self.freqtrade.state = State.STOPPED
+            self.earthzetaorg.state = State.STOPPED
 
     def _reconfigure(self) -> None:
         """
-        Cleans up current freqtradebot instance, reloads the configuration and
+        Cleans up current earthzetaorgbot instance, reloads the configuration and
         replaces it with the new instance
         """
         # Tell systemd that we initiated reconfiguration
@@ -154,13 +154,13 @@ class Worker(object):
             logger.debug("sd_notify: RELOADING=1")
             self._sd_notify.notify("RELOADING=1")
 
-        # Clean up current freqtrade modules
-        self.freqtrade.cleanup()
+        # Clean up current earthzetaorg modules
+        self.earthzetaorg.cleanup()
 
         # Load and validate config and create new instance of the bot
         self._init(True)
 
-        self.freqtrade.rpc.send_msg({
+        self.earthzetaorg.rpc.send_msg({
             'type': RPCMessageType.STATUS_NOTIFICATION,
             'status': 'config reloaded'
         })
@@ -176,9 +176,9 @@ class Worker(object):
             logger.debug("sd_notify: STOPPING=1")
             self._sd_notify.notify("STOPPING=1")
 
-        if self.freqtrade:
-            self.freqtrade.rpc.send_msg({
+        if self.earthzetaorg:
+            self.earthzetaorg.rpc.send_msg({
                 'type': RPCMessageType.STATUS_NOTIFICATION,
                 'status': 'process died'
             })
-            self.freqtrade.cleanup()
+            self.earthzetaorg.cleanup()

@@ -2,9 +2,9 @@ import logging
 import sys
 from copy import deepcopy
 
-from freqtrade.strategy.interface import IStrategy
+from earthzetaorg.strategy.interface import IStrategy
 # Import Default-Strategy to have hyperopt correctly resolve
-from freqtrade.strategy.default_strategy import DefaultStrategy  # noqa: F401
+from earthzetaorg.strategy.default_strategy import DefaultStrategy  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def import_strategy(strategy: IStrategy, config: dict) -> IStrategy:
     """
     Imports given Strategy instance to global scope
-    of freqtrade.strategy and returns an instance of it
+    of earthzetaorg.strategy and returns an instance of it
     """
 
     # Copy all attributes from base class and class
@@ -28,7 +28,7 @@ def import_strategy(strategy: IStrategy, config: dict) -> IStrategy:
     attr = deepcopy(comb)
 
     # Adjust module name
-    attr['__module__'] = 'freqtrade.strategy'
+    attr['__module__'] = 'earthzetaorg.strategy'
 
     name = strategy.__class__.__name__
     clazz = type(name, (IStrategy,), attr)

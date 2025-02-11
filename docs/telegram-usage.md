@@ -15,13 +15,13 @@ Send the message `/newbot`.
 
 > Alright, a new bot. How are we going to call it? Please choose a name for your bot.
 
-Choose the public name of your bot (e.x. `Freqtrade bot`)
+Choose the public name of your bot (e.x. `earthzetaorg bot`)
 
 *BotFather response:*
 
 > Good. Now let's choose a username for your bot. It must end in `bot`. Like this, for example: TetrisBot or tetris_bot.
 
-Choose the name id of your bot and send it to the BotFather (e.g. "`My_own_freqtrade_bot`")
+Choose the name id of your bot and send it to the BotFather (e.g. "`My_own_earthzetaorg_bot`")
 
 *BotFather response:*
 

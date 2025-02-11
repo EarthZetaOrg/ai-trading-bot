@@ -9,7 +9,7 @@ from datetime import datetime
 from pandas import DataFrame
 import numpy as np
 
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from earthzetaorg.optimize.hyperopt import IHyperOptLoss
 
 
 class SharpeHyperOptLoss(IHyperOptLoss):

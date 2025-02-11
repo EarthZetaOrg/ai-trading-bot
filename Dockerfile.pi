@@ -7,17 +7,17 @@ RUN apt-get update \
  && apt-get clean
 
 # Prepare environment
-RUN mkdir /freqtrade
-WORKDIR /freqtrade
+RUN mkdir /earthzetaorg
+WORKDIR /earthzetaorg
 
 # Install TA-lib
-COPY build_helpers/ta-lib-0.4.0-src.tar.gz /freqtrade/
-RUN tar -xzf /freqtrade/ta-lib-0.4.0-src.tar.gz \
- && cd /freqtrade/ta-lib/ \
+COPY build_helpers/ta-lib-0.4.0-src.tar.gz /earthzetaorg/
+RUN tar -xzf /earthzetaorg/ta-lib-0.4.0-src.tar.gz \
+ && cd /earthzetaorg/ta-lib/ \
  && ./configure \
  && make \
  && make install \
- && rm /freqtrade/ta-lib-0.4.0-src.tar.gz
+ && rm /earthzetaorg/ta-lib-0.4.0-src.tar.gz
 
 ENV LD_LIBRARY_PATH /usr/local/lib
 
@@ -27,14 +27,14 @@ RUN wget https://github.com/jjhelmus/berryconda/releases/download/v2.0.0/Berryco
  && rm Berryconda3-2.0.0-Linux-armv7l.sh
 
 # Install dependencies
-COPY requirements-common.txt /freqtrade/
+COPY requirements-common.txt /earthzetaorg/
 RUN ~/berryconda3/bin/conda install -y numpy pandas scipy \
  && ~/berryconda3/bin/pip install -r requirements-common.txt --no-cache-dir
 
 # Install and execute
-COPY . /freqtrade/
+COPY . /earthzetaorg/
 RUN ~/berryconda3/bin/pip install -e . --no-cache-dir
 
 RUN [ "cross-build-end" ]
 
-ENTRYPOINT ["/root/berryconda3/bin/python","./freqtrade/main.py"]
+ENTRYPOINT ["/root/berryconda3/bin/python","./earthzetaorg/main.py"]

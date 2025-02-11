@@ -2,9 +2,9 @@
 
 This page explains how to configure the bot.
 
-## The Freqtrade configuration file
+## The earthzetaorg configuration file
 
-The bot uses a set of configuration parameters during its operation that all together conform the bot configuration. It normally reads its configuration from a file (Freqtrade configuration file).
+The bot uses a set of configuration parameters during its operation that all together conform the bot configuration. It normally reads its configuration from a file (earthzetaorg configuration file).
 
 Per default, the bot loads configuration from the `config.json` file located in the current working directory.
 
@@ -18,7 +18,7 @@ the bot, the installation script should have already created the default configu
 If default configuration file is not created we recommend you to copy and use the `config.json.example` as a template
 for your bot configuration.
 
-The Freqtrade configuration file is to be written in the JSON format.
+The earthzetaorg configuration file is to be written in the JSON format.
 
 Additionally to the standard JSON syntax, you may use one-line `// ...` and multi-line `/* ... */` comments in your configuration files and trailing commas in the lists of parameters.
 
@@ -73,7 +73,7 @@ Mandatory parameters are marked as **Required**.
 | `experimental.use_sell_signal` | false | Use your sell strategy in addition of the `minimal_roi`. [Strategy Override](#parameters-in-the-strategy).
 | `experimental.sell_profit_only` | false | Waits until you have made a positive profit before taking a sell decision. [Strategy Override](#parameters-in-the-strategy).
 | `experimental.ignore_roi_if_buy_signal` | false | Does not sell if the buy-signal is still active. Takes preference over `minimal_roi` and `use_sell_signal`. [Strategy Override](#parameters-in-the-strategy).
-| `experimental.block_bad_exchanges` | true | Block exchanges known to not work with freqtrade. Leave on default unless you want to test if that exchange works now.
+| `experimental.block_bad_exchanges` | true | Block exchanges known to not work with earthzetaorg. Leave on default unless you want to test if that exchange works now.
 | `pairlist.method` | StaticPairList | Use static or dynamic volume-based pairlist. [More information below](#dynamic-pairlists).
 | `pairlist.config` | None | Additional configuration for dynamic pairlists. [More information below](#dynamic-pairlists).
 | `telegram.enabled` | true | **Required.** Enable or not the usage of Telegram.
@@ -90,7 +90,7 @@ Mandatory parameters are marked as **Required**.
 | `strategy` | DefaultStrategy | Defines Strategy class to use.
 | `strategy_path` | null | Adds an additional strategy lookup path (must be a directory).
 | `internals.process_throttle_secs` | 5 | **Required.** Set the process throttle. Value in second.
-| `internals.sd_notify` | false | Enables use of the sd_notify protocol to tell systemd service manager about changes in the bot state and issue keep-alive pings. See [here](installation.md#7-optional-configure-freqtrade-as-a-systemd-service) for more details.
+| `internals.sd_notify` | false | Enables use of the sd_notify protocol to tell systemd service manager about changes in the bot state and issue keep-alive pings. See [here](installation.md#7-optional-configure-earthzetaorg-as-a-systemd-service) for more details.
 | `logfile` | | Specify Logfile. Uses a rolling strategy of 10 files, with 1Mb per file.
 | `user_data_dir` | cwd()/user_data | Directory containing user data. Defaults to `./user_data/`.
 
@@ -289,7 +289,7 @@ The possible values are: `gtc` (default), `fok` or `ioc`.
 
 ### Exchange configuration
 
-Freqtrade is based on [CCXT library](https://github.com/ccxt/ccxt) that supports over 100 cryptocurrency
+earthzetaorg is based on [CCXT library](https://github.com/ccxt/ccxt) that supports over 100 cryptocurrency
 exchange markets and trading APIs. The complete up-to-date list can be found in the
 [CCXT repo homepage](https://github.com/ccxt/ccxt/tree/master/python). However, the bot was tested
 with only Bittrex and Binance.
@@ -324,7 +324,7 @@ This configuration enables binance, as well as rate limiting to avoid bans from 
     Optimal settings for rate limiting depend on the exchange and the size of the whitelist, so an ideal parameter will vary on many other settings.
     We try to provide sensible defaults per exchange where possible, if you encounter bans please make sure that `"enableRateLimit"` is enabled and increase the `"rateLimit"` parameter step by step.
 
-#### Advanced FreqTrade Exchange configuration
+#### Advanced earthzetaorg Exchange configuration
 
 Advanced options can be configured using the `_ft_has_params` setting, which will override Defaults and exchange-specific behaviours.
 
@@ -455,9 +455,9 @@ you run it in production mode.
 !!! Note
     If you have an exchange API key yet, [see our tutorial](/pre-requisite).
 
-### Using proxy with FreqTrade
+### Using proxy with earthzetaorg
 
-To use a proxy with freqtrade, add the kwarg `"aiohttp_trust_env"=true` to the `"ccxt_async_kwargs"` dict in the exchange section of the configuration.
+To use a proxy with earthzetaorg, add the kwarg `"aiohttp_trust_env"=true` to the `"ccxt_async_kwargs"` dict in the exchange section of the configuration.
 
 An example for this can be found in `config_full.json.example`
 
@@ -472,13 +472,13 @@ Then, export your proxy settings using the variables `"HTTP_PROXY"` and `"HTTPS_
 ``` bash
 export HTTP_PROXY="http://addr:port"
 export HTTPS_PROXY="http://addr:port"
-freqtrade
+earthzetaorg
 ```
 
 
 ### Embedding Strategies
 
-FreqTrade provides you with with an easy way to embed the strategy into your configuration file.
+earthzetaorg provides you with with an easy way to embed the strategy into your configuration file.
 This is done by utilizing BASE64 encoding and providing this string at the strategy configuration field,
 in your chosen config file.
 

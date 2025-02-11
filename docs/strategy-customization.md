@@ -13,7 +13,7 @@ Let assume you have a class called `AwesomeStrategy` in the file `awesome-strate
 2. Start the bot with the param `--strategy AwesomeStrategy` (the parameter is the class name)
 
 ```bash
-freqtrade --strategy AwesomeStrategy
+earthzetaorg --strategy AwesomeStrategy
 ```
 
 ## Change your strategy
@@ -45,10 +45,10 @@ The current version is 2 - which is also the default when it's not set explicitl
 Future versions will require this to be set.
 
 ```bash
-freqtrade --strategy AwesomeStrategy
+earthzetaorg --strategy AwesomeStrategy
 ```
 
-**For the following section we will use the [user_data/strategies/sample_strategy.py](https://github.com/freqtrade/freqtrade/blob/develop/user_data/strategies/sample_strategy.py)
+**For the following section we will use the [user_data/strategies/sample_strategy.py](https://github.com/earthzetaorg/earthzetaorg/blob/develop/user_data/strategies/sample_strategy.py)
 file as reference.**
 
 !!! Note Strategies and Backtesting
@@ -115,7 +115,7 @@ def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame
 ```
 
 !!! Note "Want more indicator examples?"
-    Look into the [user_data/strategies/sample_strategy.py](https://github.com/freqtrade/freqtrade/blob/develop/user_data/strategies/sample_strategy.py).
+    Look into the [user_data/strategies/sample_strategy.py](https://github.com/earthzetaorg/earthzetaorg/blob/develop/user_data/strategies/sample_strategy.py).
     Then uncomment indicators you need.
 
 ### Buy signal rules
@@ -395,19 +395,19 @@ Printing more than a few rows is also possible (simply use  `print(dataframe)` i
 ### Where is the default strategy?
 
 The default buy strategy is located in the file
-[freqtrade/default_strategy.py](https://github.com/freqtrade/freqtrade/blob/develop/freqtrade/strategy/default_strategy.py).
+[earthzetaorg/default_strategy.py](https://github.com/earthzetaorg/earthzetaorg/blob/develop/earthzetaorg/strategy/default_strategy.py).
 
 ### Specify custom strategy location
 
 If you want to use a strategy from a different directory you can pass `--strategy-path`
 
 ```bash
-freqtrade --strategy AwesomeStrategy --strategy-path /some/directory
+earthzetaorg --strategy AwesomeStrategy --strategy-path /some/directory
 ```
 
 ### Further strategy ideas
 
-To get additional Ideas for strategies, head over to our [strategy repository](https://github.com/freqtrade/freqtrade-strategies). Feel free to use them as they are - but results will depend on the current market situation, pairs used etc. - therefore please backtest the strategy for your exchange/desired pairs first, evaluate carefully, use at your own risk.
+To get additional Ideas for strategies, head over to our [strategy repository](https://github.com/earthzetaorg/earthzetaorg-strategies). Feel free to use them as they are - but results will depend on the current market situation, pairs used etc. - therefore please backtest the strategy for your exchange/desired pairs first, evaluate carefully, use at your own risk.
 Feel free to use any of them as inspiration for your own strategies.
 We're happy to accept Pull Requests containing new Strategies to that repo.
 

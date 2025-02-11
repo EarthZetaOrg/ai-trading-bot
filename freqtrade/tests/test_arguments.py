@@ -3,8 +3,8 @@ import argparse
 
 import pytest
 
-from freqtrade.configuration import Arguments
-from freqtrade.configuration.cli_options import check_int_positive
+from earthzetaorg.configuration import Arguments
+from earthzetaorg.configuration.cli_options import check_int_positive
 
 
 # Parse common command-line-arguments. Used for all tools

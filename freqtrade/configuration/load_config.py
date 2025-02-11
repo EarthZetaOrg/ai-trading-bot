@@ -6,7 +6,7 @@ import logging
 import sys
 from typing import Any, Dict
 
-from freqtrade import OperationalException
+from earthzetaorg import OperationalException
 
 
 logger = logging.getLogger(__name__)

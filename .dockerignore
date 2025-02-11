@@ -12,4 +12,4 @@ config.json*
 CONTRIBUTING.md
 MANIFEST.in
 README.md
-freqtrade.service
+earthzetaorg.service

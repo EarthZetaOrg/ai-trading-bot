@@ -101,7 +101,7 @@ VALUES ('bittrex', 'ETH/BTC', 1, 0.0025, 0.0025, 0.00258580, 0.002, 0.7715262081
 ```
 
 ## Fix wrong fees in the table
-If your DB was created before [PR#200](https://github.com/freqtrade/freqtrade/pull/200) was merged (before 12/23/17).
+If your DB was created before [PR#200](https://github.com/earthzetaorg/earthzetaorg/pull/200) was merged (before 12/23/17).
 
 ```sql
 UPDATE trades SET fee=0.0025 WHERE fee=0.005;

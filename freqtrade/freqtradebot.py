@@ -1,5 +1,5 @@
 """
-Freqtrade is the main module of this bot. It contains the class Freqtrade()
+earthzetaorg is the main module of this bot. It contains the class earthzetaorg()
 """
 
 import copy
@@ -11,27 +11,27 @@ from typing import Any, Dict, List, Optional, Tuple
 import arrow
 from requests.exceptions import RequestException
 
-from freqtrade import (DependencyException, OperationalException, InvalidOrderException,
+from earthzetaorg import (DependencyException, OperationalException, InvalidOrderException,
                        __version__, constants, persistence)
-from freqtrade.data.converter import order_book_to_dataframe
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.edge import Edge
-from freqtrade.configuration import validate_config_consistency
-from freqtrade.exchange import timeframe_to_minutes, timeframe_to_next_date
-from freqtrade.persistence import Trade
-from freqtrade.rpc import RPCManager, RPCMessageType
-from freqtrade.resolvers import ExchangeResolver, StrategyResolver, PairListResolver
-from freqtrade.state import State
-from freqtrade.strategy.interface import SellType, IStrategy
-from freqtrade.wallets import Wallets
+from earthzetaorg.data.converter import order_book_to_dataframe
+from earthzetaorg.data.dataprovider import DataProvider
+from earthzetaorg.edge import Edge
+from earthzetaorg.configuration import validate_config_consistency
+from earthzetaorg.exchange import timeframe_to_minutes, timeframe_to_next_date
+from earthzetaorg.persistence import Trade
+from earthzetaorg.rpc import RPCManager, RPCMessageType
+from earthzetaorg.resolvers import ExchangeResolver, StrategyResolver, PairListResolver
+from earthzetaorg.state import State
+from earthzetaorg.strategy.interface import SellType, IStrategy
+from earthzetaorg.wallets import Wallets
 
 
 logger = logging.getLogger(__name__)
 
 
-class FreqtradeBot(object):
+class earthzetaorgBot(object):
     """
-    Freqtrade is the main class of the bot.
+    earthzetaorg is the main class of the bot.
     This is from here the bot start its logic.
     """
 
@@ -42,7 +42,7 @@ class FreqtradeBot(object):
         to get the config dict.
         """
 
-        logger.info('Starting freqtrade %s', __version__)
+        logger.info('Starting earthzetaorg %s', __version__)
 
         # Init bot state
         self.state = State.STOPPED

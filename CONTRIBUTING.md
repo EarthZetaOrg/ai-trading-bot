@@ -1,10 +1,10 @@
 # Contributing
 
-## Contribute to freqtrade
+## Contribute to earthzetaorg
 
 Feel like our bot is missing a feature? We welcome your pull requests! 
 
-Issues labeled [good first issue](https://github.com/freqtrade/freqtrade/labels/good%20first%20issue) can be good first contributions, and will help get you familiar with the codebase.
+Issues labeled [good first issue](https://github.com/earthzetaorg/earthzetaorg/labels/good%20first%20issue) can be good first contributions, and will help get you familiar with the codebase.
 
 Few pointers for contributions:
 
@@ -12,11 +12,11 @@ Few pointers for contributions:
 - New features need to contain unit tests and must be PEP8 conformant (max-line-length = 100).
 
 If you are unsure, discuss the feature on our [Slack](https://join.slack.com/t/highfrequencybot/shared_invite/enQtNjU5ODcwNjI1MDU3LWEyODBiNzkzNzcyNzU0MWYyYzE5NjIyOTQxMzBmMGUxOTIzM2YyN2Y4NWY1YTEwZDgwYTRmMzE2NmM5ZmY2MTg)
-or in a [issue](https://github.com/freqtrade/freqtrade/issues) before a PR.
+or in a [issue](https://github.com/earthzetaorg/earthzetaorg/issues) before a PR.
 
 ## Getting started
 
-Best start by reading the [documentation](https://www.freqtrade.io/) to get a feel for what is possible with the bot, or head straight to the [Developer-documentation](https://www.freqtrade.io/en/latest/developer/) (WIP) which should help you getting started.
+Best start by reading the [documentation](https://www.earthzetaorg.io/) to get a feel for what is possible with the bot, or head straight to the [Developer-documentation](https://www.earthzetaorg.io/en/latest/developer/) (WIP) which should help you getting started.
 
 ## Before sending the PR:
 
@@ -28,19 +28,19 @@ make it pass. It means you have introduced a regression.
 #### Test the whole project
 
 ```bash
-pytest freqtrade
+pytest earthzetaorg
 ```
 
 #### Test only one file
 
 ```bash
-pytest freqtrade/tests/test_<file_name>.py
+pytest earthzetaorg/tests/test_<file_name>.py
 ```
 
 #### Test only one method from one file
 
 ```bash
-pytest freqtrade/tests/test_<file_name>.py::test_<method_name>
+pytest earthzetaorg/tests/test_<file_name>.py::test_<method_name>
 ```
 
 ### 2. Test if your code is PEP8 compliant
@@ -48,7 +48,7 @@ pytest freqtrade/tests/test_<file_name>.py::test_<method_name>
 #### Run Flake8
 
 ```bash
-flake8 freqtrade
+flake8 earthzetaorg
 ```
 
 We receive a lot of code that fails the `flake8` checks.
@@ -61,7 +61,7 @@ Guide for installing them is [here](http://flake8.pycqa.org/en/latest/user/using
 #### Run mypy
 
 ``` bash
-mypy freqtrade
+mypy earthzetaorg
 ```
 
 ## (Core)-Committer Guide
@@ -109,11 +109,11 @@ Exceptions:
 
 Contributors may be given commit privileges. Preference will be given to those with:
 
-1. Past contributions to FreqTrade and other related open-source projects. Contributions to FreqTrade include both code (both accepted and pending) and friendly participation in the issue tracker and Pull request reviews. Quantity and quality are considered.
+1. Past contributions to earthzetaorg and other related open-source projects. Contributions to earthzetaorg include both code (both accepted and pending) and friendly participation in the issue tracker and Pull request reviews. Quantity and quality are considered.
 1. A coding style that the other core committers find simple, minimal, and clean.
 1. Access to resources for cross-platform development and testing.
 1. Time to devote to the project regularly.
 
-Beeing a Committer does not grant write permission on `develop` or `master` for security reasons (Users trust FreqTrade with their Exchange API keys).
+Beeing a Committer does not grant write permission on `develop` or `master` for security reasons (Users trust earthzetaorg with their Exchange API keys).
 
 After beeing Committer for some time, a Committer may be named Core Committer and given full repository access.

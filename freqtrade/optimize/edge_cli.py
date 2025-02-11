@@ -6,12 +6,12 @@ This module contains the edge backtesting interface
 import logging
 from typing import Dict, Any
 from tabulate import tabulate
-from freqtrade import constants
-from freqtrade.edge import Edge
+from earthzetaorg import constants
+from earthzetaorg.edge import Edge
 
-from freqtrade.configuration import TimeRange
-from freqtrade.exchange import Exchange
-from freqtrade.resolvers import StrategyResolver
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.exchange import Exchange
+from earthzetaorg.resolvers import StrategyResolver
 
 logger = logging.getLogger(__name__)
 

@@ -6,8 +6,8 @@ RUN apt-get update \
     && pip install --upgrade pip
 
 # Prepare environment
-RUN mkdir /freqtrade
-WORKDIR /freqtrade
+RUN mkdir /earthzetaorg
+WORKDIR /earthzetaorg
 
 # Install TA-lib
 COPY build_helpers/* /tmp/
@@ -16,11 +16,11 @@ RUN cd /tmp && /tmp/install_ta-lib.sh && rm -r /tmp/*ta-lib*
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 # Install dependencies
-COPY requirements.txt requirements-common.txt /freqtrade/
+COPY requirements.txt requirements-common.txt /earthzetaorg/
 RUN pip install numpy --no-cache-dir \
   && pip install -r requirements.txt --no-cache-dir
 
 # Install and execute
-COPY . /freqtrade/
+COPY . /earthzetaorg/
 RUN pip install -e . --no-cache-dir
-ENTRYPOINT ["freqtrade"]
+ENTRYPOINT ["earthzetaorg"]

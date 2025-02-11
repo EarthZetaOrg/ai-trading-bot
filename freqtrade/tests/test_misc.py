@@ -4,9 +4,9 @@ import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.data.history import pair_data_filename
-from freqtrade.misc import (datesarray_to_datetimearray, file_dump_json,
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.data.history import pair_data_filename
+from earthzetaorg.misc import (datesarray_to_datetimearray, file_dump_json,
                             file_load_json, format_ms_time, shorten_date)
 
 
@@ -33,12 +33,12 @@ def test_datesarray_to_datetimearray(ticker_history_list):
 
 
 def test_file_dump_json(mocker) -> None:
-    file_open = mocker.patch('freqtrade.misc.open', MagicMock())
+    file_open = mocker.patch('earthzetaorg.misc.open', MagicMock())
     json_dump = mocker.patch('rapidjson.dump', MagicMock())
     file_dump_json(Path('somefile'), [1, 2, 3])
     assert file_open.call_count == 1
     assert json_dump.call_count == 1
-    file_open = mocker.patch('freqtrade.misc.gzip.open', MagicMock())
+    file_open = mocker.patch('earthzetaorg.misc.gzip.open', MagicMock())
     json_dump = mocker.patch('rapidjson.dump', MagicMock())
     file_dump_json(Path('somefile'), [1, 2, 3], True)
     assert file_open.call_count == 1

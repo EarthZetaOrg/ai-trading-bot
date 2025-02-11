@@ -7,13 +7,13 @@ import talib.abstract as ta
 from pandas import DataFrame
 from skopt.space import Categorical, Dimension, Integer
 
-import freqtrade.vendor.qtpylib.indicators as qtpylib
-from freqtrade.optimize.hyperopt_interface import IHyperOpt
+import earthzetaorg.vendor.qtpylib.indicators as qtpylib
+from earthzetaorg.optimize.hyperopt_interface import IHyperOpt
 
 
 class DefaultHyperOpts(IHyperOpt):
     """
-    Default hyperopt provided by the Freqtrade bot.
+    Default hyperopt provided by the earthzetaorg bot.
     You can override it with your own Hyperopt
     """
     @staticmethod

@@ -6,15 +6,15 @@ Provides lists as configured in config.json
  """
 import logging
 
-from freqtrade.pairlist.IPairList import IPairList
+from earthzetaorg.pairlist.IPairList import IPairList
 
 logger = logging.getLogger(__name__)
 
 
 class StaticPairList(IPairList):
 
-    def __init__(self, freqtrade, config: dict) -> None:
-        super().__init__(freqtrade, config)
+    def __init__(self, earthzetaorg, config: dict) -> None:
+        super().__init__(earthzetaorg, config)
 
     def short_desc(self) -> str:
         """

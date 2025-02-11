@@ -4,9 +4,9 @@ from typing import Dict
 
 import ccxt
 
-from freqtrade import (DependencyException, InvalidOrderException,
+from earthzetaorg import (DependencyException, InvalidOrderException,
                        OperationalException, TemporaryError)
-from freqtrade.exchange import Exchange
+from earthzetaorg.exchange import Exchange
 
 logger = logging.getLogger(__name__)
 

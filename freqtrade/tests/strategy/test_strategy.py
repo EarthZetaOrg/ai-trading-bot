@@ -10,12 +10,12 @@ from unittest.mock import Mock
 import pytest
 from pandas import DataFrame
 
-from freqtrade import OperationalException
-from freqtrade.resolvers import StrategyResolver
-from freqtrade.strategy import import_strategy
-from freqtrade.strategy.default_strategy import DefaultStrategy
-from freqtrade.strategy.interface import IStrategy
-from freqtrade.tests.conftest import log_has, log_has_re
+from earthzetaorg import OperationalException
+from earthzetaorg.resolvers import StrategyResolver
+from earthzetaorg.strategy import import_strategy
+from earthzetaorg.strategy.default_strategy import DefaultStrategy
+from earthzetaorg.strategy.interface import IStrategy
+from earthzetaorg.tests.conftest import log_has, log_has_re
 
 
 def test_import_strategy(caplog):
@@ -25,18 +25,18 @@ def test_import_strategy(caplog):
     strategy = DefaultStrategy(default_config)
     strategy.some_method = lambda *args, **kwargs: 42
 
-    assert strategy.__module__ == 'freqtrade.strategy.default_strategy'
+    assert strategy.__module__ == 'earthzetaorg.strategy.default_strategy'
     assert strategy.some_method() == 42
 
     imported_strategy = import_strategy(strategy, default_config)
 
     assert dir(strategy) == dir(imported_strategy)
 
-    assert imported_strategy.__module__ == 'freqtrade.strategy'
+    assert imported_strategy.__module__ == 'earthzetaorg.strategy'
     assert imported_strategy.some_method() == 42
 
-    assert log_has('Imported strategy freqtrade.strategy.default_strategy.DefaultStrategy '
-                   'as freqtrade.strategy.DefaultStrategy', caplog)
+    assert log_has('Imported strategy earthzetaorg.strategy.default_strategy.DefaultStrategy '
+                   'as earthzetaorg.strategy.DefaultStrategy', caplog)
 
 
 def test_search_strategy():
@@ -97,7 +97,7 @@ def test_load_not_found_strategy(default_conf):
 
 
 def test_load_staticmethod_importerror(mocker, caplog, default_conf):
-    mocker.patch("freqtrade.resolvers.strategy_resolver.import_strategy", Mock(
+    mocker.patch("earthzetaorg.resolvers.strategy_resolver.import_strategy", Mock(
         side_effect=TypeError("can't pickle staticmethod objects")))
     with pytest.raises(OperationalException,
                        match=r"Impossible to load Strategy 'DefaultStrategy'. "

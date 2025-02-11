@@ -11,7 +11,7 @@ Sample configuration:
         "enabled": true,
         "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
-        "username": "Freqtrader",
+        "username": "earthzetaorgr",
         "password": "SuperSecret1!"
     },
 ```
@@ -53,12 +53,12 @@ A complete sample-command may then look as follows:
 
 ```bash
 docker run -d \
-  --name freqtrade \
-  -v ~/.freqtrade/config.json:/freqtrade/config.json \
-  -v ~/.freqtrade/user_data/:/freqtrade/user_data \
-  -v ~/.freqtrade/tradesv3.sqlite:/freqtrade/tradesv3.sqlite \
+  --name earthzetaorg \
+  -v ~/.earthzetaorg/config.json:/earthzetaorg/config.json \
+  -v ~/.earthzetaorg/user_data/:/earthzetaorg/user_data \
+  -v ~/.earthzetaorg/tradesv3.sqlite:/earthzetaorg/tradesv3.sqlite \
   -p 127.0.0.1:8080:8080 \
-  freqtrade --db-url sqlite:///tradesv3.sqlite --strategy MyAwesomeStrategy
+  earthzetaorg --db-url sqlite:///tradesv3.sqlite --strategy MyAwesomeStrategy
 ```
 
 !!! Danger "Security warning"
@@ -67,7 +67,7 @@ docker run -d \
 ## Consuming the API
 
 You can consume the API by using the script `scripts/rest_client.py`.
-The client script only requires the `requests` module, so FreqTrade does not need to be installed on the system.
+The client script only requires the `requests` module, so earthzetaorg does not need to be installed on the system.
 
 ``` bash
 python3 scripts/rest_client.py <command> [optional parameters]

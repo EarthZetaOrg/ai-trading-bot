@@ -26,14 +26,14 @@ You will need to create API Keys (Usually you get `key` and `secret`) from the E
 
 ## Quick start
 
-Freqtrade provides a Linux/MacOS script to install all dependencies and help you to configure the bot.
+earthzetaorg provides a Linux/MacOS script to install all dependencies and help you to configure the bot.
 
 !!! Note
     Python3.6 or higher and the corresponding pip are assumed to be available. The install-script will warn and stop if that's not the case.
 
 ```bash
-git clone git@github.com:freqtrade/freqtrade.git
-cd freqtrade
+git clone git@github.com:earthzetaorg/earthzetaorg.git
+cd earthzetaorg
 git checkout develop
 ./setup.sh --install
 ```
@@ -43,12 +43,12 @@ git checkout develop
 
 ## Easy Installation - Linux Script
 
-If you are on Debian, Ubuntu or MacOS freqtrade provides a script to Install, Update, Configure, and Reset your bot.
+If you are on Debian, Ubuntu or MacOS earthzetaorg provides a script to Install, Update, Configure, and Reset your bot.
 
 ```bash
 $ ./setup.sh
 usage:
-	-i,--install    Install freqtrade from scratch
+	-i,--install    Install earthzetaorg from scratch
 	-u,--update     Command git pull to update.
 	-r,--reset      Hard reset your develop/master branch.
 	-c,--config     Easy config generator (Will override your existing file).
@@ -97,7 +97,7 @@ sudo apt-get install build-essential git
 
 #### Raspberry Pi / Raspbian
 
-Before installing FreqTrade on a Raspberry Pi running the official Raspbian Image, make sure you have at least Python 3.6 installed. The default image only provides Python 3.5. Probably the easiest way to get a recent version of python is [miniconda](https://repo.continuum.io/miniconda/).
+Before installing earthzetaorg on a Raspberry Pi running the official Raspbian Image, make sure you have at least Python 3.6 installed. The default image only provides Python 3.5. Probably the easiest way to get a recent version of python is [miniconda](https://repo.continuum.io/miniconda/).
 
 The following assumes that miniconda3 is installed and available in your environment. Last miniconda3 installation file use python 3.4, we will update to python 3.6 on this installation.
 It's recommended to use (mini)conda for this as installation/compilation of `numpy`, `scipy` and `pandas` takes a long time.
@@ -107,8 +107,8 @@ Additional package to install on your Raspbian, `libffi-dev` required by cryptog
 ``` bash
 conda config --add channels rpi
 conda install python=3.6
-conda create -n freqtrade python=3.6
-conda activate freqtrade
+conda create -n earthzetaorg python=3.6
+conda activate earthzetaorg
 conda install scipy pandas numpy
 
 sudo apt install libffi-dev
@@ -147,12 +147,12 @@ python3 -m venv .env
 source .env/bin/activate
 ```
 
-#### 3. Install FreqTrade
+#### 3. Install earthzetaorg
 
 Clone the git repository:
 
 ```bash
-git clone https://github.com/freqtrade/freqtrade.git
+git clone https://github.com/earthzetaorg/earthzetaorg.git
 
 ```
 
@@ -165,7 +165,7 @@ git checkout master
 #### 4. Initialize the configuration
 
 ```bash
-cd freqtrade
+cd earthzetaorg
 cp config.json.example config.json
 ```
 
@@ -184,34 +184,34 @@ python3 -m pip install -e .
 If this is the first time you run the bot, ensure you are running it in Dry-run `"dry_run": true,` otherwise it will start to buy and sell coins.
 
 ```bash
-freqtrade -c config.json
+earthzetaorg -c config.json
 ```
 
 *Note*: If you run the bot on a server, you should consider using [Docker](docker.md) or a terminal multiplexer like `screen` or [`tmux`](https://en.wikipedia.org/wiki/Tmux) to avoid that the bot is stopped on logout.
 
-#### 7. [Optional] Configure `freqtrade` as a `systemd` service
+#### 7. [Optional] Configure `earthzetaorg` as a `systemd` service
 
-From the freqtrade repo... copy `freqtrade.service` to your systemd user directory (usually `~/.config/systemd/user`) and update `WorkingDirectory` and `ExecStart` to match your setup.
+From the earthzetaorg repo... copy `earthzetaorg.service` to your systemd user directory (usually `~/.config/systemd/user`) and update `WorkingDirectory` and `ExecStart` to match your setup.
 
 After that you can start the daemon with:
 
 ```bash
-systemctl --user start freqtrade
+systemctl --user start earthzetaorg
 ```
 
-For this to be persistent (run when user is logged out) you'll need to enable `linger` for your freqtrade user.
+For this to be persistent (run when user is logged out) you'll need to enable `linger` for your earthzetaorg user.
 
 ```bash
 sudo loginctl enable-linger "$USER"
 ```
 
-If you run the bot as a service, you can use systemd service manager as a software watchdog monitoring freqtrade bot 
+If you run the bot as a service, you can use systemd service manager as a software watchdog monitoring earthzetaorg bot 
 state and restarting it in the case of failures. If the `internals.sd_notify` parameter is set to true in the 
 configuration or the `--sd-notify` command line option is used, the bot will send keep-alive ping messages to systemd 
 using the sd_notify (systemd notifications) protocol and will also tell systemd its current state (Running or Stopped) 
 when it changes. 
 
-The `freqtrade.service.watchdog` file contains an example of the service unit configuration file which uses systemd 
+The `earthzetaorg.service.watchdog` file contains an example of the service unit configuration file which uses systemd 
 as the watchdog.
 
 !!! Note
@@ -221,7 +221,7 @@ as the watchdog.
 
 ## Using Conda
 
-Freqtrade can also be installed using Anaconda (or Miniconda).
+earthzetaorg can also be installed using Anaconda (or Miniconda).
 
 ``` bash
 conda env create -f environment.yml
@@ -237,12 +237,12 @@ We recommend that Windows users use [Docker](docker.md) as this will work much e
 If that is not possible, try using the Windows Linux subsystem (WSL) - for which the Ubuntu instructions should work.
 If that is not available on your system, feel free to try the instructions below, which led to success for some.
 
-### Install freqtrade manually
+### Install earthzetaorg manually
 
 #### Clone the git repository
 
 ```bash
-git clone https://github.com/freqtrade/freqtrade.git
+git clone https://github.com/earthzetaorg/earthzetaorg.git
 ```
 
 #### Install ta-lib
@@ -252,19 +252,19 @@ Install ta-lib according to the [ta-lib documentation](https://github.com/mrjbq7
 As compiling from source on windows has heavy dependencies (requires a partial visual studio installation), there is also a repository of unofficial precompiled windows Wheels [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib), which needs to be downloaded and installed using `pip install TA_Lib‑0.4.17‑cp36‑cp36m‑win32.whl` (make sure to use the version matching your python version)
 
 ```cmd
->cd \path\freqtrade-develop
+>cd \path\earthzetaorg-develop
 >python -m venv .env
 >cd .env\Scripts
 >activate.bat
->cd \path\freqtrade-develop
+>cd \path\earthzetaorg-develop
 REM optionally install ta-lib from wheel
 REM >pip install TA_Lib‑0.4.17‑cp36‑cp36m‑win32.whl
 >pip install -r requirements.txt
 >pip install -e .
->python freqtrade\main.py
+>python earthzetaorg\main.py
 ```
 
-> Thanks [Owdr](https://github.com/Owdr) for the commands. Source: [Issue #222](https://github.com/freqtrade/freqtrade/issues/222)
+> Thanks [Owdr](https://github.com/Owdr) for the commands. Source: [Issue #222](https://github.com/earthzetaorg/earthzetaorg/issues/222)
 
 #### Error during installation under Windows
 

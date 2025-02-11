@@ -17,7 +17,7 @@ from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy import func
 from sqlalchemy.pool import StaticPool
 
-from freqtrade import OperationalException
+from earthzetaorg import OperationalException
 
 logger = logging.getLogger(__name__)
 

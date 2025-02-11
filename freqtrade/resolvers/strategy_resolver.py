@@ -11,10 +11,10 @@ from inspect import getfullargspec
 from pathlib import Path
 from typing import Dict, Optional
 
-from freqtrade import constants, OperationalException
-from freqtrade.resolvers import IResolver
-from freqtrade.strategy import import_strategy
-from freqtrade.strategy.interface import IStrategy
+from earthzetaorg import constants, OperationalException
+from earthzetaorg.resolvers import IResolver
+from earthzetaorg.strategy import import_strategy
+from earthzetaorg.strategy.interface import IStrategy
 
 logger = logging.getLogger(__name__)
 

@@ -10,12 +10,12 @@ import numpy as np
 import pytest
 from pandas import DataFrame, to_datetime
 
-from freqtrade import OperationalException
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.edge import Edge, PairInfo
-from freqtrade.strategy.interface import SellType
-from freqtrade.tests.conftest import get_patched_freqtradebot, log_has
-from freqtrade.tests.optimize import (BTContainer, BTrade,
+from earthzetaorg import OperationalException
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.edge import Edge, PairInfo
+from earthzetaorg.strategy.interface import SellType
+from earthzetaorg.tests.conftest import get_patched_earthzetaorgbot, log_has
+from earthzetaorg.tests.optimize import (BTContainer, BTrade,
                                       _build_backtest_dataframe,
                                       _get_frame_time_from_offset)
 
@@ -147,8 +147,8 @@ def test_edge_results(edge_conf, mocker, caplog, data) -> None:
     """
     run functional tests
     """
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
     frame = _build_backtest_dataframe(data.data)
     caplog.set_level(logging.DEBUG)
     edge.fee = 0
@@ -171,9 +171,9 @@ def test_edge_results(edge_conf, mocker, caplog, data) -> None:
 
 
 def test_adjust(mocker, edge_conf):
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'E/F': PairInfo(-0.01, 0.66, 3.71, 0.50, 1.71, 10, 60),
             'C/D': PairInfo(-0.01, 0.66, 3.71, 0.50, 1.71, 10, 60),
@@ -186,9 +186,9 @@ def test_adjust(mocker, edge_conf):
 
 
 def test_stoploss(mocker, edge_conf):
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'E/F': PairInfo(-0.01, 0.66, 3.71, 0.50, 1.71, 10, 60),
             'C/D': PairInfo(-0.01, 0.66, 3.71, 0.50, 1.71, 10, 60),
@@ -200,9 +200,9 @@ def test_stoploss(mocker, edge_conf):
 
 
 def test_nonexisting_stoploss(mocker, edge_conf):
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'E/F': PairInfo(-0.01, 0.66, 3.71, 0.50, 1.71, 10, 60),
         }
@@ -212,9 +212,9 @@ def test_nonexisting_stoploss(mocker, edge_conf):
 
 
 def test_stake_amount(mocker, edge_conf):
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'E/F': PairInfo(-0.02, 0.66, 3.71, 0.50, 1.71, 10, 60),
         }
@@ -236,9 +236,9 @@ def test_stake_amount(mocker, edge_conf):
 
 
 def test_nonexisting_stake_amount(mocker, edge_conf):
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'E/F': PairInfo(-0.11, 0.66, 3.71, 0.50, 1.71, 10, 60),
         }
@@ -248,8 +248,8 @@ def test_nonexisting_stake_amount(mocker, edge_conf):
 
 
 def test_edge_heartbeat_calculate(mocker, edge_conf):
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
     heartbeat = edge_conf['edge']['process_throttle_secs']
 
     # should not recalculate if heartbeat not reached
@@ -292,10 +292,10 @@ def mocked_load_data(datadir, pairs=[], ticker_interval='0m', refresh_pairs=Fals
 
 def test_edge_process_downloaded_data(mocker, edge_conf):
     edge_conf['datadir'] = None
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
-    mocker.patch('freqtrade.data.history.load_data', mocked_load_data)
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
+    mocker.patch('earthzetaorg.data.history.load_data', mocked_load_data)
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
 
     assert edge.calculate()
     assert len(edge._cached_pairs) == 2
@@ -304,10 +304,10 @@ def test_edge_process_downloaded_data(mocker, edge_conf):
 
 def test_edge_process_no_data(mocker, edge_conf, caplog):
     edge_conf['datadir'] = None
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
-    mocker.patch('freqtrade.data.history.load_data', MagicMock(return_value={}))
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
+    mocker.patch('earthzetaorg.data.history.load_data', MagicMock(return_value={}))
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
 
     assert not edge.calculate()
     assert len(edge._cached_pairs) == 0
@@ -317,12 +317,12 @@ def test_edge_process_no_data(mocker, edge_conf, caplog):
 
 def test_edge_process_no_trades(mocker, edge_conf, caplog):
     edge_conf['datadir'] = None
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
-    mocker.patch('freqtrade.data.history.load_data', mocked_load_data)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
+    mocker.patch('earthzetaorg.data.history.load_data', mocked_load_data)
     # Return empty
-    mocker.patch('freqtrade.edge.Edge._find_trades_for_stoploss_range', MagicMock(return_value=[]))
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
+    mocker.patch('earthzetaorg.edge.Edge._find_trades_for_stoploss_range', MagicMock(return_value=[]))
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
 
     assert not edge.calculate()
     assert len(edge._cached_pairs) == 0
@@ -331,20 +331,20 @@ def test_edge_process_no_trades(mocker, edge_conf, caplog):
 
 def test_edge_init_error(mocker, edge_conf,):
     edge_conf['stake_amount'] = 0.5
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', MagicMock(return_value=0.001))
     with pytest.raises(OperationalException,  match='Edge works only with unlimited stake amount'):
-        get_patched_freqtradebot(mocker, edge_conf)
+        get_patched_earthzetaorgbot(mocker, edge_conf)
 
 
 def test_process_expectancy(mocker, edge_conf):
     edge_conf['edge']['min_trade_number'] = 2
-    freqtrade = get_patched_freqtradebot(mocker, edge_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, edge_conf)
 
     def get_fee():
         return 0.001
 
-    freqtrade.exchange.get_fee = get_fee
-    edge = Edge(edge_conf, freqtrade.exchange, freqtrade.strategy)
+    earthzetaorg.exchange.get_fee = get_fee
+    edge = Edge(edge_conf, earthzetaorg.exchange, earthzetaorg.strategy)
 
     trades = [
         {'pair': 'TEST/BTC',

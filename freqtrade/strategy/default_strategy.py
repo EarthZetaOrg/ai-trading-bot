@@ -3,14 +3,14 @@
 import talib.abstract as ta
 from pandas import DataFrame
 
-import freqtrade.vendor.qtpylib.indicators as qtpylib
-from freqtrade.indicator_helpers import fishers_inverse
-from freqtrade.strategy.interface import IStrategy
+import earthzetaorg.vendor.qtpylib.indicators as qtpylib
+from earthzetaorg.indicator_helpers import fishers_inverse
+from earthzetaorg.strategy.interface import IStrategy
 
 
 class DefaultStrategy(IStrategy):
     """
-    Default Strategy provided by freqtrade bot.
+    Default Strategy provided by earthzetaorg bot.
     You can override it with your own strategy
     """
     INTERFACE_VERSION = 2

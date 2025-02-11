@@ -12,10 +12,10 @@ import warnings
 import arrow
 from pandas import DataFrame
 
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.exchange import timeframe_to_minutes
-from freqtrade.persistence import Trade
-from freqtrade.wallets import Wallets
+from earthzetaorg.data.dataprovider import DataProvider
+from earthzetaorg.exchange import timeframe_to_minutes
+from earthzetaorg.persistence import Trade
+from earthzetaorg.wallets import Wallets
 
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class SellCheckTuple(NamedTuple):
 
 class IStrategy(ABC):
     """
-    Interface for freqtrade strategies
+    Interface for earthzetaorg strategies
     Defines the mandatory structure must follow any custom strategies
 
     Attributes you can use:

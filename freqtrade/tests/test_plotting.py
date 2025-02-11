@@ -7,19 +7,19 @@ import plotly.graph_objects as go
 import pytest
 from plotly.subplots import make_subplots
 
-from freqtrade import OperationalException
-from freqtrade.configuration import TimeRange
-from freqtrade.data import history
-from freqtrade.data.btanalysis import create_cum_profit, load_backtest_data
-from freqtrade.plot.plot_utils import start_plot_dataframe, start_plot_profit
-from freqtrade.plot.plotting import (add_indicators, add_profit,
+from earthzetaorg import OperationalException
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data import history
+from earthzetaorg.data.btanalysis import create_cum_profit, load_backtest_data
+from earthzetaorg.plot.plot_utils import start_plot_dataframe, start_plot_profit
+from earthzetaorg.plot.plotting import (add_indicators, add_profit,
                                      analyse_and_plot_pairs,
                                      generate_candlestick_graph,
                                      generate_plot_filename,
                                      generate_profit_graph, init_plotscript,
                                      plot_profit, plot_trades, store_plot_file)
-from freqtrade.strategy.default_strategy import DefaultStrategy
-from freqtrade.tests.conftest import get_args, log_has, log_has_re
+from earthzetaorg.strategy.default_strategy import DefaultStrategy
+from earthzetaorg.tests.conftest import get_args, log_has, log_has_re
 
 
 def fig_generating_mock(fig, *args, **kwargs):
@@ -123,9 +123,9 @@ def test_plot_trades(caplog):
 
 
 def test_generate_candlestick_graph_no_signals_no_trades(default_conf, mocker, caplog):
-    row_mock = mocker.patch('freqtrade.plot.plotting.add_indicators',
+    row_mock = mocker.patch('earthzetaorg.plot.plotting.add_indicators',
                             MagicMock(side_effect=fig_generating_mock))
-    trades_mock = mocker.patch('freqtrade.plot.plotting.plot_trades',
+    trades_mock = mocker.patch('earthzetaorg.plot.plotting.plot_trades',
                                MagicMock(side_effect=fig_generating_mock))
 
     pair = "UNITTEST/BTC"
@@ -159,9 +159,9 @@ def test_generate_candlestick_graph_no_signals_no_trades(default_conf, mocker, c
 
 
 def test_generate_candlestick_graph_no_trades(default_conf, mocker):
-    row_mock = mocker.patch('freqtrade.plot.plotting.add_indicators',
+    row_mock = mocker.patch('earthzetaorg.plot.plotting.add_indicators',
                             MagicMock(side_effect=fig_generating_mock))
-    trades_mock = mocker.patch('freqtrade.plot.plotting.plot_trades',
+    trades_mock = mocker.patch('earthzetaorg.plot.plotting.plot_trades',
                                MagicMock(side_effect=fig_generating_mock))
     pair = 'UNITTEST/BTC'
     timerange = TimeRange(None, 'line', 0, -1000)
@@ -207,20 +207,20 @@ def test_generate_candlestick_graph_no_trades(default_conf, mocker):
 
 def test_generate_Plot_filename():
     fn = generate_plot_filename("UNITTEST/BTC", "5m")
-    assert fn == "freqtrade-plot-UNITTEST_BTC-5m.html"
+    assert fn == "earthzetaorg-plot-UNITTEST_BTC-5m.html"
 
 
 def test_generate_plot_file(mocker, caplog):
     fig = generage_empty_figure()
-    plot_mock = mocker.patch("freqtrade.plot.plotting.plot", MagicMock())
-    store_plot_file(fig, filename="freqtrade-plot-UNITTEST_BTC-5m.html",
+    plot_mock = mocker.patch("earthzetaorg.plot.plotting.plot", MagicMock())
+    store_plot_file(fig, filename="earthzetaorg-plot-UNITTEST_BTC-5m.html",
                     directory=Path("user_data/plots"))
 
     assert plot_mock.call_count == 1
     assert plot_mock.call_args[0][0] == fig
     assert (plot_mock.call_args_list[0][1]['filename']
-            == "user_data/plots/freqtrade-plot-UNITTEST_BTC-5m.html")
-    assert log_has("Stored plot as user_data/plots/freqtrade-plot-UNITTEST_BTC-5m.html",
+            == "user_data/plots/earthzetaorg-plot-UNITTEST_BTC-5m.html")
+    assert log_has("Stored plot as user_data/plots/earthzetaorg-plot-UNITTEST_BTC-5m.html",
                    caplog)
 
 
@@ -260,7 +260,7 @@ def test_generate_profit_graph():
     fig = generate_profit_graph(pairs, tickers, trades)
     assert isinstance(fig, go.Figure)
 
-    assert fig.layout.title.text == "Freqtrade Profit plot"
+    assert fig.layout.title.text == "earthzetaorg Profit plot"
     assert fig.layout.yaxis.title.text == "Price"
     assert fig.layout.yaxis2.title.text == "Profit"
     assert fig.layout.yaxis3.title.text == "Profit"
@@ -280,7 +280,7 @@ def test_generate_profit_graph():
 
 
 def test_start_plot_dataframe(mocker):
-    aup = mocker.patch("freqtrade.plot.plotting.analyse_and_plot_pairs", MagicMock())
+    aup = mocker.patch("earthzetaorg.plot.plotting.analyse_and_plot_pairs", MagicMock())
     args = [
         "--config", "config.json.example",
         "plot-dataframe",
@@ -306,7 +306,7 @@ def test_analyse_and_plot_pairs(default_conf, mocker, caplog):
     candle_mock = MagicMock()
     store_mock = MagicMock()
     mocker.patch.multiple(
-        "freqtrade.plot.plotting",
+        "earthzetaorg.plot.plotting",
         generate_candlestick_graph=candle_mock,
         store_plot_file=store_mock
         )
@@ -323,7 +323,7 @@ def test_analyse_and_plot_pairs(default_conf, mocker, caplog):
 
 
 def test_start_plot_profit(mocker):
-    aup = mocker.patch("freqtrade.plot.plotting.plot_profit", MagicMock())
+    aup = mocker.patch("earthzetaorg.plot.plotting.plot_profit", MagicMock())
     args = [
         "--config", "config.json.example",
         "plot-profit",
@@ -356,7 +356,7 @@ def test_plot_profit(default_conf, mocker, caplog):
     profit_mock = MagicMock()
     store_mock = MagicMock()
     mocker.patch.multiple(
-        "freqtrade.plot.plotting",
+        "earthzetaorg.plot.plotting",
         generate_profit_graph=profit_mock,
         store_plot_file=store_mock
     )

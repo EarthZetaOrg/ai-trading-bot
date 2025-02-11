@@ -11,18 +11,18 @@ import arrow
 import pytest
 from pandas import DataFrame
 
-from freqtrade import OperationalException
-from freqtrade.configuration import TimeRange
-from freqtrade.data import history
-from freqtrade.data.history import (download_pair_history,
+from earthzetaorg import OperationalException
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data import history
+from earthzetaorg.data.history import (download_pair_history,
                                     load_cached_data_for_updating,
                                     load_tickerdata_file, make_testdata_path,
                                     refresh_backtest_ohlcv_data,
                                     trim_tickerlist)
-from freqtrade.exchange import timeframe_to_minutes
-from freqtrade.misc import file_dump_json
-from freqtrade.strategy.default_strategy import DefaultStrategy
-from freqtrade.tests.conftest import (get_patched_exchange, log_has,
+from earthzetaorg.exchange import timeframe_to_minutes
+from earthzetaorg.misc import file_dump_json
+from earthzetaorg.strategy.default_strategy import DefaultStrategy
+from earthzetaorg.tests.conftest import (get_patched_exchange, log_has,
                                       patch_exchange)
 
 # Change this if modifying UNITTEST/BTC testdatafile
@@ -75,13 +75,13 @@ def test_load_data_7min_ticker(mocker, caplog, default_conf) -> None:
     assert ld is None
     assert log_has(
         'No history data for pair: "UNITTEST/BTC", interval: 7m. '
-        'Use --refresh-pairs-cached option or `freqtrade download-data` '
+        'Use --refresh-pairs-cached option or `earthzetaorg download-data` '
         'script to download the data', caplog
     )
 
 
 def test_load_data_1min_ticker(ticker_history, mocker, caplog) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.get_historic_ohlcv', return_value=ticker_history)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_historic_ohlcv', return_value=ticker_history)
     file = os.path.join(os.path.dirname(__file__), '..', 'testdata', 'UNITTEST_BTC-1m.json')
     _backup_file(file, copy_file=True)
     history.load_data(datadir=None, ticker_interval='1m', pairs=['UNITTEST/BTC'])
@@ -97,7 +97,7 @@ def test_load_data_with_new_pair_1min(ticker_history_list, mocker, caplog, defau
     """
     Test load_pair_history() with 1 min ticker
     """
-    mocker.patch('freqtrade.exchange.Exchange.get_historic_ohlcv', return_value=ticker_history_list)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_historic_ohlcv', return_value=ticker_history_list)
     exchange = get_patched_exchange(mocker, default_conf)
     file = os.path.join(os.path.dirname(__file__), '..', 'testdata', 'MEME_BTC-1m.json')
 
@@ -110,7 +110,7 @@ def test_load_data_with_new_pair_1min(ticker_history_list, mocker, caplog, defau
     assert os.path.isfile(file) is False
     assert log_has(
         'No history data for pair: "MEME/BTC", interval: 1m. '
-        'Use --refresh-pairs-cached option or `freqtrade download-data` '
+        'Use --refresh-pairs-cached option or `earthzetaorg download-data` '
         'script to download the data', caplog
     )
 
@@ -136,7 +136,7 @@ def test_load_data_with_new_pair_1min(ticker_history_list, mocker, caplog, defau
 
 def test_load_data_live(default_conf, mocker, caplog) -> None:
     refresh_mock = MagicMock()
-    mocker.patch("freqtrade.exchange.Exchange.refresh_latest_ohlcv", refresh_mock)
+    mocker.patch("earthzetaorg.exchange.Exchange.refresh_latest_ohlcv", refresh_mock)
     exchange = get_patched_exchange(mocker, default_conf)
 
     history.load_data(datadir=None, ticker_interval='5m',
@@ -160,7 +160,7 @@ def test_load_data_live_noexchange(default_conf, mocker, caplog) -> None:
 
 
 def test_testdata_path() -> None:
-    assert str(Path('freqtrade') / 'tests' / 'testdata') in str(make_testdata_path(None))
+    assert str(Path('earthzetaorg') / 'tests' / 'testdata') in str(make_testdata_path(None))
 
 
 def test_load_cached_data_for_updating(mocker) -> None:
@@ -249,7 +249,7 @@ def test_load_cached_data_for_updating(mocker) -> None:
 
 
 def test_download_pair_history(ticker_history_list, mocker, default_conf) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.get_historic_ohlcv', return_value=ticker_history_list)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_historic_ohlcv', return_value=ticker_history_list)
     exchange = get_patched_exchange(mocker, default_conf)
     file1_1 = os.path.join(os.path.dirname(__file__), '..', 'testdata', 'MEME_BTC-1m.json')
     file1_5 = os.path.join(os.path.dirname(__file__), '..', 'testdata', 'MEME_BTC-5m.json')
@@ -301,8 +301,8 @@ def test_download_pair_history2(mocker, default_conf) -> None:
         [1509836520000, 0.00162008, 0.00162008, 0.00162008, 0.00162008, 108.14853839],
         [1509836580000, 0.00161, 0.00161, 0.00161, 0.00161, 82.390199]
     ]
-    json_dump_mock = mocker.patch('freqtrade.misc.file_dump_json', return_value=None)
-    mocker.patch('freqtrade.exchange.Exchange.get_historic_ohlcv', return_value=tick)
+    json_dump_mock = mocker.patch('earthzetaorg.misc.file_dump_json', return_value=None)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_historic_ohlcv', return_value=tick)
     exchange = get_patched_exchange(mocker, default_conf)
     download_pair_history(None, exchange, pair="UNITTEST/BTC", ticker_interval='1m')
     download_pair_history(None, exchange, pair="UNITTEST/BTC", ticker_interval='3m')
@@ -310,7 +310,7 @@ def test_download_pair_history2(mocker, default_conf) -> None:
 
 
 def test_download_backtesting_data_exception(ticker_history, mocker, caplog, default_conf) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.get_historic_ohlcv',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_historic_ohlcv',
                  side_effect=Exception('File Error'))
 
     exchange = get_patched_exchange(mocker, default_conf)
@@ -562,9 +562,9 @@ def test_validate_backtest_data(default_conf, mocker, caplog) -> None:
 
 
 def test_refresh_backtest_ohlcv_data(mocker, default_conf, markets, caplog):
-    dl_mock = mocker.patch('freqtrade.data.history.download_pair_history', MagicMock())
+    dl_mock = mocker.patch('earthzetaorg.data.history.download_pair_history', MagicMock())
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets)
+        'earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets)
     )
     mocker.patch.object(Path, "exists", MagicMock(return_value=True))
     mocker.patch.object(Path, "unlink", MagicMock())
@@ -583,9 +583,9 @@ def test_refresh_backtest_ohlcv_data(mocker, default_conf, markets, caplog):
 
 
 def test_download_data_no_markets(mocker, default_conf, caplog):
-    dl_mock = mocker.patch('freqtrade.data.history.download_pair_history', MagicMock())
+    dl_mock = mocker.patch('earthzetaorg.data.history.download_pair_history', MagicMock())
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets', PropertyMock(return_value={})
+        'earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value={})
     )
     ex = get_patched_exchange(mocker, default_conf)
     timerange = TimeRange.parse_timerange("20190101-20190102")

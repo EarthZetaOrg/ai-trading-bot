@@ -4,7 +4,7 @@ Definition of cli arguments used in arguments.py
 import argparse
 import os
 
-from freqtrade import __version__, constants
+from earthzetaorg import __version__, constants
 
 
 def check_int_positive(value: str) -> int:

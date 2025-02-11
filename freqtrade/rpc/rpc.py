@@ -13,12 +13,12 @@ import sqlalchemy as sql
 from numpy import mean, NAN
 from pandas import DataFrame
 
-from freqtrade import TemporaryError, DependencyException
-from freqtrade.misc import shorten_date
-from freqtrade.persistence import Trade
-from freqtrade.rpc.fiat_convert import CryptoToFiatConverter
-from freqtrade.state import State
-from freqtrade.strategy.interface import SellType
+from earthzetaorg import TemporaryError, DependencyException
+from earthzetaorg.misc import shorten_date
+from earthzetaorg.persistence import Trade
+from earthzetaorg.rpc.fiat_convert import CryptoToFiatConverter
+from earthzetaorg.state import State
+from earthzetaorg.strategy.interface import SellType
 
 logger = logging.getLogger(__name__)
 
@@ -61,13 +61,13 @@ class RPC(object):
     # Bind _fiat_converter if needed in each RPC handler
     _fiat_converter: Optional[CryptoToFiatConverter] = None
 
-    def __init__(self, freqtrade) -> None:
+    def __init__(self, earthzetaorg) -> None:
         """
         Initializes all enabled rpc modules
-        :param freqtrade: Instance of a freqtrade bot
+        :param earthzetaorg: Instance of a earthzetaorg bot
         :return: None
         """
-        self._freqtrade = freqtrade
+        self._earthzetaorg = earthzetaorg
 
     @property
     def name(self) -> str:
@@ -96,10 +96,10 @@ class RPC(object):
             for trade in trades:
                 order = None
                 if trade.open_order_id:
-                    order = self._freqtrade.exchange.get_order(trade.open_order_id, trade.pair)
+                    order = self._earthzetaorg.exchange.get_order(trade.open_order_id, trade.pair)
                 # calculate profit and send message to user
                 try:
-                    current_rate = self._freqtrade.get_sell_rate(trade.pair, False)
+                    current_rate = self._earthzetaorg.get_sell_rate(trade.pair, False)
                 except DependencyException:
                     current_rate = NAN
                 current_profit = trade.calc_profit_percent(current_rate)
@@ -107,7 +107,7 @@ class RPC(object):
                                     if trade.close_profit else None)
                 trade_dict = trade.to_json()
                 trade_dict.update(dict(
-                    base_currency=self._freqtrade.config['stake_currency'],
+                    base_currency=self._earthzetaorg.config['stake_currency'],
                     close_profit=fmt_close_profit,
                     current_rate=current_rate,
                     current_profit=round(current_profit * 100, 2),
@@ -127,7 +127,7 @@ class RPC(object):
             for trade in trades:
                 # calculate profit and send message to user
                 try:
-                    current_rate = self._freqtrade.get_sell_rate(trade.pair, False)
+                    current_rate = self._earthzetaorg.get_sell_rate(trade.pair, False)
                 except DependencyException:
                     current_rate = NAN
                 trade_perc = (100 * trade.calc_profit_percent(current_rate))
@@ -215,7 +215,7 @@ class RPC(object):
             else:
                 # Get current rate
                 try:
-                    current_rate = self._freqtrade.get_sell_rate(trade.pair, False)
+                    current_rate = self._earthzetaorg.get_sell_rate(trade.pair, False)
                 except DependencyException:
                     current_rate = NAN
                 profit_percent = trade.calc_profit_percent(rate=current_rate)
@@ -274,7 +274,7 @@ class RPC(object):
         """ Returns current account balance per crypto """
         output = []
         total = 0.0
-        for coin, balance in self._freqtrade.exchange.get_balances().items():
+        for coin, balance in self._earthzetaorg.exchange.get_balances().items():
             if not balance['total']:
                 continue
 
@@ -282,11 +282,11 @@ class RPC(object):
                 rate = 1.0
             else:
                 try:
-                    pair = self._freqtrade.exchange.get_valid_pair_combination(coin, "BTC")
+                    pair = self._earthzetaorg.exchange.get_valid_pair_combination(coin, "BTC")
                     if pair.startswith("BTC"):
-                        rate = 1.0 / self._freqtrade.get_sell_rate(pair, False)
+                        rate = 1.0 / self._earthzetaorg.get_sell_rate(pair, False)
                     else:
-                        rate = self._freqtrade.get_sell_rate(pair, False)
+                        rate = self._earthzetaorg.get_sell_rate(pair, False)
                 except (TemporaryError, DependencyException):
                     logger.warning(f" Could not get rate for pair {coin}.")
                     continue
@@ -300,7 +300,7 @@ class RPC(object):
                 'est_btc': est_btc,
             })
         if total == 0.0:
-            if self._freqtrade.config.get('dry_run', False):
+            if self._earthzetaorg.config.get('dry_run', False):
                 raise RPCException('Running in Dry Run, balances are not available.')
             else:
                 raise RPCException('All balances are zero.')
@@ -317,32 +317,32 @@ class RPC(object):
 
     def _rpc_start(self) -> Dict[str, str]:
         """ Handler for start """
-        if self._freqtrade.state == State.RUNNING:
+        if self._earthzetaorg.state == State.RUNNING:
             return {'status': 'already running'}
 
-        self._freqtrade.state = State.RUNNING
+        self._earthzetaorg.state = State.RUNNING
         return {'status': 'starting trader ...'}
 
     def _rpc_stop(self) -> Dict[str, str]:
         """ Handler for stop """
-        if self._freqtrade.state == State.RUNNING:
-            self._freqtrade.state = State.STOPPED
+        if self._earthzetaorg.state == State.RUNNING:
+            self._earthzetaorg.state = State.STOPPED
             return {'status': 'stopping trader ...'}
 
         return {'status': 'already stopped'}
 
     def _rpc_reload_conf(self) -> Dict[str, str]:
         """ Handler for reload_conf. """
-        self._freqtrade.state = State.RELOAD_CONF
+        self._earthzetaorg.state = State.RELOAD_CONF
         return {'status': 'reloading config ...'}
 
     def _rpc_stopbuy(self) -> Dict[str, str]:
         """
         Handler to stop buying, but handle open trades gracefully.
         """
-        if self._freqtrade.state == State.RUNNING:
+        if self._earthzetaorg.state == State.RUNNING:
             # Set 'max_open_trades' to 0
-            self._freqtrade.config['max_open_trades'] = 0
+            self._earthzetaorg.config['max_open_trades'] = 0
 
         return {'status': 'No more buy will occur from now. Run /reload_conf to reset.'}
 
@@ -354,13 +354,13 @@ class RPC(object):
         def _exec_forcesell(trade: Trade) -> None:
             # Check if there is there is an open order
             if trade.open_order_id:
-                order = self._freqtrade.exchange.get_order(trade.open_order_id, trade.pair)
+                order = self._earthzetaorg.exchange.get_order(trade.open_order_id, trade.pair)
 
                 # Cancel open LIMIT_BUY orders and close trade
                 if order and order['status'] == 'open' \
                         and order['type'] == 'limit' \
                         and order['side'] == 'buy':
-                    self._freqtrade.exchange.cancel_order(trade.open_order_id, trade.pair)
+                    self._earthzetaorg.exchange.cancel_order(trade.open_order_id, trade.pair)
                     trade.close(order.get('price') or trade.open_rate)
                     # Do the best effort, if we don't know 'filled' amount, don't try selling
                     if order['filled'] is None:
@@ -374,11 +374,11 @@ class RPC(object):
                     return
 
             # Get current rate and execute sell
-            current_rate = self._freqtrade.get_sell_rate(trade.pair, False)
-            self._freqtrade.execute_sell(trade, current_rate, SellType.FORCE_SELL)
+            current_rate = self._earthzetaorg.get_sell_rate(trade.pair, False)
+            self._earthzetaorg.execute_sell(trade, current_rate, SellType.FORCE_SELL)
         # ---- EOF def _exec_forcesell ----
 
-        if self._freqtrade.state != State.RUNNING:
+        if self._earthzetaorg.state != State.RUNNING:
             raise RPCException('trader is not running')
 
         if trade_id == 'all':
@@ -409,14 +409,14 @@ class RPC(object):
         Buys a pair trade at the given or current price
         """
 
-        if not self._freqtrade.config.get('forcebuy_enable', False):
+        if not self._earthzetaorg.config.get('forcebuy_enable', False):
             raise RPCException('Forcebuy not enabled.')
 
-        if self._freqtrade.state != State.RUNNING:
+        if self._earthzetaorg.state != State.RUNNING:
             raise RPCException('trader is not running')
 
         # Check pair is in stake currency
-        stake_currency = self._freqtrade.config.get('stake_currency')
+        stake_currency = self._earthzetaorg.config.get('stake_currency')
         if not pair.endswith(stake_currency):
             raise RPCException(
                 f'Wrong pair selected. Please pairs with stake {stake_currency} pairs only')
@@ -428,10 +428,10 @@ class RPC(object):
             raise RPCException(f'position for {pair} already open - id: {trade.id}')
 
         # gen stake amount
-        stakeamount = self._freqtrade._get_trade_stake_amount(pair)
+        stakeamount = self._earthzetaorg._get_trade_stake_amount(pair)
 
         # execute buy
-        if self._freqtrade.execute_buy(pair, stakeamount, price):
+        if self._earthzetaorg.execute_buy(pair, stakeamount, price):
             trade = Trade.query.filter(Trade.is_open.is_(True)).filter(Trade.pair.is_(pair)).first()
             return trade
         else:
@@ -457,41 +457,41 @@ class RPC(object):
 
     def _rpc_count(self) -> Dict[str, float]:
         """ Returns the number of trades running """
-        if self._freqtrade.state != State.RUNNING:
+        if self._earthzetaorg.state != State.RUNNING:
             raise RPCException('trader is not running')
 
         trades = Trade.get_open_trades()
         return {
             'current': len(trades),
-            'max': float(self._freqtrade.config['max_open_trades']),
+            'max': float(self._earthzetaorg.config['max_open_trades']),
             'total_stake': sum((trade.open_rate * trade.amount) for trade in trades)
         }
 
     def _rpc_whitelist(self) -> Dict:
         """ Returns the currently active whitelist"""
-        res = {'method': self._freqtrade.pairlists.name,
-               'length': len(self._freqtrade.active_pair_whitelist),
-               'whitelist': self._freqtrade.active_pair_whitelist
+        res = {'method': self._earthzetaorg.pairlists.name,
+               'length': len(self._earthzetaorg.active_pair_whitelist),
+               'whitelist': self._earthzetaorg.active_pair_whitelist
                }
         return res
 
     def _rpc_blacklist(self, add: List[str] = None) -> Dict:
         """ Returns the currently active blacklist"""
         if add:
-            stake_currency = self._freqtrade.config.get('stake_currency')
+            stake_currency = self._earthzetaorg.config.get('stake_currency')
             for pair in add:
                 if (pair.endswith(stake_currency)
-                        and pair not in self._freqtrade.pairlists.blacklist):
-                    self._freqtrade.pairlists.blacklist.append(pair)
+                        and pair not in self._earthzetaorg.pairlists.blacklist):
+                    self._earthzetaorg.pairlists.blacklist.append(pair)
 
-        res = {'method': self._freqtrade.pairlists.name,
-               'length': len(self._freqtrade.pairlists.blacklist),
-               'blacklist': self._freqtrade.pairlists.blacklist,
+        res = {'method': self._earthzetaorg.pairlists.name,
+               'length': len(self._earthzetaorg.pairlists.blacklist),
+               'blacklist': self._earthzetaorg.pairlists.blacklist,
                }
         return res
 
     def _rpc_edge(self) -> List[Dict[str, Any]]:
         """ Returns information related to Edge """
-        if not self._freqtrade.edge:
+        if not self._earthzetaorg.edge:
             raise RPCException(f'Edge is not enabled.')
-        return self._freqtrade.edge.accepted_pairs()
+        return self._earthzetaorg.edge.accepted_pairs()

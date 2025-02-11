@@ -1,12 +1,12 @@
 # Development Help
 
-This page is intended for developers of FreqTrade, people who want to contribute to the FreqTrade codebase or documentation, or people who want to understand the source code of the application they're running.
+This page is intended for developers of earthzetaorg, people who want to contribute to the earthzetaorg codebase or documentation, or people who want to understand the source code of the application they're running.
 
-All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome. We [track issues](https://github.com/freqtrade/freqtrade/issues) on [GitHub](https://github.com) and also have a dev channel in [slack](https://join.slack.com/t/highfrequencybot/shared_invite/enQtNjU5ODcwNjI1MDU3LWEyODBiNzkzNzcyNzU0MWYyYzE5NjIyOTQxMzBmMGUxOTIzM2YyN2Y4NWY1YTEwZDgwYTRmMzE2NmM5ZmY2MTg) where you can ask questions.
+All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome. We [track issues](https://github.com/earthzetaorg/earthzetaorg/issues) on [GitHub](https://github.com) and also have a dev channel in [slack](https://join.slack.com/t/highfrequencybot/shared_invite/enQtNjU5ODcwNjI1MDU3LWEyODBiNzkzNzcyNzU0MWYyYzE5NjIyOTQxMzBmMGUxOTIzM2YyN2Y4NWY1YTEwZDgwYTRmMzE2NmM5ZmY2MTg) where you can ask questions.
 
 ## Documentation
 
-Documentation is available at [https://freqtrade.io](https://www.freqtrade.io/) and needs to be provided with every new feature PR.
+Documentation is available at [https://earthzetaorg.io](https://www.earthzetaorg.io/) and needs to be provided with every new feature PR.
 
 Special fields for the documentation (like Note boxes, ...) can be found [here](https://squidfunk.github.io/mkdocs-material/extensions/admonition/).
 
@@ -20,17 +20,17 @@ This will install all required tools for development, including `pytest`, `flake
 ### Tests
 
 New code should be covered by basic unittests. Depending on the complexity of the feature, Reviewers may request more in-depth unittests.
-If necessary, the Freqtrade team can assist and give guidance with writing good tests (however please don't expect anyone to write the tests for you).
+If necessary, the earthzetaorg team can assist and give guidance with writing good tests (however please don't expect anyone to write the tests for you).
 
 #### Checking log content in tests
 
-Freqtrade uses 2 main methods to check log content in tests, `log_has()` and `log_has_re()` (to check using regex, in case of dynamic log-messages).
+earthzetaorg uses 2 main methods to check log content in tests, `log_has()` and `log_has_re()` (to check using regex, in case of dynamic log-messages).
 These are available from `conftest.py` and can be imported in any test module.
 
 A sample check looks as follows:
 
 ``` python
-from freqtrade.tests.conftest import log_has, log_has_re
+from earthzetaorg.tests.conftest import log_has, log_has_re
 
 def test_method_to_test(caplog):
     method_to_test()
@@ -49,16 +49,16 @@ Hopefully you also want to contribute this back upstream.
 
 Whatever your motivations are - This should get you off the ground in trying to develop a new Pairlist provider.
 
-First of all, have a look at the [VolumePairList](https://github.com/freqtrade/freqtrade/blob/develop/freqtrade/pairlist/VolumePairList.py) provider, and best copy this file with a name of your new Pairlist Provider.
+First of all, have a look at the [VolumePairList](https://github.com/earthzetaorg/earthzetaorg/blob/develop/earthzetaorg/pairlist/VolumePairList.py) provider, and best copy this file with a name of your new Pairlist Provider.
 
 This is a simple provider, which however serves as a good example on how to start developing.
 
 Next, modify the classname of the provider (ideally align this with the Filename).
 
-The base-class provides the an instance of the bot (`self._freqtrade`), as well as the configuration (`self._config`), and initiates both `_blacklist` and `_whitelist`.
+The base-class provides the an instance of the bot (`self._earthzetaorg`), as well as the configuration (`self._config`), and initiates both `_blacklist` and `_whitelist`.
 
 ```python
-        self._freqtrade = freqtrade
+        self._earthzetaorg = earthzetaorg
         self._config = config
         self._whitelist = self._config['exchange']['pair_whitelist']
         self._blacklist = self._config['exchange'].get('pair_blacklist', [])
@@ -107,7 +107,7 @@ It implements caching (`@cached(TTLCache(maxsize=1, ttl=1800))`) as well as a co
 ## Implement a new Exchange (WIP)
 
 !!! Note
-    This section is a Work in Progress and is not a complete guide on how to test a new exchange with FreqTrade.
+    This section is a Work in Progress and is not a complete guide on how to test a new exchange with earthzetaorg.
 
 Most exchanges supported by CCXT should work out of the box.
 
@@ -128,7 +128,7 @@ To check how the new exchange behaves, you can use the following snippet:
 ``` python
 import ccxt
 from datetime import datetime
-from freqtrade.data.converter import parse_ticker_dataframe
+from earthzetaorg.data.converter import parse_ticker_dataframe
 ct = ccxt.binance()
 timeframe = "1d"
 pair = "XLM/BTC"  # Make sure to use a pair that exists on that exchange!
@@ -163,7 +163,7 @@ git checkout develop
 git checkout -b new_release
 ```
 
-* Edit `freqtrade/__init__.py` and add the version matching the current date (for example `2019.7` for July 2019). Minor versions can be `2019.7-1` should we need to do a second release that month.
+* Edit `earthzetaorg/__init__.py` and add the version matching the current date (for example `2019.7` for July 2019). Minor versions can be `2019.7-1` should we need to do a second release that month.
 * Commit this part
 * push that branch to the remote and create a PR against the master branch
 

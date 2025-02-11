@@ -10,19 +10,19 @@ import arrow
 import pytest
 import requests
 
-from freqtrade import (DependencyException, InvalidOrderException,
+from earthzetaorg import (DependencyException, InvalidOrderException,
                        OperationalException, TemporaryError, constants)
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.persistence import Trade
-from freqtrade.rpc import RPCMessageType
-from freqtrade.state import State, RunMode
-from freqtrade.strategy.interface import SellCheckTuple, SellType
-from freqtrade.tests.conftest import (get_patched_freqtradebot,
+from earthzetaorg.data.dataprovider import DataProvider
+from earthzetaorg.earthzetaorgbot import earthzetaorgBot
+from earthzetaorg.persistence import Trade
+from earthzetaorg.rpc import RPCMessageType
+from earthzetaorg.state import State, RunMode
+from earthzetaorg.strategy.interface import SellCheckTuple, SellType
+from earthzetaorg.tests.conftest import (get_patched_earthzetaorgbot,
                                       get_patched_worker, log_has, log_has_re,
                                       patch_edge, patch_exchange,
                                       patch_get_signal, patch_wallet)
-from freqtrade.worker import Worker
+from earthzetaorg.worker import Worker
 
 
 def patch_RPCManager(mocker) -> MagicMock:
@@ -31,25 +31,25 @@ def patch_RPCManager(mocker) -> MagicMock:
     :param mocker: mocker to patch RPCManager class
     :return: RPCManager.send_msg MagicMock to track if this method is called
     """
-    mocker.patch('freqtrade.rpc.telegram.Telegram', MagicMock())
-    rpc_mock = mocker.patch('freqtrade.freqtradebot.RPCManager.send_msg', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Telegram', MagicMock())
+    rpc_mock = mocker.patch('earthzetaorg.earthzetaorgbot.RPCManager.send_msg', MagicMock())
     return rpc_mock
 
 
 # Unit tests
 
-def test_freqtradebot_state(mocker, default_conf, markets) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    assert freqtrade.state is State.RUNNING
+def test_earthzetaorgbot_state(mocker, default_conf, markets) -> None:
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    assert earthzetaorg.state is State.RUNNING
 
     default_conf.pop('initial_state')
-    freqtrade = FreqtradeBot(default_conf)
-    assert freqtrade.state is State.STOPPED
+    earthzetaorg = earthzetaorgBot(default_conf)
+    assert earthzetaorg.state is State.STOPPED
 
 
 def test_worker_state(mocker, default_conf, markets) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
     worker = get_patched_worker(mocker, default_conf)
     assert worker.state is State.RUNNING
 
@@ -60,17 +60,17 @@ def test_worker_state(mocker, default_conf, markets) -> None:
 
 def test_cleanup(mocker, default_conf, caplog) -> None:
     mock_cleanup = MagicMock()
-    mocker.patch('freqtrade.persistence.cleanup', mock_cleanup)
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    freqtrade.cleanup()
+    mocker.patch('earthzetaorg.persistence.cleanup', mock_cleanup)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    earthzetaorg.cleanup()
     assert log_has('Cleaning up modules ...', caplog)
     assert mock_cleanup.call_count == 1
 
 
 def test_worker_running(mocker, default_conf, caplog) -> None:
     mock_throttle = MagicMock()
-    mocker.patch('freqtrade.worker.Worker._throttle', mock_throttle)
-    mocker.patch('freqtrade.persistence.Trade.stoploss_reinitialization', MagicMock())
+    mocker.patch('earthzetaorg.worker.Worker._throttle', mock_throttle)
+    mocker.patch('earthzetaorg.persistence.Trade.stoploss_reinitialization', MagicMock())
 
     worker = get_patched_worker(mocker, default_conf)
 
@@ -79,14 +79,14 @@ def test_worker_running(mocker, default_conf, caplog) -> None:
     assert log_has('Changing state to: RUNNING', caplog)
     assert mock_throttle.call_count == 1
     # Check strategy is loaded, and received a dataprovider object
-    assert worker.freqtrade.strategy
-    assert worker.freqtrade.strategy.dp
-    assert isinstance(worker.freqtrade.strategy.dp, DataProvider)
+    assert worker.earthzetaorg.strategy
+    assert worker.earthzetaorg.strategy.dp
+    assert isinstance(worker.earthzetaorg.strategy.dp, DataProvider)
 
 
 def test_worker_stopped(mocker, default_conf, caplog) -> None:
     mock_throttle = MagicMock()
-    mocker.patch('freqtrade.worker.Worker._throttle', mock_throttle)
+    mocker.patch('earthzetaorg.worker.Worker._throttle', mock_throttle)
     mock_sleep = mocker.patch('time.sleep', return_value=None)
 
     worker = get_patched_worker(mocker, default_conf)
@@ -134,7 +134,7 @@ def test_order_dict_dry_run(default_conf, mocker, caplog) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balance=MagicMock(return_value=default_conf['stake_amount'] * 2)
     )
     conf = default_conf.copy()
@@ -146,8 +146,8 @@ def test_order_dict_dry_run(default_conf, mocker, caplog) -> None:
         'stoploss_on_exchange': True,
     }
 
-    freqtrade = FreqtradeBot(conf)
-    assert freqtrade.strategy.order_types['stoploss_on_exchange']
+    earthzetaorg = earthzetaorgBot(conf)
+    assert earthzetaorg.strategy.order_types['stoploss_on_exchange']
 
     caplog.clear()
     # is left untouched
@@ -159,8 +159,8 @@ def test_order_dict_dry_run(default_conf, mocker, caplog) -> None:
         'stoploss': 'limit',
         'stoploss_on_exchange': False,
     }
-    freqtrade = FreqtradeBot(conf)
-    assert not freqtrade.strategy.order_types['stoploss_on_exchange']
+    earthzetaorg = earthzetaorgBot(conf)
+    assert not earthzetaorg.strategy.order_types['stoploss_on_exchange']
     assert not log_has_re(".*stoploss_on_exchange .* dry-run", caplog)
 
 
@@ -168,7 +168,7 @@ def test_order_dict_live(default_conf, mocker, caplog) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balance=MagicMock(return_value=default_conf['stake_amount'] * 2)
     )
     conf = default_conf.copy()
@@ -180,9 +180,9 @@ def test_order_dict_live(default_conf, mocker, caplog) -> None:
         'stoploss_on_exchange': True,
     }
 
-    freqtrade = FreqtradeBot(conf)
+    earthzetaorg = earthzetaorgBot(conf)
     assert not log_has_re(".*stoploss_on_exchange .* dry-run", caplog)
-    assert freqtrade.strategy.order_types['stoploss_on_exchange']
+    assert earthzetaorg.strategy.order_types['stoploss_on_exchange']
 
     caplog.clear()
     # is left untouched
@@ -194,8 +194,8 @@ def test_order_dict_live(default_conf, mocker, caplog) -> None:
         'stoploss': 'limit',
         'stoploss_on_exchange': False,
     }
-    freqtrade = FreqtradeBot(conf)
-    assert not freqtrade.strategy.order_types['stoploss_on_exchange']
+    earthzetaorg = earthzetaorgBot(conf)
+    assert not earthzetaorg.strategy.order_types['stoploss_on_exchange']
     assert not log_has_re(".*stoploss_on_exchange .* dry-run", caplog)
 
 
@@ -203,13 +203,13 @@ def test_get_trade_stake_amount(default_conf, ticker, mocker) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balance=MagicMock(return_value=default_conf['stake_amount'] * 2)
     )
 
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
-    result = freqtrade._get_trade_stake_amount('ETH/BTC')
+    result = earthzetaorg._get_trade_stake_amount('ETH/BTC')
     assert result == default_conf['stake_amount']
 
 
@@ -217,10 +217,10 @@ def test_get_trade_stake_amount_no_stake_amount(default_conf, mocker) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     patch_wallet(mocker, free=default_conf['stake_amount'] * 0.5)
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     with pytest.raises(DependencyException, match=r'.*stake amount.*'):
-        freqtrade._get_trade_stake_amount('ETH/BTC')
+        earthzetaorg._get_trade_stake_amount('ETH/BTC')
 
 
 def test_get_trade_stake_amount_unlimited_amount(default_conf,
@@ -233,7 +233,7 @@ def test_get_trade_stake_amount_unlimited_amount(default_conf,
     patch_exchange(mocker)
     patch_wallet(mocker, free=default_conf['stake_amount'])
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         markets=PropertyMock(return_value=markets),
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
@@ -244,29 +244,29 @@ def test_get_trade_stake_amount_unlimited_amount(default_conf,
     conf['stake_amount'] = constants.UNLIMITED_STAKE_AMOUNT
     conf['max_open_trades'] = 2
 
-    freqtrade = FreqtradeBot(conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(conf)
+    patch_get_signal(earthzetaorg)
 
     # no open trades, order amount should be 'balance / max_open_trades'
-    result = freqtrade._get_trade_stake_amount('ETH/BTC')
+    result = earthzetaorg._get_trade_stake_amount('ETH/BTC')
     assert result == default_conf['stake_amount'] / conf['max_open_trades']
 
     # create one trade, order amount should be 'balance / (max_open_trades - num_open_trades)'
-    freqtrade.execute_buy('ETH/BTC', result)
+    earthzetaorg.execute_buy('ETH/BTC', result)
 
-    result = freqtrade._get_trade_stake_amount('LTC/BTC')
+    result = earthzetaorg._get_trade_stake_amount('LTC/BTC')
     assert result == default_conf['stake_amount'] / (conf['max_open_trades'] - 1)
 
     # create 2 trades, order amount should be None
-    freqtrade.execute_buy('LTC/BTC', result)
+    earthzetaorg.execute_buy('LTC/BTC', result)
 
-    result = freqtrade._get_trade_stake_amount('XRP/BTC')
+    result = earthzetaorg._get_trade_stake_amount('XRP/BTC')
     assert result is None
 
     # set max_open_trades = None, so do not trade
     conf['max_open_trades'] = 0
-    freqtrade = FreqtradeBot(conf)
-    result = freqtrade._get_trade_stake_amount('NEO/BTC')
+    earthzetaorg = earthzetaorgBot(conf)
+    result = earthzetaorg._get_trade_stake_amount('NEO/BTC')
     assert result is None
 
 
@@ -278,21 +278,21 @@ def test_edge_called_in_process(mocker, edge_conf) -> None:
         return ['ETH/BTC', 'LTC/BTC', 'XRP/BTC', 'NEO/BTC']
 
     patch_exchange(mocker)
-    freqtrade = FreqtradeBot(edge_conf)
-    freqtrade.pairlists._validate_whitelist = _refresh_whitelist
-    patch_get_signal(freqtrade)
-    freqtrade.process()
-    assert freqtrade.active_pair_whitelist == ['NEO/BTC', 'LTC/BTC']
+    earthzetaorg = earthzetaorgBot(edge_conf)
+    earthzetaorg.pairlists._validate_whitelist = _refresh_whitelist
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.process()
+    assert earthzetaorg.active_pair_whitelist == ['NEO/BTC', 'LTC/BTC']
 
 
 def test_edge_overrides_stake_amount(mocker, edge_conf) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     patch_edge(mocker)
-    freqtrade = FreqtradeBot(edge_conf)
+    earthzetaorg = earthzetaorgBot(edge_conf)
 
-    assert freqtrade._get_trade_stake_amount('NEO/BTC') == (999.9 * 0.5 * 0.01) / 0.20
-    assert freqtrade._get_trade_stake_amount('LTC/BTC') == (999.9 * 0.5 * 0.01) / 0.21
+    assert earthzetaorg._get_trade_stake_amount('NEO/BTC') == (999.9 * 0.5 * 0.01) / 0.20
+    assert earthzetaorg._get_trade_stake_amount('LTC/BTC') == (999.9 * 0.5 * 0.01) / 0.21
 
 
 def test_edge_overrides_stoploss(limit_buy_order, fee, markets, caplog, mocker, edge_conf) -> None:
@@ -308,7 +308,7 @@ def test_edge_overrides_stoploss(limit_buy_order, fee, markets, caplog, mocker, 
     # mocking the ticker: price is falling ...
     buy_price = limit_buy_order['price']
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': buy_price * 0.79,
             'ask': buy_price * 0.79,
@@ -321,17 +321,17 @@ def test_edge_overrides_stoploss(limit_buy_order, fee, markets, caplog, mocker, 
     #############################################
 
     # Create a trade with "limit_buy_order" price
-    freqtrade = FreqtradeBot(edge_conf)
-    freqtrade.active_pair_whitelist = ['NEO/BTC']
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(edge_conf)
+    earthzetaorg.active_pair_whitelist = ['NEO/BTC']
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.update(limit_buy_order)
     #############################################
 
     # stoploss shoud be hit
-    assert freqtrade.handle_trade(trade) is True
+    assert earthzetaorg.handle_trade(trade) is True
     assert log_has('executed sell, reason: SellType.STOP_LOSS', caplog)
     assert trade.sell_reason == SellType.STOP_LOSS.value
 
@@ -349,7 +349,7 @@ def test_edge_should_ignore_strategy_stoploss(limit_buy_order, fee, markets,
     # mocking the ticker: price is falling ...
     buy_price = limit_buy_order['price']
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': buy_price * 0.85,
             'ask': buy_price * 0.85,
@@ -362,17 +362,17 @@ def test_edge_should_ignore_strategy_stoploss(limit_buy_order, fee, markets,
     #############################################
 
     # Create a trade with "limit_buy_order" price
-    freqtrade = FreqtradeBot(edge_conf)
-    freqtrade.active_pair_whitelist = ['NEO/BTC']
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(edge_conf)
+    earthzetaorg.active_pair_whitelist = ['NEO/BTC']
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.update(limit_buy_order)
     #############################################
 
     # stoploss shoud not be hit
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
 
 
 def test_total_open_trades_stakes(mocker, default_conf, ticker,
@@ -382,15 +382,15 @@ def test_total_open_trades_stakes(mocker, default_conf, ticker,
     default_conf['stake_amount'] = 0.0000098751
     default_conf['max_open_trades'] = 2
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
 
     assert trade is not None
@@ -398,7 +398,7 @@ def test_total_open_trades_stakes(mocker, default_conf, ticker,
     assert trade.is_open
     assert trade.open_date is not None
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.order_by(Trade.id.desc()).first()
 
     assert trade is not None
@@ -412,28 +412,28 @@ def test_total_open_trades_stakes(mocker, default_conf, ticker,
 def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    freqtrade = FreqtradeBot(default_conf)
-    freqtrade.strategy.stoploss = -0.05
+    earthzetaorg = earthzetaorgBot(default_conf)
+    earthzetaorg.strategy.stoploss = -0.05
     markets = {'ETH/BTC': {'symbol': 'ETH/BTC'}}
     # no pair found
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
     with pytest.raises(ValueError, match=r'.*get market information.*'):
-        freqtrade._get_min_pair_stake_amount('BNB/BTC', 1)
+        earthzetaorg._get_min_pair_stake_amount('BNB/BTC', 1)
 
     # no 'limits' section
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 1)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 1)
     assert result is None
 
     # empty 'limits' section
     markets["ETH/BTC"]["limits"] = {}
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 1)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 1)
     assert result is None
 
     # no cost Min
@@ -442,10 +442,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 1)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 1)
     assert result is None
 
     # no amount Min
@@ -454,10 +454,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {"min": None}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 1)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 1)
     assert result is None
 
     # empty 'cost'/'amount' section
@@ -466,10 +466,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 1)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 1)
     assert result is None
 
     # min cost is set
@@ -478,10 +478,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 1)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 1)
     assert result == 2 / 0.9
 
     # min amount is set
@@ -490,10 +490,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {'min': 2}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 2)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 2)
     assert result == 2 * 2 / 0.9
 
     # min amount and cost are set (cost is minimal)
@@ -502,10 +502,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {'min': 2}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 2)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 2)
     assert result == min(2, 2 * 2) / 0.9
 
     # min amount and cost are set (amount is minial)
@@ -514,10 +514,10 @@ def test_get_min_pair_stake_amount(mocker, default_conf) -> None:
         'amount': {'min': 2}
     }
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets',
+        'earthzetaorg.exchange.Exchange.markets',
         PropertyMock(return_value=markets)
     )
-    result = freqtrade._get_min_pair_stake_amount('ETH/BTC', 2)
+    result = earthzetaorg._get_min_pair_stake_amount('ETH/BTC', 2)
     assert result == min(8, 2 * 2) / 0.9
 
 
@@ -525,7 +525,7 @@ def test_create_trades(default_conf, ticker, limit_buy_order, fee, markets, mock
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
@@ -534,9 +534,9 @@ def test_create_trades(default_conf, ticker, limit_buy_order, fee, markets, mock
 
     # Save state of current whitelist
     whitelist = deepcopy(default_conf['exchange']['pair_whitelist'])
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade is not None
@@ -560,17 +560,17 @@ def test_create_trades_no_stake_amount(default_conf, ticker, limit_buy_order,
     patch_exchange(mocker)
     patch_wallet(mocker, free=default_conf['stake_amount'] * 0.5)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     with pytest.raises(DependencyException, match=r'.*stake amount.*'):
-        freqtrade.create_trades()
+        earthzetaorg.create_trades()
 
 
 def test_create_trades_minimal_amount(default_conf, ticker, limit_buy_order,
@@ -579,17 +579,17 @@ def test_create_trades_minimal_amount(default_conf, ticker, limit_buy_order,
     patch_exchange(mocker)
     buy_mock = MagicMock(return_value={'id': limit_buy_order['id']})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=buy_mock,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
     default_conf['stake_amount'] = 0.0005
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     rate, amount = buy_mock.call_args[1]['rate'], buy_mock.call_args[1]['amount']
     assert rate * amount >= default_conf['stake_amount']
 
@@ -600,7 +600,7 @@ def test_create_trades_too_small_stake_amount(default_conf, ticker, limit_buy_or
     patch_exchange(mocker)
     buy_mock = MagicMock(return_value={'id': limit_buy_order['id']})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=buy_mock,
         get_fee=fee,
@@ -608,10 +608,10 @@ def test_create_trades_too_small_stake_amount(default_conf, ticker, limit_buy_or
     )
 
     default_conf['stake_amount'] = 0.000000005
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    assert not freqtrade.create_trades()
+    assert not earthzetaorg.create_trades()
 
 
 def test_create_trades_limit_reached(default_conf, ticker, limit_buy_order,
@@ -619,7 +619,7 @@ def test_create_trades_limit_reached(default_conf, ticker, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_balance=MagicMock(return_value=default_conf['stake_amount']),
@@ -629,11 +629,11 @@ def test_create_trades_limit_reached(default_conf, ticker, limit_buy_order,
     default_conf['max_open_trades'] = 0
     default_conf['stake_amount'] = constants.UNLIMITED_STAKE_AMOUNT
 
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    assert not freqtrade.create_trades()
-    assert freqtrade._get_trade_stake_amount('ETH/BTC') is None
+    assert not earthzetaorg.create_trades()
+    assert earthzetaorg._get_trade_stake_amount('ETH/BTC') is None
 
 
 def test_create_trades_no_pairs_let(default_conf, ticker, limit_buy_order, fee,
@@ -641,7 +641,7 @@ def test_create_trades_no_pairs_let(default_conf, ticker, limit_buy_order, fee,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
@@ -649,11 +649,11 @@ def test_create_trades_no_pairs_let(default_conf, ticker, limit_buy_order, fee,
     )
 
     default_conf['exchange']['pair_whitelist'] = ["ETH/BTC"]
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    assert freqtrade.create_trades()
-    assert not freqtrade.create_trades()
+    assert earthzetaorg.create_trades()
+    assert not earthzetaorg.create_trades()
     assert log_has("No currency pair in whitelist, but checking to sell open trades.", caplog)
 
 
@@ -662,17 +662,17 @@ def test_create_trades_no_pairs_in_whitelist(default_conf, ticker, limit_buy_ord
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
     default_conf['exchange']['pair_whitelist'] = []
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    assert not freqtrade.create_trades()
+    assert not earthzetaorg.create_trades()
     assert log_has("Whitelist is empty.", caplog)
 
 
@@ -682,17 +682,17 @@ def test_create_trades_no_signal(default_conf, fee, mocker) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balance=MagicMock(return_value=20),
         get_fee=fee,
     )
     default_conf['stake_amount'] = 10
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade, value=(False, False))
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg, value=(False, False))
 
     Trade.query = MagicMock()
     Trade.query.filter = MagicMock()
-    assert not freqtrade.create_trades()
+    assert not earthzetaorg.create_trades()
 
 
 @pytest.mark.parametrize("max_open", range(0, 5))
@@ -702,16 +702,16 @@ def test_create_trades_multiple_trades(default_conf, ticker,
     patch_exchange(mocker)
     default_conf['max_open_trades'] = max_open
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': "12355555"}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trades = Trade.get_open_trades()
     assert len(trades) == max_open
@@ -722,23 +722,23 @@ def test_create_trades_preopen(default_conf, ticker, fee, markets, mocker) -> No
     patch_exchange(mocker)
     default_conf['max_open_trades'] = 4
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': "12355555"}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create 2 existing trades
-    freqtrade.execute_buy('ETH/BTC', default_conf['stake_amount'])
-    freqtrade.execute_buy('NEO/BTC', default_conf['stake_amount'])
+    earthzetaorg.execute_buy('ETH/BTC', default_conf['stake_amount'])
+    earthzetaorg.execute_buy('NEO/BTC', default_conf['stake_amount'])
 
     assert len(Trade.get_open_trades()) == 2
 
     # Create 2 new trades using create_trades
-    assert freqtrade.create_trades()
+    assert earthzetaorg.create_trades()
 
     trades = Trade.get_open_trades()
     assert len(trades) == 4
@@ -749,20 +749,20 @@ def test_process_trade_creation(default_conf, ticker, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         markets=PropertyMock(return_value=markets),
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_order=MagicMock(return_value=limit_buy_order),
         get_fee=fee,
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     trades = Trade.query.filter(Trade.is_open.is_(True)).all()
     assert not trades
 
-    freqtrade.process()
+    earthzetaorg.process()
 
     trades = Trade.query.filter(Trade.is_open.is_(True)).all()
     assert len(trades) == 1
@@ -784,7 +784,7 @@ def test_process_exchange_failures(default_conf, ticker, markets, mocker) -> Non
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         markets=PropertyMock(return_value=markets),
         buy=MagicMock(side_effect=TemporaryError)
@@ -792,7 +792,7 @@ def test_process_exchange_failures(default_conf, ticker, markets, mocker) -> Non
     sleep_mock = mocker.patch('time.sleep', side_effect=lambda _: None)
 
     worker = Worker(args=None, config=default_conf)
-    patch_get_signal(worker.freqtrade)
+    patch_get_signal(worker.earthzetaorg)
 
     worker._process()
     assert sleep_mock.has_calls()
@@ -802,13 +802,13 @@ def test_process_operational_exception(default_conf, ticker, markets, mocker) ->
     msg_mock = patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         markets=PropertyMock(return_value=markets),
         buy=MagicMock(side_effect=OperationalException)
     )
     worker = Worker(args=None, config=default_conf)
-    patch_get_signal(worker.freqtrade)
+    patch_get_signal(worker.earthzetaorg)
 
     assert worker.state == State.RUNNING
 
@@ -822,25 +822,25 @@ def test_process_trade_handling(
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         markets=PropertyMock(return_value=markets),
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_order=MagicMock(return_value=limit_buy_order),
         get_fee=fee,
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     trades = Trade.query.filter(Trade.is_open.is_(True)).all()
     assert not trades
-    freqtrade.process()
+    earthzetaorg.process()
 
     trades = Trade.query.filter(Trade.is_open.is_(True)).all()
     assert len(trades) == 1
 
     # Nothing happened ...
-    freqtrade.process()
+    earthzetaorg.process()
     assert len(trades) == 1
 
 
@@ -850,15 +850,15 @@ def test_process_trade_no_whitelist_pair(
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         markets=PropertyMock(return_value=markets),
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_order=MagicMock(return_value=limit_buy_order),
         get_fee=fee,
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
     pair = 'NOCLUE/BTC'
     # create open trade not in whitelist
     Trade.session.add(Trade(
@@ -882,11 +882,11 @@ def test_process_trade_no_whitelist_pair(
         exchange='bittrex',
     ))
 
-    assert pair not in freqtrade.active_pair_whitelist
-    freqtrade.process()
-    assert pair in freqtrade.active_pair_whitelist
+    assert pair not in earthzetaorg.active_pair_whitelist
+    earthzetaorg.process()
+    assert pair in earthzetaorg.active_pair_whitelist
     # Make sure each pair is only in the list once
-    assert len(freqtrade.active_pair_whitelist) == len(set(freqtrade.active_pair_whitelist))
+    assert len(earthzetaorg.active_pair_whitelist) == len(set(earthzetaorg.active_pair_whitelist))
 
 
 def test_process_informative_pairs_added(default_conf, ticker, markets, mocker) -> None:
@@ -898,7 +898,7 @@ def test_process_informative_pairs_added(default_conf, ticker, markets, mocker) 
 
     refresh_mock = MagicMock()
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         markets=PropertyMock(return_value=markets),
         buy=MagicMock(side_effect=TemporaryError),
@@ -907,12 +907,12 @@ def test_process_informative_pairs_added(default_conf, ticker, markets, mocker) 
     inf_pairs = MagicMock(return_value=[("BTC/ETH", '1m'), ("ETH/USDT", "1h")])
     mocker.patch('time.sleep', return_value=None)
 
-    freqtrade = FreqtradeBot(default_conf)
-    freqtrade.pairlists._validate_whitelist = _refresh_whitelist
-    freqtrade.strategy.informative_pairs = inf_pairs
-    # patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    earthzetaorg.pairlists._validate_whitelist = _refresh_whitelist
+    earthzetaorg.strategy.informative_pairs = inf_pairs
+    # patch_get_signal(earthzetaorg)
 
-    freqtrade.process()
+    earthzetaorg.process()
     assert inf_pairs.call_count == 1
     assert refresh_mock.call_count == 1
     assert ("BTC/ETH", "1m") in refresh_mock.call_args[0][0]
@@ -922,45 +922,45 @@ def test_process_informative_pairs_added(default_conf, ticker, markets, mocker) 
 
 def test_balance_fully_ask_side(mocker, default_conf) -> None:
     default_conf['bid_strategy']['ask_last_balance'] = 0.0
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={'ask': 20, 'last': 10}))
 
-    assert freqtrade.get_target_bid('ETH/BTC') == 20
+    assert earthzetaorg.get_target_bid('ETH/BTC') == 20
 
 
 def test_balance_fully_last_side(mocker, default_conf) -> None:
     default_conf['bid_strategy']['ask_last_balance'] = 1.0
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={'ask': 20, 'last': 10}))
 
-    assert freqtrade.get_target_bid('ETH/BTC') == 10
+    assert earthzetaorg.get_target_bid('ETH/BTC') == 10
 
 
 def test_balance_bigger_last_ask(mocker, default_conf) -> None:
     default_conf['bid_strategy']['ask_last_balance'] = 1.0
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={'ask': 5, 'last': 10}))
-    assert freqtrade.get_target_bid('ETH/BTC') == 5
+    assert earthzetaorg.get_target_bid('ETH/BTC') == 5
 
 
 def test_execute_buy(mocker, default_conf, fee, markets, limit_buy_order) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
     stake_amount = 2
     bid = 0.11
     get_bid = MagicMock(return_value=bid)
     mocker.patch.multiple(
-        'freqtrade.freqtradebot.FreqtradeBot',
+        'earthzetaorg.earthzetaorgbot.earthzetaorgBot',
         get_target_bid=get_bid,
         _get_min_pair_stake_amount=MagicMock(return_value=1)
         )
     buy_mm = MagicMock(return_value={'id': limit_buy_order['id']})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -973,7 +973,7 @@ def test_execute_buy(mocker, default_conf, fee, markets, limit_buy_order) -> Non
     pair = 'ETH/BTC'
     print(buy_mm.call_args_list)
 
-    assert freqtrade.execute_buy(pair, stake_amount)
+    assert earthzetaorg.execute_buy(pair, stake_amount)
     assert get_bid.call_count == 1
     assert buy_mm.call_count == 1
     call_args = buy_mm.call_args_list[0][1]
@@ -990,7 +990,7 @@ def test_execute_buy(mocker, default_conf, fee, markets, limit_buy_order) -> Non
 
     # Test calling with price
     fix_price = 0.06
-    assert freqtrade.execute_buy(pair, stake_amount, fix_price)
+    assert earthzetaorg.execute_buy(pair, stake_amount, fix_price)
     # Make sure get_target_bid wasn't called again
     assert get_bid.call_count == 1
 
@@ -1004,8 +1004,8 @@ def test_execute_buy(mocker, default_conf, fee, markets, limit_buy_order) -> Non
     limit_buy_order['status'] = 'closed'
     limit_buy_order['price'] = 10
     limit_buy_order['cost'] = 100
-    mocker.patch('freqtrade.exchange.Exchange.buy', MagicMock(return_value=limit_buy_order))
-    assert freqtrade.execute_buy(pair, stake_amount)
+    mocker.patch('earthzetaorg.exchange.Exchange.buy', MagicMock(return_value=limit_buy_order))
+    assert earthzetaorg.execute_buy(pair, stake_amount)
     trade = Trade.query.all()[2]
     assert trade
     assert trade.open_order_id is None
@@ -1019,8 +1019,8 @@ def test_execute_buy(mocker, default_conf, fee, markets, limit_buy_order) -> Non
     limit_buy_order['remaining'] = 10.00
     limit_buy_order['price'] = 0.5
     limit_buy_order['cost'] = 40.495905365
-    mocker.patch('freqtrade.exchange.Exchange.buy', MagicMock(return_value=limit_buy_order))
-    assert freqtrade.execute_buy(pair, stake_amount)
+    mocker.patch('earthzetaorg.exchange.Exchange.buy', MagicMock(return_value=limit_buy_order))
+    assert earthzetaorg.execute_buy(pair, stake_amount)
     trade = Trade.query.all()[3]
     assert trade
     assert trade.open_order_id is None
@@ -1034,31 +1034,31 @@ def test_execute_buy(mocker, default_conf, fee, markets, limit_buy_order) -> Non
     limit_buy_order['remaining'] = 90.99181073
     limit_buy_order['price'] = 0.5
     limit_buy_order['cost'] = 0.0
-    mocker.patch('freqtrade.exchange.Exchange.buy', MagicMock(return_value=limit_buy_order))
-    assert not freqtrade.execute_buy(pair, stake_amount)
+    mocker.patch('earthzetaorg.exchange.Exchange.buy', MagicMock(return_value=limit_buy_order))
+    assert not earthzetaorg.execute_buy(pair, stake_amount)
 
 
 def test_add_stoploss_on_exchange(mocker, default_conf, limit_buy_order) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.handle_trade', MagicMock(return_value=True))
-    mocker.patch('freqtrade.exchange.Exchange.get_order', return_value=limit_buy_order)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=[])
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.get_real_amount',
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.handle_trade', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', return_value=limit_buy_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=[])
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount',
                  return_value=limit_buy_order['amount'])
 
     stoploss_limit = MagicMock(return_value={'id': 13434334})
-    mocker.patch('freqtrade.exchange.Exchange.stoploss_limit', stoploss_limit)
+    mocker.patch('earthzetaorg.exchange.Exchange.stoploss_limit', stoploss_limit)
 
-    freqtrade = FreqtradeBot(default_conf)
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
+    earthzetaorg = earthzetaorgBot(default_conf)
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
 
     trade = MagicMock()
     trade.open_order_id = None
     trade.stoploss_order_id = None
     trade.is_open = True
 
-    freqtrade.process_maybe_execute_sell(trade)
+    earthzetaorg.process_maybe_execute_sell(trade)
     assert trade.stoploss_order_id == '13434334'
     assert stoploss_limit.call_count == 1
     assert trade.is_open is True
@@ -1070,7 +1070,7 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1082,8 +1082,8 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
         markets=PropertyMock(return_value=markets),
         stoploss_limit=stoploss_limit
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # First case: when stoploss is not yet set but the order is open
     # should get the stoploss order id immediately
@@ -1093,7 +1093,7 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
     trade.open_order_id = None
     trade.stoploss_order_id = None
 
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
     assert stoploss_limit.call_count == 1
     assert trade.stoploss_order_id == "13434334"
 
@@ -1104,9 +1104,9 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
     trade.stoploss_order_id = 100
 
     hanging_stoploss_order = MagicMock(return_value={'status': 'open'})
-    mocker.patch('freqtrade.exchange.Exchange.get_order', hanging_stoploss_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', hanging_stoploss_order)
 
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
     assert trade.stoploss_order_id == 100
 
     # Third case: when stoploss was set but it was canceled for some reason
@@ -1117,10 +1117,10 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
     trade.stoploss_order_id = 100
 
     canceled_stoploss_order = MagicMock(return_value={'status': 'canceled'})
-    mocker.patch('freqtrade.exchange.Exchange.get_order', canceled_stoploss_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', canceled_stoploss_order)
     stoploss_limit.reset_mock()
 
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
     assert stoploss_limit.call_count == 1
     assert trade.stoploss_order_id == "13434334"
 
@@ -1128,7 +1128,7 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
     # should unset stoploss_order_id and return true
     # as a trade actually happened
     caplog.clear()
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.is_open = True
     trade.open_order_id = None
@@ -1141,17 +1141,17 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
         'price': 3,
         'average': 2
     })
-    mocker.patch('freqtrade.exchange.Exchange.get_order', stoploss_order_hit)
-    assert freqtrade.handle_stoploss_on_exchange(trade) is True
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', stoploss_order_hit)
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is True
     assert log_has('STOP_LOSS_LIMIT is hit for {}.'.format(trade), caplog)
     assert trade.stoploss_order_id is None
     assert trade.is_open is False
 
     mocker.patch(
-        'freqtrade.exchange.Exchange.stoploss_limit',
+        'earthzetaorg.exchange.Exchange.stoploss_limit',
         side_effect=DependencyException()
     )
-    freqtrade.handle_stoploss_on_exchange(trade)
+    earthzetaorg.handle_stoploss_on_exchange(trade)
     assert log_has('Unable to place a stoploss order on exchange.', caplog)
     assert trade.stoploss_order_id is None
 
@@ -1159,9 +1159,9 @@ def test_handle_stoploss_on_exchange(mocker, default_conf, fee, caplog,
     # It should try to add stoploss order
     trade.stoploss_order_id = 100
     stoploss_limit.reset_mock()
-    mocker.patch('freqtrade.exchange.Exchange.get_order', side_effect=InvalidOrderException())
-    mocker.patch('freqtrade.exchange.Exchange.stoploss_limit', stoploss_limit)
-    freqtrade.handle_stoploss_on_exchange(trade)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', side_effect=InvalidOrderException())
+    mocker.patch('earthzetaorg.exchange.Exchange.stoploss_limit', stoploss_limit)
+    earthzetaorg.handle_stoploss_on_exchange(trade)
     assert stoploss_limit.call_count == 1
 
 
@@ -1171,7 +1171,7 @@ def test_handle_sle_cancel_cant_recreate(mocker, default_conf, fee, caplog,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1184,17 +1184,17 @@ def test_handle_sle_cancel_cant_recreate(mocker, default_conf, fee, caplog,
         get_order=MagicMock(return_value={'status': 'canceled'}),
         stoploss_limit=MagicMock(side_effect=DependencyException()),
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.is_open = True
     trade.open_order_id = '12345'
     trade.stoploss_order_id = 100
     assert trade
 
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
     assert log_has_re(r'Stoploss order was cancelled, but unable to recreate one.*', caplog)
     assert trade.stoploss_order_id is None
     assert trade.is_open is True
@@ -1206,7 +1206,7 @@ def test_create_stoploss_order_invalid_order(mocker, default_conf, caplog, fee,
     patch_exchange(mocker)
     sell_mock = MagicMock(return_value={'id': limit_sell_order['id']})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1219,14 +1219,14 @@ def test_create_stoploss_order_invalid_order(mocker, default_conf, caplog, fee,
         get_order=MagicMock(return_value={'status': 'canceled'}),
         stoploss_limit=MagicMock(side_effect=InvalidOrderException()),
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     caplog.clear()
-    freqtrade.create_stoploss_order(trade, 200, 199)
+    earthzetaorg.create_stoploss_order(trade, 200, 199)
     assert trade.stoploss_order_id is None
     assert trade.sell_reason == SellType.EMERGENCY_SELL.value
     assert log_has("Unable to place a stoploss order on exchange. ", caplog)
@@ -1251,7 +1251,7 @@ def test_handle_stoploss_on_exchange_trailing(mocker, default_conf, fee, caplog,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1270,20 +1270,20 @@ def test_handle_stoploss_on_exchange_trailing(mocker, default_conf, fee, caplog,
     # disabling ROI
     default_conf['minimal_roi']['0'] = 999999999
 
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     # enabling stoploss on exchange
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
 
     # setting stoploss
-    freqtrade.strategy.stoploss = -0.05
+    earthzetaorg.strategy.stoploss = -0.05
 
     # setting stoploss_on_exchange_interval to 60 seconds
-    freqtrade.strategy.order_types['stoploss_on_exchange_interval'] = 60
+    earthzetaorg.strategy.order_types['stoploss_on_exchange_interval'] = 60
 
-    patch_get_signal(freqtrade)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.is_open = True
     trade.open_order_id = None
@@ -1300,14 +1300,14 @@ def test_handle_stoploss_on_exchange_trailing(mocker, default_conf, fee, caplog,
         }
     })
 
-    mocker.patch('freqtrade.exchange.Exchange.get_order', stoploss_order_hanging)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', stoploss_order_hanging)
 
     # stoploss initially at 5%
-    assert freqtrade.handle_trade(trade) is False
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
 
     # price jumped 2x
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker', MagicMock(return_value={
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker', MagicMock(return_value={
         'bid': 0.00002344,
         'ask': 0.00002346,
         'last': 0.00002344
@@ -1315,22 +1315,22 @@ def test_handle_stoploss_on_exchange_trailing(mocker, default_conf, fee, caplog,
 
     cancel_order_mock = MagicMock()
     stoploss_order_mock = MagicMock()
-    mocker.patch('freqtrade.exchange.Exchange.cancel_order', cancel_order_mock)
-    mocker.patch('freqtrade.exchange.Exchange.stoploss_limit', stoploss_order_mock)
+    mocker.patch('earthzetaorg.exchange.Exchange.cancel_order', cancel_order_mock)
+    mocker.patch('earthzetaorg.exchange.Exchange.stoploss_limit', stoploss_order_mock)
 
     # stoploss should not be updated as the interval is 60 seconds
-    assert freqtrade.handle_trade(trade) is False
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
     cancel_order_mock.assert_not_called()
     stoploss_order_mock.assert_not_called()
 
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
     assert trade.stop_loss == 0.00002344 * 0.95
 
     # setting stoploss_on_exchange_interval to 0 seconds
-    freqtrade.strategy.order_types['stoploss_on_exchange_interval'] = 0
+    earthzetaorg.strategy.order_types['stoploss_on_exchange_interval'] = 0
 
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
 
     cancel_order_mock.assert_called_once_with(100, 'ETH/BTC')
     stoploss_order_mock.assert_called_once_with(amount=85.25149190110828,
@@ -1347,7 +1347,7 @@ def test_handle_stoploss_on_exchange_trailing_error(mocker, default_conf, fee, c
     patch_exchange(mocker)
 
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1363,17 +1363,17 @@ def test_handle_stoploss_on_exchange_trailing_error(mocker, default_conf, fee, c
     # enabling TSL
     default_conf['trailing_stop'] = True
 
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
     # enabling stoploss on exchange
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
 
     # setting stoploss
-    freqtrade.strategy.stoploss = -0.05
+    earthzetaorg.strategy.stoploss = -0.05
 
     # setting stoploss_on_exchange_interval to 60 seconds
-    freqtrade.strategy.order_types['stoploss_on_exchange_interval'] = 60
-    patch_get_signal(freqtrade)
-    freqtrade.create_trades()
+    earthzetaorg.strategy.order_types['stoploss_on_exchange_interval'] = 60
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.is_open = True
     trade.open_order_id = None
@@ -1391,9 +1391,9 @@ def test_handle_stoploss_on_exchange_trailing_error(mocker, default_conf, fee, c
             'stopPrice': '0.1'
         }
     }
-    mocker.patch('freqtrade.exchange.Exchange.cancel_order', side_effect=InvalidOrderException())
-    mocker.patch('freqtrade.exchange.Exchange.get_order', stoploss_order_hanging)
-    freqtrade.handle_trailing_stoploss_on_exchange(trade, stoploss_order_hanging)
+    mocker.patch('earthzetaorg.exchange.Exchange.cancel_order', side_effect=InvalidOrderException())
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', stoploss_order_hanging)
+    earthzetaorg.handle_trailing_stoploss_on_exchange(trade, stoploss_order_hanging)
     assert log_has_re(r"Could not cancel stoploss order abcd for pair ETH/BTC.*", caplog)
 
     # Still try to create order
@@ -1401,9 +1401,9 @@ def test_handle_stoploss_on_exchange_trailing_error(mocker, default_conf, fee, c
 
     # Fail creating stoploss order
     caplog.clear()
-    cancel_mock = mocker.patch("freqtrade.exchange.Exchange.cancel_order", MagicMock())
-    mocker.patch("freqtrade.exchange.Exchange.stoploss_limit", side_effect=DependencyException())
-    freqtrade.handle_trailing_stoploss_on_exchange(trade, stoploss_order_hanging)
+    cancel_mock = mocker.patch("earthzetaorg.exchange.Exchange.cancel_order", MagicMock())
+    mocker.patch("earthzetaorg.exchange.Exchange.stoploss_limit", side_effect=DependencyException())
+    earthzetaorg.handle_trailing_stoploss_on_exchange(trade, stoploss_order_hanging)
     assert cancel_mock.call_count == 1
     assert log_has_re(r"Could not create trailing stoploss order for pair ETH/BTC\..*", caplog)
 
@@ -1418,7 +1418,7 @@ def test_tsl_on_exchange_compatible_with_edge(mocker, edge_conf, fee, caplog,
     patch_edge(mocker)
     edge_conf['max_open_trades'] = float('inf')
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1439,22 +1439,22 @@ def test_tsl_on_exchange_compatible_with_edge(mocker, edge_conf, fee, caplog,
     # disabling ROI
     edge_conf['minimal_roi']['0'] = 999999999
 
-    freqtrade = FreqtradeBot(edge_conf)
+    earthzetaorg = earthzetaorgBot(edge_conf)
 
     # enabling stoploss on exchange
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
 
     # setting stoploss
-    freqtrade.strategy.stoploss = -0.02
+    earthzetaorg.strategy.stoploss = -0.02
 
     # setting stoploss_on_exchange_interval to 0 second
-    freqtrade.strategy.order_types['stoploss_on_exchange_interval'] = 0
+    earthzetaorg.strategy.order_types['stoploss_on_exchange_interval'] = 0
 
-    patch_get_signal(freqtrade)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.active_pair_whitelist = freqtrade.edge.adjust(freqtrade.active_pair_whitelist)
+    earthzetaorg.active_pair_whitelist = earthzetaorg.edge.adjust(earthzetaorg.active_pair_whitelist)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
     trade.is_open = True
     trade.open_order_id = None
@@ -1471,27 +1471,27 @@ def test_tsl_on_exchange_compatible_with_edge(mocker, edge_conf, fee, caplog,
         }
     })
 
-    mocker.patch('freqtrade.exchange.Exchange.get_order', stoploss_order_hanging)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', stoploss_order_hanging)
 
     # stoploss initially at 20% as edge dictated it.
-    assert freqtrade.handle_trade(trade) is False
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
     assert trade.stop_loss == 0.000009384
 
     cancel_order_mock = MagicMock()
     stoploss_order_mock = MagicMock()
-    mocker.patch('freqtrade.exchange.Exchange.cancel_order', cancel_order_mock)
-    mocker.patch('freqtrade.exchange.Exchange.stoploss_limit', stoploss_order_mock)
+    mocker.patch('earthzetaorg.exchange.Exchange.cancel_order', cancel_order_mock)
+    mocker.patch('earthzetaorg.exchange.Exchange.stoploss_limit', stoploss_order_mock)
 
     # price goes down 5%
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker', MagicMock(return_value={
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker', MagicMock(return_value={
         'bid': 0.00001172 * 0.95,
         'ask': 0.00001173 * 0.95,
         'last': 0.00001172 * 0.95
     }))
 
-    assert freqtrade.handle_trade(trade) is False
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
 
     # stoploss should remain the same
     assert trade.stop_loss == 0.000009384
@@ -1500,14 +1500,14 @@ def test_tsl_on_exchange_compatible_with_edge(mocker, edge_conf, fee, caplog,
     cancel_order_mock.assert_not_called()
 
     # price jumped 2x
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker', MagicMock(return_value={
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker', MagicMock(return_value={
         'bid': 0.00002344,
         'ask': 0.00002346,
         'last': 0.00002344
     }))
 
-    assert freqtrade.handle_trade(trade) is False
-    assert freqtrade.handle_stoploss_on_exchange(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
+    assert earthzetaorg.handle_stoploss_on_exchange(trade) is False
 
     # stoploss should be set to 1% as trailing is on
     assert trade.stop_loss == 0.00002344 * 0.99
@@ -1519,51 +1519,51 @@ def test_tsl_on_exchange_compatible_with_edge(mocker, edge_conf, fee, caplog,
 
 
 def test_process_maybe_execute_buy(mocker, default_conf, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
 
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.create_trades', MagicMock(return_value=False))
-    freqtrade.process_maybe_execute_buy()
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.create_trades', MagicMock(return_value=False))
+    earthzetaorg.process_maybe_execute_buy()
     assert log_has('Found no buy signals for whitelisted currencies. Trying again...', caplog)
 
 
 def test_process_maybe_execute_buy_exception(mocker, default_conf, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
 
     mocker.patch(
-        'freqtrade.freqtradebot.FreqtradeBot.create_trades',
+        'earthzetaorg.earthzetaorgbot.earthzetaorgBot.create_trades',
         MagicMock(side_effect=DependencyException)
     )
-    freqtrade.process_maybe_execute_buy()
+    earthzetaorg.process_maybe_execute_buy()
     assert log_has('Unable to create trade: ', caplog)
 
 
 def test_process_maybe_execute_sell(mocker, default_conf, limit_buy_order, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
 
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.handle_trade', MagicMock(return_value=True))
-    mocker.patch('freqtrade.exchange.Exchange.get_order', return_value=limit_buy_order)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=[])
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.get_real_amount',
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.handle_trade', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', return_value=limit_buy_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=[])
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount',
                  return_value=limit_buy_order['amount'])
 
     trade = MagicMock()
     trade.open_order_id = '123'
     trade.open_fee = 0.001
-    assert not freqtrade.process_maybe_execute_sell(trade)
+    assert not earthzetaorg.process_maybe_execute_sell(trade)
     # Test amount not modified by fee-logic
     assert not log_has(
         'Applying fee to amount for Trade {} from 90.99181073 to 90.81'.format(trade), caplog
     )
 
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.get_real_amount', return_value=90.81)
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount', return_value=90.81)
     # test amount modified by fee-logic
-    assert not freqtrade.process_maybe_execute_sell(trade)
+    assert not earthzetaorg.process_maybe_execute_sell(trade)
 
 
 def test_process_maybe_execute_sell_exception(mocker, default_conf,
                                               limit_buy_order, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_order', return_value=limit_buy_order)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', return_value=limit_buy_order)
 
     trade = MagicMock()
     trade.open_order_id = '123'
@@ -1571,20 +1571,20 @@ def test_process_maybe_execute_sell_exception(mocker, default_conf,
 
     # Test raise of DependencyException exception
     mocker.patch(
-        'freqtrade.freqtradebot.FreqtradeBot.update_trade_state',
+        'earthzetaorg.earthzetaorgbot.earthzetaorgBot.update_trade_state',
         side_effect=DependencyException()
     )
-    freqtrade.process_maybe_execute_sell(trade)
+    earthzetaorg.process_maybe_execute_sell(trade)
     assert log_has('Unable to sell trade: ', caplog)
 
 
 def test_update_trade_state(mocker, default_conf, limit_buy_order, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
 
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.handle_trade', MagicMock(return_value=True))
-    mocker.patch('freqtrade.exchange.Exchange.get_order', return_value=limit_buy_order)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=[])
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.get_real_amount',
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.handle_trade', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', return_value=limit_buy_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=[])
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount',
                  return_value=limit_buy_order['amount'])
 
     trade = Trade()
@@ -1592,36 +1592,36 @@ def test_update_trade_state(mocker, default_conf, limit_buy_order, caplog) -> No
     Trade.session = MagicMock()
     trade.open_order_id = '123'
     trade.open_fee = 0.001
-    freqtrade.update_trade_state(trade)
+    earthzetaorg.update_trade_state(trade)
     # Test amount not modified by fee-logic
     assert not log_has_re(r'Applying fee to .*', caplog)
     assert trade.open_order_id is None
     assert trade.amount == limit_buy_order['amount']
 
     trade.open_order_id = '123'
-    mocker.patch('freqtrade.freqtradebot.FreqtradeBot.get_real_amount', return_value=90.81)
+    mocker.patch('earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount', return_value=90.81)
     assert trade.amount != 90.81
     # test amount modified by fee-logic
-    freqtrade.update_trade_state(trade)
+    earthzetaorg.update_trade_state(trade)
     assert trade.amount == 90.81
     assert trade.open_order_id is None
 
     trade.is_open = True
     trade.open_order_id = None
     # Assert we call handle_trade() if trade is feasible for execution
-    freqtrade.update_trade_state(trade)
+    earthzetaorg.update_trade_state(trade)
 
     assert log_has_re('Found open order for.*', caplog)
 
 
 def test_update_trade_state_withorderdict(default_conf, trades_for_order, limit_buy_order, mocker):
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     # get_order should not be called!!
-    mocker.patch('freqtrade.exchange.Exchange.get_order', MagicMock(side_effect=ValueError))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', MagicMock(side_effect=ValueError))
     patch_exchange(mocker)
     Trade.session = MagicMock()
     amount = sum(x['amount'] for x in trades_for_order)
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
     trade = Trade(
         pair='LTC/ETH',
         amount=amount,
@@ -1630,15 +1630,15 @@ def test_update_trade_state_withorderdict(default_conf, trades_for_order, limit_
         open_order_id="123456",
         is_open=True,
     )
-    freqtrade.update_trade_state(trade, limit_buy_order)
+    earthzetaorg.update_trade_state(trade, limit_buy_order)
     assert trade.amount != amount
     assert trade.amount == limit_buy_order['amount']
 
 
 def test_update_trade_state_exception(mocker, default_conf,
                                       limit_buy_order, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_order', return_value=limit_buy_order)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', return_value=limit_buy_order)
 
     trade = MagicMock()
     trade.open_order_id = '123'
@@ -1646,16 +1646,16 @@ def test_update_trade_state_exception(mocker, default_conf,
 
     # Test raise of OperationalException exception
     mocker.patch(
-        'freqtrade.freqtradebot.FreqtradeBot.get_real_amount',
+        'earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount',
         side_effect=OperationalException()
     )
-    freqtrade.update_trade_state(trade)
+    earthzetaorg.update_trade_state(trade)
     assert log_has('Could not update trade amount: ', caplog)
 
 
 def test_update_trade_state_orderexception(mocker, default_conf, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.get_order',
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order',
                  MagicMock(side_effect=InvalidOrderException))
 
     trade = MagicMock()
@@ -1663,23 +1663,23 @@ def test_update_trade_state_orderexception(mocker, default_conf, caplog) -> None
     trade.open_fee = 0.001
 
     # Test raise of OperationalException exception
-    grm_mock = mocker.patch("freqtrade.freqtradebot.FreqtradeBot.get_real_amount", MagicMock())
-    freqtrade.update_trade_state(trade)
+    grm_mock = mocker.patch("earthzetaorg.earthzetaorgbot.earthzetaorgBot.get_real_amount", MagicMock())
+    earthzetaorg.update_trade_state(trade)
     assert grm_mock.call_count == 0
     assert log_has(f'Unable to fetch order {trade.open_order_id}: ', caplog)
 
 
 def test_update_trade_state_sell(default_conf, trades_for_order, limit_sell_order, mocker):
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     # get_order should not be called!!
-    mocker.patch('freqtrade.exchange.Exchange.get_order', MagicMock(side_effect=ValueError))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', MagicMock(side_effect=ValueError))
     wallet_mock = MagicMock()
-    mocker.patch('freqtrade.wallets.Wallets.update', wallet_mock)
+    mocker.patch('earthzetaorg.wallets.Wallets.update', wallet_mock)
 
     patch_exchange(mocker)
     Trade.session = MagicMock()
     amount = limit_sell_order["amount"]
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
     wallet_mock.reset_mock()
     trade = Trade(
         pair='LTC/ETH',
@@ -1691,7 +1691,7 @@ def test_update_trade_state_sell(default_conf, trades_for_order, limit_sell_orde
         open_order_id="123456",
         is_open=True,
     )
-    freqtrade.update_trade_state(trade, limit_sell_order)
+    earthzetaorg.update_trade_state(trade, limit_sell_order)
     assert trade.amount == limit_sell_order['amount']
     # Wallet needs to be updated after closing a limit-sell order to reenable buying
     assert wallet_mock.call_count == 1
@@ -1703,7 +1703,7 @@ def test_handle_trade(default_conf, limit_buy_order, limit_sell_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -1714,10 +1714,10 @@ def test_handle_trade(default_conf, limit_buy_order, limit_sell_order,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
@@ -1726,8 +1726,8 @@ def test_handle_trade(default_conf, limit_buy_order, limit_sell_order,
     trade.update(limit_buy_order)
     assert trade.is_open is True
 
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
     assert trade.open_order_id == limit_sell_order['id']
 
     # Simulate fulfilled LIMIT_SELL order for trade
@@ -1746,18 +1746,18 @@ def test_handle_overlpapping_signals(default_conf, ticker, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade, value=(True, True))
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg, value=(True, True))
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     # Buy and Sell triggering, so doing nothing ...
     trades = Trade.query.all()
@@ -1765,33 +1765,33 @@ def test_handle_overlpapping_signals(default_conf, ticker, limit_buy_order,
     assert nb_trades == 0
 
     # Buy is triggering, so buying ...
-    patch_get_signal(freqtrade, value=(True, False))
-    freqtrade.create_trades()
+    patch_get_signal(earthzetaorg, value=(True, False))
+    earthzetaorg.create_trades()
     trades = Trade.query.all()
     nb_trades = len(trades)
     assert nb_trades == 1
     assert trades[0].is_open is True
 
     # Buy and Sell are not triggering, so doing nothing ...
-    patch_get_signal(freqtrade, value=(False, False))
-    assert freqtrade.handle_trade(trades[0]) is False
+    patch_get_signal(earthzetaorg, value=(False, False))
+    assert earthzetaorg.handle_trade(trades[0]) is False
     trades = Trade.query.all()
     nb_trades = len(trades)
     assert nb_trades == 1
     assert trades[0].is_open is True
 
     # Buy and Sell are triggering, so doing nothing ...
-    patch_get_signal(freqtrade, value=(True, True))
-    assert freqtrade.handle_trade(trades[0]) is False
+    patch_get_signal(earthzetaorg, value=(True, True))
+    assert earthzetaorg.handle_trade(trades[0]) is False
     trades = Trade.query.all()
     nb_trades = len(trades)
     assert nb_trades == 1
     assert trades[0].is_open is True
 
     # Sell is triggering, guess what : we are Selling!
-    patch_get_signal(freqtrade, value=(False, True))
+    patch_get_signal(earthzetaorg, value=(False, True))
     trades = Trade.query.all()
-    assert freqtrade.handle_trade(trades[0]) is True
+    assert earthzetaorg.handle_trade(trades[0]) is True
 
 
 def test_handle_trade_roi(default_conf, ticker, limit_buy_order,
@@ -1802,18 +1802,18 @@ def test_handle_trade_roi(default_conf, ticker, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade, value=(True, False))
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=True)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg, value=(True, False))
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=True)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.is_open = True
@@ -1823,8 +1823,8 @@ def test_handle_trade_roi(default_conf, ticker, limit_buy_order,
     #      we might just want to check if we are in a sell condition without
     #      executing
     # if ROI is reached we must sell
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade)
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade)
     assert log_has('Required profit reached. Selling..', caplog)
 
 
@@ -1835,26 +1835,26 @@ def test_handle_trade_experimental(
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
 
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.is_open = True
 
-    patch_get_signal(freqtrade, value=(False, False))
-    assert not freqtrade.handle_trade(trade)
+    patch_get_signal(earthzetaorg, value=(False, False))
+    assert not earthzetaorg.handle_trade(trade)
 
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade)
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade)
     assert log_has('Sell signal received. Selling..', caplog)
 
 
@@ -1863,17 +1863,17 @@ def test_close_trade(default_conf, ticker, limit_buy_order, limit_sell_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create trade and sell it
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
@@ -1883,7 +1883,7 @@ def test_close_trade(default_conf, ticker, limit_buy_order, limit_sell_order,
     assert trade.is_open is False
 
     with pytest.raises(ValueError, match=r'.*closed trade.*'):
-        freqtrade.handle_trade(trade)
+        earthzetaorg.handle_trade(trade)
 
 
 def test_check_handle_timedout_buy(default_conf, ticker, limit_buy_order_old, fee, mocker) -> None:
@@ -1891,13 +1891,13 @@ def test_check_handle_timedout_buy(default_conf, ticker, limit_buy_order_old, fe
     cancel_order_mock = MagicMock()
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_order=MagicMock(return_value=limit_buy_order_old),
         cancel_order=cancel_order_mock,
         get_fee=fee
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_buy = Trade(
         pair='ETH/BTC',
@@ -1915,7 +1915,7 @@ def test_check_handle_timedout_buy(default_conf, ticker, limit_buy_order_old, fe
     Trade.session.add(trade_buy)
 
     # check it does cancel buy orders over the time limit
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert cancel_order_mock.call_count == 1
     assert rpc_mock.call_count == 1
     trades = Trade.query.filter(Trade.open_order_id.is_(trade_buy.open_order_id)).all()
@@ -1931,13 +1931,13 @@ def test_check_handle_cancelled_buy(default_conf, ticker, limit_buy_order_old,
     patch_exchange(mocker)
     limit_buy_order_old.update({"status": "canceled"})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_order=MagicMock(return_value=limit_buy_order_old),
         cancel_order=cancel_order_mock,
         get_fee=fee
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_buy = Trade(
         pair='ETH/BTC',
@@ -1955,7 +1955,7 @@ def test_check_handle_cancelled_buy(default_conf, ticker, limit_buy_order_old,
     Trade.session.add(trade_buy)
 
     # check it does cancel buy orders over the time limit
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert cancel_order_mock.call_count == 0
     assert rpc_mock.call_count == 1
     trades = Trade.query.filter(Trade.open_order_id.is_(trade_buy.open_order_id)).all()
@@ -1970,14 +1970,14 @@ def test_check_handle_timedout_buy_exception(default_conf, ticker, limit_buy_ord
     cancel_order_mock = MagicMock()
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         validate_pairs=MagicMock(),
         get_ticker=ticker,
         get_order=MagicMock(side_effect=DependencyException),
         cancel_order=cancel_order_mock,
         get_fee=fee
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_buy = Trade(
         pair='ETH/BTC',
@@ -1995,7 +1995,7 @@ def test_check_handle_timedout_buy_exception(default_conf, ticker, limit_buy_ord
     Trade.session.add(trade_buy)
 
     # check it does cancel buy orders over the time limit
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert cancel_order_mock.call_count == 0
     assert rpc_mock.call_count == 0
     trades = Trade.query.filter(Trade.open_order_id.is_(trade_buy.open_order_id)).all()
@@ -2008,12 +2008,12 @@ def test_check_handle_timedout_sell(default_conf, ticker, limit_sell_order_old, 
     cancel_order_mock = MagicMock()
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_order=MagicMock(return_value=limit_sell_order_old),
         cancel_order=cancel_order_mock
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_sell = Trade(
         pair='ETH/BTC',
@@ -2032,7 +2032,7 @@ def test_check_handle_timedout_sell(default_conf, ticker, limit_sell_order_old, 
     Trade.session.add(trade_sell)
 
     # check it does cancel sell orders over the time limit
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert cancel_order_mock.call_count == 1
     assert rpc_mock.call_count == 1
     assert trade_sell.is_open is True
@@ -2046,12 +2046,12 @@ def test_check_handle_cancelled_sell(default_conf, ticker, limit_sell_order_old,
     limit_sell_order_old.update({"status": "canceled"})
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_order=MagicMock(return_value=limit_sell_order_old),
         cancel_order=cancel_order_mock
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_sell = Trade(
         pair='ETH/BTC',
@@ -2070,7 +2070,7 @@ def test_check_handle_cancelled_sell(default_conf, ticker, limit_sell_order_old,
     Trade.session.add(trade_sell)
 
     # check it does cancel sell orders over the time limit
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert cancel_order_mock.call_count == 0
     assert rpc_mock.call_count == 1
     assert trade_sell.is_open is True
@@ -2083,12 +2083,12 @@ def test_check_handle_timedout_partial(default_conf, ticker, limit_buy_order_old
     cancel_order_mock = MagicMock()
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_order=MagicMock(return_value=limit_buy_order_old_partial),
         cancel_order=cancel_order_mock
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_buy = Trade(
         pair='ETH/BTC',
@@ -2107,7 +2107,7 @@ def test_check_handle_timedout_partial(default_conf, ticker, limit_buy_order_old
 
     # check it does cancel buy orders over the time limit
     # note this is for a partially-complete buy order
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert cancel_order_mock.call_count == 1
     assert rpc_mock.call_count == 1
     trades = Trade.query.filter(Trade.open_order_id.is_(trade_buy.open_order_id)).all()
@@ -2122,17 +2122,17 @@ def test_check_handle_timedout_exception(default_conf, ticker, mocker, caplog) -
     cancel_order_mock = MagicMock()
 
     mocker.patch.multiple(
-        'freqtrade.freqtradebot.FreqtradeBot',
+        'earthzetaorg.earthzetaorgbot.earthzetaorgBot',
         handle_timedout_limit_buy=MagicMock(),
         handle_timedout_limit_sell=MagicMock(),
     )
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         get_order=MagicMock(side_effect=requests.exceptions.RequestException('Oh snap')),
         cancel_order=cancel_order_mock
     )
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade_buy = Trade(
         pair='ETH/BTC',
@@ -2149,7 +2149,7 @@ def test_check_handle_timedout_exception(default_conf, ticker, mocker, caplog) -
 
     Trade.session.add(trade_buy)
 
-    freqtrade.check_handle_timedout()
+    earthzetaorg.check_handle_timedout()
     assert log_has_re(r'Cannot query order for Trade\(id=1, pair=ETH/BTC, amount=90.99181073, '
                       r'open_rate=0.00001099, open_since=10 hours ago\) due to Traceback \(most '
                       r'recent call last\):\n.*', caplog)
@@ -2160,20 +2160,20 @@ def test_handle_timedout_limit_buy(mocker, default_conf) -> None:
     patch_exchange(mocker)
     cancel_order_mock = MagicMock()
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         cancel_order=cancel_order_mock
     )
 
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     Trade.session = MagicMock()
     trade = MagicMock()
     order = {'remaining': 1,
              'amount': 1}
-    assert freqtrade.handle_timedout_limit_buy(trade, order)
+    assert earthzetaorg.handle_timedout_limit_buy(trade, order)
     assert cancel_order_mock.call_count == 1
     order['amount'] = 2
-    assert not freqtrade.handle_timedout_limit_buy(trade, order)
+    assert not earthzetaorg.handle_timedout_limit_buy(trade, order)
     assert cancel_order_mock.call_count == 2
 
 
@@ -2182,20 +2182,20 @@ def test_handle_timedout_limit_sell(mocker, default_conf) -> None:
     patch_exchange(mocker)
     cancel_order_mock = MagicMock()
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         cancel_order=cancel_order_mock
     )
 
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     trade = MagicMock()
     order = {'remaining': 1,
              'amount': 1,
              'status': "open"}
-    assert freqtrade.handle_timedout_limit_sell(trade, order)
+    assert earthzetaorg.handle_timedout_limit_sell(trade, order)
     assert cancel_order_mock.call_count == 1
     order['amount'] = 2
-    assert not freqtrade.handle_timedout_limit_sell(trade, order)
+    assert not earthzetaorg.handle_timedout_limit_sell(trade, order)
     # Assert cancel_order was not called (callcount remains unchanged)
     assert cancel_order_mock.call_count == 1
 
@@ -2203,28 +2203,28 @@ def test_handle_timedout_limit_sell(mocker, default_conf) -> None:
 def test_execute_sell_up(default_conf, ticker, fee, ticker_sell_up, markets, mocker) -> None:
     rpc_mock = patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
 
     # Increase the price and sell it
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_up
     )
 
-    freqtrade.execute_sell(trade=trade, limit=ticker_sell_up()['bid'], sell_reason=SellType.ROI)
+    earthzetaorg.execute_sell(trade=trade, limit=ticker_sell_up()['bid'], sell_reason=SellType.ROI)
 
     assert rpc_mock.call_count == 2
     last_msg = rpc_mock.call_args_list[-1][0][0]
@@ -2249,28 +2249,28 @@ def test_execute_sell_up(default_conf, ticker, fee, ticker_sell_up, markets, moc
 def test_execute_sell_down(default_conf, ticker, fee, ticker_sell_down, markets, mocker) -> None:
     rpc_mock = patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
 
     # Decrease the price and sell it
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_down
     )
 
-    freqtrade.execute_sell(trade=trade, limit=ticker_sell_down()['bid'],
+    earthzetaorg.execute_sell(trade=trade, limit=ticker_sell_down()['bid'],
                            sell_reason=SellType.STOP_LOSS)
 
     assert rpc_mock.call_count == 2
@@ -2298,33 +2298,33 @@ def test_execute_sell_down_stoploss_on_exchange_dry_run(default_conf, ticker, fe
                                                         markets, mocker) -> None:
     rpc_mock = patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
 
     # Decrease the price and sell it
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_down
     )
 
     default_conf['dry_run'] = True
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
     # Setting trade stoploss to 0.01
 
     trade.stop_loss = 0.00001099 * 0.99
-    freqtrade.execute_sell(trade=trade, limit=ticker_sell_down()['bid'],
+    earthzetaorg.execute_sell(trade=trade, limit=ticker_sell_down()['bid'],
                            sell_reason=SellType.STOP_LOSS)
 
     assert rpc_mock.call_count == 2
@@ -2351,11 +2351,11 @@ def test_execute_sell_down_stoploss_on_exchange_dry_run(default_conf, ticker, fe
 
 def test_execute_sell_sloe_cancel_exception(mocker, default_conf, ticker, fee,
                                             markets, caplog) -> None:
-    freqtrade = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.cancel_order', side_effect=InvalidOrderException())
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.cancel_order', side_effect=InvalidOrderException())
     sellmock = MagicMock()
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
@@ -2363,17 +2363,17 @@ def test_execute_sell_sloe_cancel_exception(mocker, default_conf, ticker, fee,
         sell=sellmock
     )
 
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
-    patch_get_signal(freqtrade)
-    freqtrade.create_trades()
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     Trade.session = MagicMock()
 
-    freqtrade.config['dry_run'] = False
+    earthzetaorg.config['dry_run'] = False
     trade.stoploss_order_id = "abcd"
 
-    freqtrade.execute_sell(trade=trade, limit=1234,
+    earthzetaorg.execute_sell(trade=trade, limit=1234,
                            sell_reason=SellType.STOP_LOSS)
     assert sellmock.call_count == 1
     assert log_has('Could not cancel stoploss order abcd', caplog)
@@ -2386,7 +2386,7 @@ def test_execute_sell_with_stoploss_on_exchange(default_conf,
     default_conf['exchange']['name'] = 'binance'
     rpc_mock = patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
@@ -2402,30 +2402,30 @@ def test_execute_sell_with_stoploss_on_exchange(default_conf,
 
     cancel_order = MagicMock(return_value=True)
 
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.stoploss_limit', stoploss_limit)
-    mocker.patch('freqtrade.exchange.Exchange.cancel_order', cancel_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.stoploss_limit', stoploss_limit)
+    mocker.patch('earthzetaorg.exchange.Exchange.cancel_order', cancel_order)
 
-    freqtrade = FreqtradeBot(default_conf)
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
 
-    freqtrade.process_maybe_execute_sell(trade)
+    earthzetaorg.process_maybe_execute_sell(trade)
 
     # Increase the price and sell it
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_up
     )
 
-    freqtrade.execute_sell(trade=trade, limit=ticker_sell_up()['bid'],
+    earthzetaorg.execute_sell(trade=trade, limit=ticker_sell_up()['bid'],
                            sell_reason=SellType.SELL_SIGNAL)
 
     trade = Trade.query.first()
@@ -2441,7 +2441,7 @@ def test_may_execute_sell_after_stoploss_on_exchange_hit(default_conf,
     default_conf['exchange']['name'] = 'binance'
     rpc_mock = patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
@@ -2455,18 +2455,18 @@ def test_may_execute_sell_after_stoploss_on_exchange_hit(default_conf,
         }
     })
 
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Binance.stoploss_limit', stoploss_limit)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Binance.stoploss_limit', stoploss_limit)
 
-    freqtrade = FreqtradeBot(default_conf)
-    freqtrade.strategy.order_types['stoploss_on_exchange'] = True
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    earthzetaorg.strategy.order_types['stoploss_on_exchange'] = True
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
-    freqtrade.process_maybe_execute_sell(trade)
+    earthzetaorg.process_maybe_execute_sell(trade)
     assert trade
     assert trade.stoploss_order_id == '123'
     assert trade.open_order_id is None
@@ -2492,9 +2492,9 @@ def test_may_execute_sell_after_stoploss_on_exchange_hit(default_conf,
         "fee": None,
         "trades": None
     })
-    mocker.patch('freqtrade.exchange.Exchange.get_order', stoploss_limit_executed)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order', stoploss_limit_executed)
 
-    freqtrade.process_maybe_execute_sell(trade)
+    earthzetaorg.process_maybe_execute_sell(trade)
     assert trade.stoploss_order_id is None
     assert trade.is_open is False
     assert trade.sell_reason == SellType.STOPLOSS_ON_EXCHANGE.value
@@ -2505,29 +2505,29 @@ def test_execute_sell_market_order(default_conf, ticker, fee,
                                    ticker_sell_up, markets, mocker) -> None:
     rpc_mock = patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
 
     # Increase the price and sell it
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_up
     )
-    freqtrade.config['order_types']['sell'] = 'market'
+    earthzetaorg.config['order_types']['sell'] = 'market'
 
-    freqtrade.execute_sell(trade=trade, limit=ticker_sell_up()['bid'], sell_reason=SellType.ROI)
+    earthzetaorg.execute_sell(trade=trade, limit=ticker_sell_up()['bid'], sell_reason=SellType.ROI)
 
     assert not trade.is_open
     assert trade.close_profit == 0.0611052
@@ -2558,7 +2558,7 @@ def test_sell_profit_only_enable_profit(default_conf, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00002172,
             'ask': 0.00002173,
@@ -2572,16 +2572,16 @@ def test_sell_profit_only_enable_profit(default_conf, limit_buy_order,
         'use_sell_signal': True,
         'sell_profit_only': True,
     }
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
     assert trade.sell_reason == SellType.SELL_SIGNAL.value
 
 
@@ -2590,7 +2590,7 @@ def test_sell_profit_only_disable_profit(default_conf, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00002172,
             'ask': 0.00002173,
@@ -2604,15 +2604,15 @@ def test_sell_profit_only_disable_profit(default_conf, limit_buy_order,
         'use_sell_signal': True,
         'sell_profit_only': False,
     }
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
     assert trade.sell_reason == SellType.SELL_SIGNAL.value
 
 
@@ -2620,7 +2620,7 @@ def test_sell_profit_only_enable_loss(default_conf, limit_buy_order, fee, market
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00000172,
             'ask': 0.00000173,
@@ -2634,23 +2634,23 @@ def test_sell_profit_only_enable_loss(default_conf, limit_buy_order, fee, market
         'use_sell_signal': True,
         'sell_profit_only': True,
     }
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.stop_loss_reached = MagicMock(return_value=SellCheckTuple(
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.stop_loss_reached = MagicMock(return_value=SellCheckTuple(
             sell_flag=False, sell_type=SellType.NONE))
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is False
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is False
 
 
 def test_sell_profit_only_disable_loss(default_conf, limit_buy_order, fee, markets, mocker) -> None:
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.0000172,
             'ask': 0.0000173,
@@ -2665,52 +2665,52 @@ def test_sell_profit_only_disable_loss(default_conf, limit_buy_order, fee, marke
         'sell_profit_only': False,
     }
 
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
     assert trade.sell_reason == SellType.SELL_SIGNAL.value
 
 
 def test_locked_pairs(default_conf, ticker, fee, ticker_sell_down, markets, mocker, caplog) -> None:
     patch_RPCManager(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         _load_markets=MagicMock(return_value={}),
         get_ticker=ticker,
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Create some test data
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
 
     # Decrease the price and sell it
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker_sell_down
     )
 
-    freqtrade.execute_sell(trade=trade, limit=ticker_sell_down()['bid'],
+    earthzetaorg.execute_sell(trade=trade, limit=ticker_sell_down()['bid'],
                            sell_reason=SellType.STOP_LOSS)
     trade.close(ticker_sell_down()['bid'])
-    assert trade.pair in freqtrade.strategy._pair_locked_until
-    assert freqtrade.strategy.is_pair_locked(trade.pair)
+    assert trade.pair in earthzetaorg.strategy._pair_locked_until
+    assert earthzetaorg.strategy.is_pair_locked(trade.pair)
 
     # reinit - should buy other pair.
     caplog.clear()
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     assert log_has(f"Pair {trade.pair} is currently locked.", caplog)
 
@@ -2719,7 +2719,7 @@ def test_ignore_roi_if_buy_signal(default_conf, limit_buy_order, fee, markets, m
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.0000172,
             'ask': 0.0000173,
@@ -2732,20 +2732,20 @@ def test_ignore_roi_if_buy_signal(default_conf, limit_buy_order, fee, markets, m
     default_conf['experimental'] = {
         'ignore_roi_if_buy_signal': True
     }
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=True)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=True)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
-    patch_get_signal(freqtrade, value=(True, True))
-    assert freqtrade.handle_trade(trade) is False
+    patch_get_signal(earthzetaorg, value=(True, True))
+    assert earthzetaorg.handle_trade(trade) is False
 
     # Test if buy-signal is absent (should sell due to roi = true)
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
     assert trade.sell_reason == SellType.ROI.value
 
 
@@ -2753,7 +2753,7 @@ def test_trailing_stop_loss(default_conf, limit_buy_order, fee, markets, caplog,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001099,
             'ask': 0.00001099,
@@ -2764,16 +2764,16 @@ def test_trailing_stop_loss(default_conf, limit_buy_order, fee, markets, caplog,
         markets=PropertyMock(return_value=markets),
     )
     default_conf['trailing_stop'] = True
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
     trade = Trade.query.first()
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
 
     # Raise ticker above buy price
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': 0.00001099 * 1.5,
                      'ask': 0.00001099 * 1.5,
@@ -2781,10 +2781,10 @@ def test_trailing_stop_loss(default_conf, limit_buy_order, fee, markets, caplog,
                  }))
 
     # Stoploss should be adjusted
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
 
     # Price fell
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': 0.00001099 * 1.1,
                      'ask': 0.00001099 * 1.1,
@@ -2793,7 +2793,7 @@ def test_trailing_stop_loss(default_conf, limit_buy_order, fee, markets, caplog,
 
     caplog.set_level(logging.DEBUG)
     # Sell as trailing-stop is reached
-    assert freqtrade.handle_trade(trade) is True
+    assert earthzetaorg.handle_trade(trade) is True
     assert log_has(
         f'HIT STOP: current price at 0.000012, stop loss is 0.000015, '
         f'initial stop loss was at 0.000010, trade opened at 0.000011', caplog)
@@ -2806,7 +2806,7 @@ def test_trailing_stop_loss_positive(default_conf, limit_buy_order, fee, markets
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': buy_price - 0.000001,
             'ask': buy_price - 0.000001,
@@ -2818,38 +2818,38 @@ def test_trailing_stop_loss_positive(default_conf, limit_buy_order, fee, markets
     )
     default_conf['trailing_stop'] = True
     default_conf['trailing_stop_positive'] = 0.01
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
     caplog.set_level(logging.DEBUG)
     # stop-loss not reached
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
 
     # Raise ticker above buy price
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': buy_price + 0.000003,
                      'ask': buy_price + 0.000003,
                      'last': buy_price + 0.000003
                  }))
     # stop-loss not reached, adjusted stoploss
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
     assert log_has(f'using positive stop loss: 0.01 offset: 0 profit: 0.2666%', caplog)
     assert log_has(f'adjusted stop loss', caplog)
     assert trade.stop_loss == 0.0000138501
 
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': buy_price + 0.000002,
                      'ask': buy_price + 0.000002,
                      'last': buy_price + 0.000002
                  }))
     # Lower price again (but still positive)
-    assert freqtrade.handle_trade(trade) is True
+    assert earthzetaorg.handle_trade(trade) is True
     assert log_has(
         f'HIT STOP: current price at {buy_price + 0.000002:.6f}, '
         f'stop loss is {trade.stop_loss:.6f}, '
@@ -2862,7 +2862,7 @@ def test_trailing_stop_loss_offset(default_conf, limit_buy_order, fee,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': buy_price - 0.000001,
             'ask': buy_price - 0.000001,
@@ -2876,38 +2876,38 @@ def test_trailing_stop_loss_offset(default_conf, limit_buy_order, fee,
     default_conf['trailing_stop'] = True
     default_conf['trailing_stop_positive'] = 0.01
     default_conf['trailing_stop_positive_offset'] = 0.011
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
     caplog.set_level(logging.DEBUG)
     # stop-loss not reached
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
 
     # Raise ticker above buy price
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': buy_price + 0.000003,
                      'ask': buy_price + 0.000003,
                      'last': buy_price + 0.000003
                  }))
     # stop-loss not reached, adjusted stoploss
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
     assert log_has(f'using positive stop loss: 0.01 offset: 0.011 profit: 0.2666%', caplog)
     assert log_has(f'adjusted stop loss', caplog)
     assert trade.stop_loss == 0.0000138501
 
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': buy_price + 0.000002,
                      'ask': buy_price + 0.000002,
                      'last': buy_price + 0.000002
                  }))
     # Lower price again (but still positive)
-    assert freqtrade.handle_trade(trade) is True
+    assert earthzetaorg.handle_trade(trade) is True
     assert log_has(
         f'HIT STOP: current price at {buy_price + 0.000002:.6f}, '
         f'stop loss is {trade.stop_loss:.6f}, '
@@ -2923,7 +2923,7 @@ def test_tsl_only_offset_reached(default_conf, limit_buy_order, fee,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': buy_price,
             'ask': buy_price,
@@ -2939,20 +2939,20 @@ def test_tsl_only_offset_reached(default_conf, limit_buy_order, fee,
     default_conf['trailing_stop_positive_offset'] = 0.055
     default_conf['trailing_only_offset_is_reached'] = True
 
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=False)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=False)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
     caplog.set_level(logging.DEBUG)
     # stop-loss not reached
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
     assert trade.stop_loss == 0.0000098910
 
     # Raise ticker above buy price
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': buy_price + 0.0000004,
                      'ask': buy_price + 0.0000004,
@@ -2960,20 +2960,20 @@ def test_tsl_only_offset_reached(default_conf, limit_buy_order, fee,
                  }))
 
     # stop-loss should not be adjusted as offset is not reached yet
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
 
     assert not log_has(f'adjusted stop loss', caplog)
     assert trade.stop_loss == 0.0000098910
 
     # price rises above the offset (rises 12% when the offset is 5.5%)
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker',
                  MagicMock(return_value={
                      'bid': buy_price + 0.0000014,
                      'ask': buy_price + 0.0000014,
                      'last': buy_price + 0.0000014
                  }))
 
-    assert freqtrade.handle_trade(trade) is False
+    assert earthzetaorg.handle_trade(trade) is False
     assert log_has(f'using positive stop loss: 0.05 offset: 0.055 profit: 0.1218%', caplog)
     assert log_has(f'adjusted stop loss', caplog)
     assert trade.stop_loss == 0.0000117705
@@ -2984,7 +2984,7 @@ def test_disable_ignore_roi_if_buy_signal(default_conf, limit_buy_order,
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00000172,
             'ask': 0.00000173,
@@ -2997,26 +2997,26 @@ def test_disable_ignore_roi_if_buy_signal(default_conf, limit_buy_order,
     default_conf['experimental'] = {
         'ignore_roi_if_buy_signal': False
     }
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.strategy.min_roi_reached = MagicMock(return_value=True)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.strategy.min_roi_reached = MagicMock(return_value=True)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     trade.update(limit_buy_order)
     # Sell due to min_roi_reached
-    patch_get_signal(freqtrade, value=(True, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(True, True))
+    assert earthzetaorg.handle_trade(trade) is True
 
     # Test if buy-signal is absent
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
     assert trade.sell_reason == SellType.STOP_LOSS.value
 
 
 def test_get_real_amount_quote(default_conf, trades_for_order, buy_order_fee, caplog, mocker):
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     amount = sum(x['amount'] for x in trades_for_order)
@@ -3027,18 +3027,18 @@ def test_get_real_amount_quote(default_conf, trades_for_order, buy_order_fee, ca
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount is reduced by "fee"
-    assert freqtrade.get_real_amount(trade, buy_order_fee) == amount - (amount * 0.001)
+    assert earthzetaorg.get_real_amount(trade, buy_order_fee) == amount - (amount * 0.001)
     assert log_has('Applying fee on amount for Trade(id=None, pair=LTC/ETH, amount=8.00000000, '
                    'open_rate=0.24544100, open_since=closed) (from 8.0 to 7.992) from Trades',
                    caplog)
 
 
 def test_get_real_amount_no_trade(default_conf, buy_order_fee, caplog, mocker):
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=[])
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=[])
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
@@ -3050,11 +3050,11 @@ def test_get_real_amount_no_trade(default_conf, buy_order_fee, caplog, mocker):
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount is reduced by "fee"
-    assert freqtrade.get_real_amount(trade, buy_order_fee) == amount
+    assert earthzetaorg.get_real_amount(trade, buy_order_fee) == amount
     assert log_has('Applying fee on amount for Trade(id=None, pair=LTC/ETH, amount=8.00000000, '
                    'open_rate=0.24544100, open_since=closed) failed: myTrade-Dict empty found',
                    caplog)
@@ -3065,7 +3065,7 @@ def test_get_real_amount_stake(default_conf, trades_for_order, buy_order_fee, mo
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     amount = sum(x['amount'] for x in trades_for_order)
     trade = Trade(
         pair='LTC/ETH',
@@ -3074,11 +3074,11 @@ def test_get_real_amount_stake(default_conf, trades_for_order, buy_order_fee, mo
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount does not change
-    assert freqtrade.get_real_amount(trade, buy_order_fee) == amount
+    assert earthzetaorg.get_real_amount(trade, buy_order_fee) == amount
 
 
 def test_get_real_amount_no_currency_in_fee(default_conf, trades_for_order, buy_order_fee, mocker):
@@ -3089,7 +3089,7 @@ def test_get_real_amount_no_currency_in_fee(default_conf, trades_for_order, buy_
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     amount = sum(x['amount'] for x in trades_for_order)
     trade = Trade(
         pair='LTC/ETH',
@@ -3098,11 +3098,11 @@ def test_get_real_amount_no_currency_in_fee(default_conf, trades_for_order, buy_
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount does not change
-    assert freqtrade.get_real_amount(trade, limit_buy_order) == amount
+    assert earthzetaorg.get_real_amount(trade, limit_buy_order) == amount
 
 
 def test_get_real_amount_BNB(default_conf, trades_for_order, buy_order_fee, mocker):
@@ -3111,7 +3111,7 @@ def test_get_real_amount_BNB(default_conf, trades_for_order, buy_order_fee, mock
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     amount = sum(x['amount'] for x in trades_for_order)
     trade = Trade(
         pair='LTC/ETH',
@@ -3120,17 +3120,17 @@ def test_get_real_amount_BNB(default_conf, trades_for_order, buy_order_fee, mock
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount does not change
-    assert freqtrade.get_real_amount(trade, buy_order_fee) == amount
+    assert earthzetaorg.get_real_amount(trade, buy_order_fee) == amount
 
 
 def test_get_real_amount_multi(default_conf, trades_for_order2, buy_order_fee, caplog, mocker):
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order2)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order2)
     amount = float(sum(x['amount'] for x in trades_for_order2))
     trade = Trade(
         pair='LTC/ETH',
@@ -3139,11 +3139,11 @@ def test_get_real_amount_multi(default_conf, trades_for_order2, buy_order_fee, c
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount is reduced by "fee"
-    assert freqtrade.get_real_amount(trade, buy_order_fee) == amount - (amount * 0.001)
+    assert earthzetaorg.get_real_amount(trade, buy_order_fee) == amount - (amount * 0.001)
     assert log_has('Applying fee on amount for Trade(id=None, pair=LTC/ETH, amount=8.00000000, '
                    'open_rate=0.24544100, open_since=closed) (from 8.0 to 7.992) from Trades',
                    caplog)
@@ -3155,7 +3155,7 @@ def test_get_real_amount_fromorder(default_conf, trades_for_order, buy_order_fee
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order',
                  return_value=[trades_for_order])
     amount = float(sum(x['amount'] for x in trades_for_order))
     trade = Trade(
@@ -3165,11 +3165,11 @@ def test_get_real_amount_fromorder(default_conf, trades_for_order, buy_order_fee
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount is reduced by "fee"
-    assert freqtrade.get_real_amount(trade, limit_buy_order) == amount - 0.004
+    assert earthzetaorg.get_real_amount(trade, limit_buy_order) == amount - 0.004
     assert log_has('Applying fee on amount for Trade(id=None, pair=LTC/ETH, amount=8.00000000, '
                    'open_rate=0.24544100, open_since=closed) (from 8.0 to 7.996) from Order',
                    caplog)
@@ -3181,7 +3181,7 @@ def test_get_real_amount_invalid_order(default_conf, trades_for_order, buy_order
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=[])
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=[])
     amount = float(sum(x['amount'] for x in trades_for_order))
     trade = Trade(
         pair='LTC/ETH',
@@ -3190,11 +3190,11 @@ def test_get_real_amount_invalid_order(default_conf, trades_for_order, buy_order
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
     # Amount does not change
-    assert freqtrade.get_real_amount(trade, limit_buy_order) == amount
+    assert earthzetaorg.get_real_amount(trade, limit_buy_order) == amount
 
 
 def test_get_real_amount_invalid(default_conf, trades_for_order, buy_order_fee, mocker):
@@ -3203,7 +3203,7 @@ def test_get_real_amount_invalid(default_conf, trades_for_order, buy_order_fee, 
 
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_trades_for_order', return_value=trades_for_order)
     amount = sum(x['amount'] for x in trades_for_order)
     trade = Trade(
         pair='LTC/ETH',
@@ -3212,10 +3212,10 @@ def test_get_real_amount_invalid(default_conf, trades_for_order, buy_order_fee, 
         open_rate=0.245441,
         open_order_id="123456"
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
     # Amount does not change
-    assert freqtrade.get_real_amount(trade, buy_order_fee) == amount
+    assert earthzetaorg.get_real_amount(trade, buy_order_fee) == amount
 
 
 def test_get_real_amount_open_trade(default_conf, mocker):
@@ -3234,9 +3234,9 @@ def test_get_real_amount_open_trade(default_conf, mocker):
         'amount': amount,
         'status': 'open',
     }
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    assert freqtrade.get_real_amount(trade, order) == amount
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    assert earthzetaorg.get_real_amount(trade, order) == amount
 
 
 def test_order_book_depth_of_market(default_conf, ticker, limit_buy_order, fee, markets, mocker,
@@ -3245,9 +3245,9 @@ def test_order_book_depth_of_market(default_conf, ticker, limit_buy_order, fee, 
     default_conf['bid_strategy']['check_depth_of_market']['bids_to_ask_delta'] = 0.1
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_order_book', order_book_l2)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order_book', order_book_l2)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
@@ -3256,9 +3256,9 @@ def test_order_book_depth_of_market(default_conf, ticker, limit_buy_order, fee, 
 
     # Save state of current whitelist
     whitelist = deepcopy(default_conf['exchange']['pair_whitelist'])
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade is not None
@@ -3281,18 +3281,18 @@ def test_order_book_depth_of_market_high_delta(default_conf, ticker, limit_buy_o
     default_conf['bid_strategy']['check_depth_of_market']['bids_to_ask_delta'] = 100
     patch_RPCManager(mocker)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_order_book', order_book_l2)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order_book', order_book_l2)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=ticker,
         buy=MagicMock(return_value={'id': limit_buy_order['id']}),
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
     # Save state of current whitelist
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
-    freqtrade.create_trades()
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade is None
@@ -3306,7 +3306,7 @@ def test_order_book_bid_strategy1(mocker, default_conf, order_book_l2, markets) 
     patch_exchange(mocker)
     ticker_mock = MagicMock(return_value={'ask': 0.045, 'last': 0.046})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         markets=PropertyMock(return_value=markets),
         get_order_book=order_book_l2,
         get_ticker=ticker_mock,
@@ -3318,8 +3318,8 @@ def test_order_book_bid_strategy1(mocker, default_conf, order_book_l2, markets) 
     default_conf['bid_strategy']['ask_last_balance'] = 0
     default_conf['telegram']['enabled'] = False
 
-    freqtrade = FreqtradeBot(default_conf)
-    assert freqtrade.get_target_bid('ETH/BTC') == 0.043935
+    earthzetaorg = earthzetaorgBot(default_conf)
+    assert earthzetaorg.get_target_bid('ETH/BTC') == 0.043935
     assert ticker_mock.call_count == 0
 
 
@@ -3331,7 +3331,7 @@ def test_order_book_bid_strategy2(mocker, default_conf, order_book_l2, markets) 
     patch_exchange(mocker)
     ticker_mock = MagicMock(return_value={'ask': 0.042, 'last': 0.046})
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         markets=PropertyMock(return_value=markets),
         get_order_book=order_book_l2,
         get_ticker=ticker_mock,
@@ -3343,9 +3343,9 @@ def test_order_book_bid_strategy2(mocker, default_conf, order_book_l2, markets) 
     default_conf['bid_strategy']['ask_last_balance'] = 0
     default_conf['telegram']['enabled'] = False
 
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
     # ordrebook shall be used even if tickers would be lower.
-    assert freqtrade.get_target_bid('ETH/BTC', ) != 0.042
+    assert earthzetaorg.get_target_bid('ETH/BTC', ) != 0.042
     assert ticker_mock.call_count == 0
 
 
@@ -3355,7 +3355,7 @@ def test_check_depth_of_market_buy(default_conf, mocker, order_book_l2, markets)
     """
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         markets=PropertyMock(return_value=markets),
         get_order_book=order_book_l2
     )
@@ -3364,10 +3364,10 @@ def test_check_depth_of_market_buy(default_conf, mocker, order_book_l2, markets)
     default_conf['bid_strategy']['check_depth_of_market']['enabled'] = True
     # delta is 100 which is impossible to reach. hence function will return false
     default_conf['bid_strategy']['check_depth_of_market']['bids_to_ask_delta'] = 100
-    freqtrade = FreqtradeBot(default_conf)
+    earthzetaorg = earthzetaorgBot(default_conf)
 
     conf = default_conf['bid_strategy']['check_depth_of_market']
-    assert freqtrade._check_depth_of_market_buy('ETH/BTC', conf) is False
+    assert earthzetaorg._check_depth_of_market_buy('ETH/BTC', conf) is False
 
 
 def test_order_book_ask_strategy(default_conf, limit_buy_order, limit_sell_order,
@@ -3375,7 +3375,7 @@ def test_order_book_ask_strategy(default_conf, limit_buy_order, limit_sell_order
     """
     test order book ask strategy
     """
-    mocker.patch('freqtrade.exchange.Exchange.get_order_book', order_book_l2)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_order_book', order_book_l2)
     default_conf['exchange']['name'] = 'binance'
     default_conf['ask_strategy']['use_order_book'] = True
     default_conf['ask_strategy']['order_book_min'] = 1
@@ -3384,7 +3384,7 @@ def test_order_book_ask_strategy(default_conf, limit_buy_order, limit_sell_order
     patch_RPCManager(mocker)
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_ticker=MagicMock(return_value={
             'bid': 0.00001172,
             'ask': 0.00001173,
@@ -3395,10 +3395,10 @@ def test_order_book_ask_strategy(default_conf, limit_buy_order, limit_sell_order
         get_fee=fee,
         markets=PropertyMock(return_value=markets)
     )
-    freqtrade = FreqtradeBot(default_conf)
-    patch_get_signal(freqtrade)
+    earthzetaorg = earthzetaorgBot(default_conf)
+    patch_get_signal(earthzetaorg)
 
-    freqtrade.create_trades()
+    earthzetaorg.create_trades()
 
     trade = Trade.query.first()
     assert trade
@@ -3407,21 +3407,21 @@ def test_order_book_ask_strategy(default_conf, limit_buy_order, limit_sell_order
     trade.update(limit_buy_order)
     assert trade.is_open is True
 
-    patch_get_signal(freqtrade, value=(False, True))
-    assert freqtrade.handle_trade(trade) is True
+    patch_get_signal(earthzetaorg, value=(False, True))
+    assert earthzetaorg.handle_trade(trade) is True
 
 
 def test_get_sell_rate(default_conf, mocker, ticker, order_book_l2) -> None:
 
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_order_book=order_book_l2,
         get_ticker=ticker,
     )
     pair = "ETH/BTC"
 
     # Test regular mode
-    ft = get_patched_freqtradebot(mocker, default_conf)
+    ft = get_patched_earthzetaorgbot(mocker, default_conf)
     rate = ft.get_sell_rate(pair, True)
     assert isinstance(rate, float)
     assert rate == 0.00001098
@@ -3430,7 +3430,7 @@ def test_get_sell_rate(default_conf, mocker, ticker, order_book_l2) -> None:
     default_conf['ask_strategy']['use_order_book'] = True
     default_conf['ask_strategy']['order_book_min'] = 1
     default_conf['ask_strategy']['order_book_max'] = 2
-    ft = get_patched_freqtradebot(mocker, default_conf)
+    ft = get_patched_earthzetaorgbot(mocker, default_conf)
     rate = ft.get_sell_rate(pair, True)
     assert isinstance(rate, float)
     assert rate == 0.043936
@@ -3440,23 +3440,23 @@ def test_startup_state(default_conf, mocker):
     default_conf['pairlist'] = {'method': 'VolumePairList',
                                 'config': {'number_assets': 20}
                                 }
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=True))
     worker = get_patched_worker(mocker, default_conf)
     assert worker.state is State.RUNNING
 
 
 def test_startup_trade_reinit(default_conf, edge_conf, mocker):
 
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=True))
     reinit_mock = MagicMock()
-    mocker.patch('freqtrade.persistence.Trade.stoploss_reinitialization', reinit_mock)
+    mocker.patch('earthzetaorg.persistence.Trade.stoploss_reinitialization', reinit_mock)
 
-    ftbot = get_patched_freqtradebot(mocker, default_conf)
+    ftbot = get_patched_earthzetaorgbot(mocker, default_conf)
     ftbot.startup()
     assert reinit_mock.call_count == 1
 
     reinit_mock.reset_mock()
 
-    ftbot = get_patched_freqtradebot(mocker, edge_conf)
+    ftbot = get_patched_earthzetaorgbot(mocker, edge_conf)
     ftbot.startup()
     assert reinit_mock.call_count == 0

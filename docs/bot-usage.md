@@ -3,13 +3,13 @@
 This page explains the different parameters of the bot and how to run it.
 
 !!! Note
-    If you've used `setup.sh`, don't forget to activate your virtual environment (`source .env/bin/activate`) before running freqtrade commands.
+    If you've used `setup.sh`, don't forget to activate your virtual environment (`source .env/bin/activate`) before running earthzetaorg commands.
 
 
 ## Bot commands
 
 ```
-usage: freqtrade [-h] [-v] [--logfile FILE] [-V] [-c PATH] [-d PATH]
+usage: earthzetaorg [-h] [-v] [--logfile FILE] [-V] [-c PATH] [-d PATH]
                  [--userdir PATH] [-s NAME] [--strategy-path PATH]
                  [--db-url PATH] [--sd-notify]
                  {backtesting,edge,hyperopt,create-userdir,list-exchanges} ...
@@ -54,7 +54,7 @@ The bot allows you to select which configuration file you want to use by means o
 the `-c/--config` command line option:
 
 ```bash
-freqtrade -c path/far/far/away/config.json
+earthzetaorg -c path/far/far/away/config.json
 ```
 
 Per default, the bot loads the `config.json` configuration file from the current
@@ -73,13 +73,13 @@ empty key and secrete values while running in the Dry Mode (which does not actua
 require them):
 
 ```bash
-freqtrade -c ./config.json
+earthzetaorg -c ./config.json
 ```
 
 and specify both configuration files when running in the normal Live Trade Mode:
 
 ```bash
-freqtrade -c ./config.json -c path/to/secrets/keys.config.json
+earthzetaorg -c ./config.json -c path/to/secrets/keys.config.json
 ```
 
 This could help you hide your private Exchange key and Exchange secrete on you local machine
@@ -92,7 +92,7 @@ See more details on this technique with examples in the documentation page on
 
 ### Where to store custom data
 
-Freqtrade allows the creation of a user-data directory using `freqtrade create-userdir --userdir someDirectory`.
+earthzetaorg allows the creation of a user-data directory using `earthzetaorg create-userdir --userdir someDirectory`.
 This directory will look as follows:
 
 ```
@@ -117,9 +117,9 @@ It is recommended to use version control to keep track of changes to your strate
 
 This parameter will allow you to load your custom strategy class.
 Per default without `--strategy` or `-s` the bot will load the
-`DefaultStrategy` included with the bot (`freqtrade/strategy/default_strategy.py`).
+`DefaultStrategy` included with the bot (`earthzetaorg/strategy/default_strategy.py`).
 
-The bot will search your strategy file within `user_data/strategies` and `freqtrade/strategy`.
+The bot will search your strategy file within `user_data/strategies` and `earthzetaorg/strategy`.
 
 To load a strategy, simply pass the class name (e.g.: `CustomStrategy`) in this parameter.
 
@@ -128,7 +128,7 @@ In `user_data/strategies` you have a file `my_awesome_strategy.py` which has
 a strategy class called `AwesomeStrategy` to load it:
 
 ```bash
-freqtrade --strategy AwesomeStrategy
+earthzetaorg --strategy AwesomeStrategy
 ```
 
 If the bot does not find your strategy file, it will display in an error
@@ -143,7 +143,7 @@ This parameter allows you to add an additional strategy lookup path, which gets
 checked before the default locations (The passed path must be a directory!):
 
 ```bash
-freqtrade --strategy AwesomeStrategy --strategy-path /some/directory
+earthzetaorg --strategy AwesomeStrategy --strategy-path /some/directory
 ```
 
 #### How to install a strategy?
@@ -159,7 +159,7 @@ using `--db-url`. This can also be used to specify a custom database
 in production mode. Example command:
 
 ```bash
-freqtrade -c config.json --db-url sqlite:///tradesv3.dry_run.sqlite
+earthzetaorg -c config.json --db-url sqlite:///tradesv3.dry_run.sqlite
 ```
 
 ## Backtesting commands
@@ -167,7 +167,7 @@ freqtrade -c config.json --db-url sqlite:///tradesv3.dry_run.sqlite
 Backtesting also uses the config specified via `-c/--config`.
 
 ```
-usage: freqtrade backtesting [-h] [-i TICKER_INTERVAL] [--timerange TIMERANGE]
+usage: earthzetaorg backtesting [-h] [-i TICKER_INTERVAL] [--timerange TIMERANGE]
                            [--max_open_trades MAX_OPEN_TRADES]
                            [--stake_amount STAKE_AMOUNT] [-r] [--eps] [--dmmp]
                            [-l]
@@ -215,7 +215,7 @@ optional arguments:
 ### Getting historic data for backtesting
 
 The first time your run Backtesting, you will need to download some historic data first.
-This can be accomplished by using `freqtrade download-data`.  
+This can be accomplished by using `earthzetaorg download-data`.  
 Check the corresponding [help page section](backtesting.md#Getting-data-for-backtesting-and-hyperopt) for more details
 
 ## Hyperopt commands
@@ -224,7 +224,7 @@ To optimize your strategy, you can use hyperopt parameter hyperoptimization
 to find optimal parameter values for your stategy.
 
 ```
-usage: freqtrade hyperopt [-h] [-i TICKER_INTERVAL] [--timerange TIMERANGE]
+usage: earthzetaorg hyperopt [-h] [-i TICKER_INTERVAL] [--timerange TIMERANGE]
                           [--max_open_trades INT]
                           [--stake_amount STAKE_AMOUNT] [-r]
                           [--customhyperopt NAME] [--hyperopt-path PATH]
@@ -295,7 +295,7 @@ optional arguments:
 To know your trade expectancy and winrate against historical data, you can use Edge.
 
 ```
-usage: freqtrade edge [-h] [-i TICKER_INTERVAL] [--timerange TIMERANGE]
+usage: earthzetaorg edge [-h] [-i TICKER_INTERVAL] [--timerange TIMERANGE]
                     [--max_open_trades MAX_OPEN_TRADES]
                     [--stake_amount STAKE_AMOUNT] [-r]
                     [--stoplosses STOPLOSS_RANGE]

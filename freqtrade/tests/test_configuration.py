@@ -9,17 +9,17 @@ from unittest.mock import MagicMock
 import pytest
 from jsonschema import Draft4Validator, ValidationError, validate
 
-from freqtrade import OperationalException, constants
-from freqtrade.configuration import Arguments, Configuration, validate_config_consistency
-from freqtrade.configuration.check_exchange import check_exchange
-from freqtrade.configuration.config_validation import validate_config_schema
-from freqtrade.configuration.directory_operations import (create_datadir,
+from earthzetaorg import OperationalException, constants
+from earthzetaorg.configuration import Arguments, Configuration, validate_config_consistency
+from earthzetaorg.configuration.check_exchange import check_exchange
+from earthzetaorg.configuration.config_validation import validate_config_schema
+from earthzetaorg.configuration.directory_operations import (create_datadir,
                                                           create_userdata_dir)
-from freqtrade.configuration.load_config import load_config_file
-from freqtrade.constants import DEFAULT_DB_DRYRUN_URL, DEFAULT_DB_PROD_URL
-from freqtrade.loggers import _set_loggers
-from freqtrade.state import RunMode
-from freqtrade.tests.conftest import (log_has, log_has_re,
+from earthzetaorg.configuration.load_config import load_config_file
+from earthzetaorg.constants import DEFAULT_DB_DRYRUN_URL, DEFAULT_DB_PROD_URL
+from earthzetaorg.loggers import _set_loggers
+from earthzetaorg.state import RunMode
+from earthzetaorg.tests.conftest import (log_has, log_has_re,
                                       patched_configuration_load_config_file)
 
 
@@ -54,7 +54,7 @@ def test_load_config_incorrect_stake_amount(default_conf) -> None:
 
 def test_load_config_file(default_conf, mocker, caplog) -> None:
     del default_conf['user_data_dir']
-    file_mock = mocker.patch('freqtrade.configuration.load_config.open', mocker.mock_open(
+    file_mock = mocker.patch('earthzetaorg.configuration.load_config.open', mocker.mock_open(
         read_data=json.dumps(default_conf)
     ))
 
@@ -114,7 +114,7 @@ def test_load_config_combine_dicts(default_conf, mocker, caplog) -> None:
 
     configsmock = MagicMock(side_effect=config_files)
     mocker.patch(
-        'freqtrade.configuration.configuration.load_config_file',
+        'earthzetaorg.configuration.configuration.load_config_file',
         configsmock
     )
 
@@ -146,7 +146,7 @@ def test_from_config(default_conf, mocker, caplog) -> None:
 
     configsmock = MagicMock(side_effect=config_files)
     mocker.patch(
-        'freqtrade.configuration.configuration.load_config_file',
+        'earthzetaorg.configuration.configuration.load_config_file',
         configsmock
     )
 
@@ -180,7 +180,7 @@ def test_load_config_max_open_trades_minus_one(default_conf, mocker, caplog) -> 
 
 def test_load_config_file_exception(mocker) -> None:
     mocker.patch(
-        'freqtrade.configuration.configuration.open',
+        'earthzetaorg.configuration.configuration.open',
         MagicMock(side_effect=FileNotFoundError('File not found'))
     )
 
@@ -352,18 +352,18 @@ def test_setup_configuration_without_arguments(mocker, default_conf, caplog) -> 
 def test_setup_configuration_with_arguments(mocker, default_conf, caplog) -> None:
     patched_configuration_load_config_file(mocker, default_conf)
     mocker.patch(
-        'freqtrade.configuration.configuration.create_datadir',
+        'earthzetaorg.configuration.configuration.create_datadir',
         lambda c, x: x
     )
     mocker.patch(
-        'freqtrade.configuration.configuration.create_userdata_dir',
+        'earthzetaorg.configuration.configuration.create_userdata_dir',
         lambda x, *args, **kwargs: Path(x)
     )
     arglist = [
         '--config', 'config.json',
         '--strategy', 'DefaultStrategy',
         '--datadir', '/foo/bar',
-        '--userdir', "/tmp/freqtrade",
+        '--userdir', "/tmp/earthzetaorg",
         'backtesting',
         '--ticker-interval', '1m',
         '--enable-position-stacking',
@@ -384,7 +384,7 @@ def test_setup_configuration_with_arguments(mocker, default_conf, caplog) -> Non
     assert 'pair_whitelist' in config['exchange']
     assert 'datadir' in config
     assert log_has('Using data directory: {} ...'.format("/foo/bar"), caplog)
-    assert log_has('Using user-data directory: {} ...'.format("/tmp/freqtrade"), caplog)
+    assert log_has('Using user-data directory: {} ...'.format("/tmp/earthzetaorg"), caplog)
     assert 'user_data_dir' in config
 
     assert 'ticker_interval' in config
@@ -478,18 +478,18 @@ def test_hyperopt_with_arguments(mocker, default_conf, caplog) -> None:
 
 
 def test_check_exchange(default_conf, caplog) -> None:
-    # Test an officially supported by Freqtrade team exchange
+    # Test an officially supported by earthzetaorg team exchange
     default_conf['runmode'] = RunMode.DRY_RUN
     default_conf.get('exchange').update({'name': 'BITTREX'})
     assert check_exchange(default_conf)
-    assert log_has_re(r"Exchange .* is officially supported by the Freqtrade development team\.",
+    assert log_has_re(r"Exchange .* is officially supported by the earthzetaorg development team\.",
                       caplog)
     caplog.clear()
 
-    # Test an officially supported by Freqtrade team exchange
+    # Test an officially supported by earthzetaorg team exchange
     default_conf.get('exchange').update({'name': 'binance'})
     assert check_exchange(default_conf)
-    assert log_has_re(r"Exchange .* is officially supported by the Freqtrade development team\.",
+    assert log_has_re(r"Exchange .* is officially supported by the earthzetaorg development team\.",
                       caplog)
     caplog.clear()
 
@@ -497,7 +497,7 @@ def test_check_exchange(default_conf, caplog) -> None:
     default_conf.get('exchange').update({'name': 'kraken'})
     assert check_exchange(default_conf)
     assert log_has_re(r"Exchange .* is supported by ccxt and .* not officially supported "
-                      r"by the Freqtrade development team\. .*", caplog)
+                      r"by the earthzetaorg development team\. .*", caplog)
     caplog.clear()
 
     # Test a 'bad' exchange, which known to have serious problems
@@ -511,7 +511,7 @@ def test_check_exchange(default_conf, caplog) -> None:
     default_conf.get('exchange').update({'name': 'bitmex'})
     assert check_exchange(default_conf, False)
     assert log_has_re(r"Exchange .* is supported by ccxt and .* not officially supported "
-                      r"by the Freqtrade development team\. .*", caplog)
+                      r"by the earthzetaorg development team\. .*", caplog)
     caplog.clear()
 
     # Test an invalid exchange
@@ -534,7 +534,7 @@ def test_cli_verbose_with_params(default_conf, mocker, caplog) -> None:
     patched_configuration_load_config_file(mocker, default_conf)
 
     # Prevent setting loggers
-    mocker.patch('freqtrade.loggers._set_loggers', MagicMock)
+    mocker.patch('earthzetaorg.loggers._set_loggers', MagicMock)
     arglist = ['-vvv']
     args = Arguments(arglist).get_parsed_arg()
 
@@ -820,7 +820,7 @@ def test_pairlist_resolving_with_config(mocker, default_conf):
 
 def test_pairlist_resolving_with_config_pl(mocker, default_conf):
     patched_configuration_load_config_file(mocker, default_conf)
-    load_mock = mocker.patch("freqtrade.configuration.configuration.json_load",
+    load_mock = mocker.patch("earthzetaorg.configuration.configuration.json_load",
                              MagicMock(return_value=['XRP/BTC', 'ETH/BTC']))
     mocker.patch.object(Path, "exists", MagicMock(return_value=True))
     mocker.patch.object(Path, "open", MagicMock(return_value=MagicMock()))
@@ -843,7 +843,7 @@ def test_pairlist_resolving_with_config_pl(mocker, default_conf):
 
 def test_pairlist_resolving_with_config_pl_not_exists(mocker, default_conf):
     patched_configuration_load_config_file(mocker, default_conf)
-    mocker.patch("freqtrade.configuration.configuration.json_load",
+    mocker.patch("earthzetaorg.configuration.configuration.json_load",
                  MagicMock(return_value=['XRP/BTC', 'ETH/BTC']))
     mocker.patch.object(Path, "exists", MagicMock(return_value=False))
 
@@ -863,7 +863,7 @@ def test_pairlist_resolving_with_config_pl_not_exists(mocker, default_conf):
 def test_pairlist_resolving_fallback(mocker):
     mocker.patch.object(Path, "exists", MagicMock(return_value=True))
     mocker.patch.object(Path, "open", MagicMock(return_value=MagicMock()))
-    mocker.patch("freqtrade.configuration.configuration.json_load",
+    mocker.patch("earthzetaorg.configuration.configuration.json_load",
                  MagicMock(return_value=['XRP/BTC', 'ETH/BTC']))
     arglist = [
         'download-data',

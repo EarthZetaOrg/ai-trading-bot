@@ -5,8 +5,8 @@ import argparse
 from typing import List, Optional
 from pathlib import Path
 
-from freqtrade.configuration.cli_options import AVAILABLE_CLI_OPTIONS
-from freqtrade import constants
+from earthzetaorg.configuration.cli_options import AVAILABLE_CLI_OPTIONS
+from earthzetaorg import constants
 
 ARGS_COMMON = ["verbosity", "logfile", "version", "config", "datadir", "user_data_dir"]
 
@@ -97,8 +97,8 @@ class Arguments(object):
         Builds and attaches all subcommands.
         :return: None
         """
-        from freqtrade.optimize import start_backtesting, start_hyperopt, start_edge
-        from freqtrade.utils import start_create_userdir, start_download_data, start_list_exchanges
+        from earthzetaorg.optimize import start_backtesting, start_hyperopt, start_edge
+        from earthzetaorg.utils import start_create_userdir, start_download_data, start_list_exchanges
 
         subparsers = self.parser.add_subparsers(dest='subparser')
 
@@ -140,7 +140,7 @@ class Arguments(object):
         self._build_args(optionlist=ARGS_DOWNLOAD_DATA, parser=download_data_cmd)
 
         # Add Plotting subcommand
-        from freqtrade.plot.plot_utils import start_plot_dataframe, start_plot_profit
+        from earthzetaorg.plot.plot_utils import start_plot_dataframe, start_plot_profit
         plot_dataframe_cmd = subparsers.add_parser(
             'plot-dataframe',
             help='Plot candles with indicators.'

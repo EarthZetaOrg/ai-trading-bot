@@ -5,16 +5,16 @@ from unittest.mock import MagicMock
 import pytest
 from requests import RequestException
 
-from freqtrade.rpc import RPCMessageType
-from freqtrade.rpc.webhook import Webhook
-from freqtrade.strategy.interface import SellType
-from freqtrade.tests.conftest import get_patched_freqtradebot, log_has
+from earthzetaorg.rpc import RPCMessageType
+from earthzetaorg.rpc.webhook import Webhook
+from earthzetaorg.strategy.interface import SellType
+from earthzetaorg.tests.conftest import get_patched_earthzetaorgbot, log_has
 
 
 def get_webhook_dict() -> dict:
     return {
           "enabled": True,
-          "url": "https://maker.ifttt.com/trigger/freqtrade_test/with/key/c764udvJ5jfSlswVRukZZ2/",
+          "url": "https://maker.ifttt.com/trigger/earthzetaorg_test/with/key/c764udvJ5jfSlswVRukZZ2/",
           "webhookbuy": {
               "value1": "Buying {pair}",
               "value2": "limit {limit:8f}",
@@ -35,15 +35,15 @@ def get_webhook_dict() -> dict:
 
 def test__init__(mocker, default_conf):
     default_conf['webhook'] = {'enabled': True, 'url': "https://DEADBEEF.com"}
-    webhook = Webhook(get_patched_freqtradebot(mocker, default_conf))
+    webhook = Webhook(get_patched_earthzetaorgbot(mocker, default_conf))
     assert webhook._config == default_conf
 
 
 def test_send_msg(default_conf, mocker):
     default_conf["webhook"] = get_webhook_dict()
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
-    webhook = Webhook(get_patched_freqtradebot(mocker, default_conf))
+    mocker.patch("earthzetaorg.rpc.webhook.Webhook._send_msg", msg_mock)
+    webhook = Webhook(get_patched_earthzetaorgbot(mocker, default_conf))
     msg = {
         'type': RPCMessageType.BUY_NOTIFICATION,
         'exchange': 'Bittrex',
@@ -55,7 +55,7 @@ def test_send_msg(default_conf, mocker):
         'fiat_currency': 'EUR'
     }
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("earthzetaorg.rpc.webhook.Webhook._send_msg", msg_mock)
     webhook.send_msg(msg=msg)
     assert msg_mock.call_count == 1
     assert (msg_mock.call_args[0][0]["value1"] ==
@@ -66,7 +66,7 @@ def test_send_msg(default_conf, mocker):
             default_conf["webhook"]["webhookbuy"]["value3"].format(**msg))
     # Test sell
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("earthzetaorg.rpc.webhook.Webhook._send_msg", msg_mock)
     msg = {
         'type': RPCMessageType.SELL_NOTIFICATION,
         'exchange': 'Bittrex',
@@ -100,7 +100,7 @@ def test_send_msg(default_conf, mocker):
             'status': 'Unfilled sell order for BTC cancelled due to timeout'
         }
         msg_mock = MagicMock()
-        mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+        mocker.patch("earthzetaorg.rpc.webhook.Webhook._send_msg", msg_mock)
         webhook.send_msg(msg)
         assert msg_mock.call_count == 1
         assert (msg_mock.call_args[0][0]["value1"] ==
@@ -115,7 +115,7 @@ def test_exception_send_msg(default_conf, mocker, caplog):
     default_conf["webhook"] = get_webhook_dict()
     default_conf["webhook"]["webhookbuy"] = None
 
-    webhook = Webhook(get_patched_freqtradebot(mocker, default_conf))
+    webhook = Webhook(get_patched_earthzetaorgbot(mocker, default_conf))
     webhook.send_msg({'type': RPCMessageType.BUY_NOTIFICATION})
     assert log_has(f"Message type {RPCMessageType.BUY_NOTIFICATION} not configured for webhooks",
                    caplog)
@@ -123,8 +123,8 @@ def test_exception_send_msg(default_conf, mocker, caplog):
     default_conf["webhook"] = get_webhook_dict()
     default_conf["webhook"]["webhookbuy"]["value1"] = "{DEADBEEF:8f}"
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
-    webhook = Webhook(get_patched_freqtradebot(mocker, default_conf))
+    mocker.patch("earthzetaorg.rpc.webhook.Webhook._send_msg", msg_mock)
+    webhook = Webhook(get_patched_earthzetaorgbot(mocker, default_conf))
     msg = {
         'type': RPCMessageType.BUY_NOTIFICATION,
         'exchange': 'Bittrex',
@@ -141,7 +141,7 @@ def test_exception_send_msg(default_conf, mocker, caplog):
                    "Exception: 'DEADBEEF'", caplog)
 
     msg_mock = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.Webhook._send_msg", msg_mock)
+    mocker.patch("earthzetaorg.rpc.webhook.Webhook._send_msg", msg_mock)
     msg = {
         'type': 'DEADBEEF',
         'status': 'whatever'
@@ -152,12 +152,12 @@ def test_exception_send_msg(default_conf, mocker, caplog):
 
 def test__send_msg(default_conf, mocker, caplog):
     default_conf["webhook"] = get_webhook_dict()
-    webhook = Webhook(get_patched_freqtradebot(mocker, default_conf))
+    webhook = Webhook(get_patched_earthzetaorgbot(mocker, default_conf))
     msg = {'value1': 'DEADBEEF',
            'value2': 'ALIVEBEEF',
-           'value3': 'FREQTRADE'}
+           'value3': 'earthzetaorg'}
     post = MagicMock()
-    mocker.patch("freqtrade.rpc.webhook.post", post)
+    mocker.patch("earthzetaorg.rpc.webhook.post", post)
     webhook._send_msg(msg)
 
     assert post.call_count == 1
@@ -165,6 +165,6 @@ def test__send_msg(default_conf, mocker, caplog):
     assert post.call_args[0] == (default_conf['webhook']['url'], )
 
     post = MagicMock(side_effect=RequestException)
-    mocker.patch("freqtrade.rpc.webhook.post", post)
+    mocker.patch("earthzetaorg.rpc.webhook.post", post)
     webhook._send_msg(msg)
     assert log_has('Could not call webhook url. Exception: ', caplog)

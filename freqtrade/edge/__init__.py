@@ -9,10 +9,10 @@ import numpy as np
 import utils_find_1st as utf1st
 from pandas import DataFrame
 
-from freqtrade import constants, OperationalException
-from freqtrade.configuration import TimeRange
-from freqtrade.data import history
-from freqtrade.strategy.interface import SellType
+from earthzetaorg import constants, OperationalException
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data import history
+from earthzetaorg.strategy.interface import SellType
 
 
 logger = logging.getLogger(__name__)

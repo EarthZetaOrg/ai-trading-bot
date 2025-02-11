@@ -5,11 +5,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from freqtrade.edge import PairInfo
-from freqtrade.optimize import setup_configuration, start_edge
-from freqtrade.optimize.edge_cli import EdgeCli
-from freqtrade.state import RunMode
-from freqtrade.tests.conftest import (get_args, log_has, log_has_re,
+from earthzetaorg.edge import PairInfo
+from earthzetaorg.optimize import setup_configuration, start_edge
+from earthzetaorg.optimize.edge_cli import EdgeCli
+from earthzetaorg.state import RunMode
+from earthzetaorg.tests.conftest import (get_args, log_has, log_has_re,
                                       patch_exchange,
                                       patched_configuration_load_config_file)
 
@@ -47,7 +47,7 @@ def test_setup_configuration_without_arguments(mocker, default_conf, caplog) -> 
 def test_setup_edge_configuration_with_arguments(mocker, edge_conf, caplog) -> None:
     patched_configuration_load_config_file(mocker, edge_conf)
     mocker.patch(
-        'freqtrade.configuration.configuration.create_datadir',
+        'earthzetaorg.configuration.configuration.create_datadir',
         lambda c, x: x
     )
 
@@ -83,9 +83,9 @@ def test_setup_edge_configuration_with_arguments(mocker, edge_conf, caplog) -> N
 
 def test_start(mocker, fee, edge_conf, caplog) -> None:
     start_mock = MagicMock()
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.optimize.edge_cli.EdgeCli.start', start_mock)
+    mocker.patch('earthzetaorg.optimize.edge_cli.EdgeCli.start', start_mock)
     patched_configuration_load_config_file(mocker, edge_conf)
 
     args = [
@@ -95,7 +95,7 @@ def test_start(mocker, fee, edge_conf, caplog) -> None:
     ]
     args = get_args(args)
     start_edge(args)
-    assert log_has('Starting freqtrade in Edge mode', caplog)
+    assert log_has('Starting earthzetaorg in Edge mode', caplog)
     assert start_mock.call_count == 1
 
 

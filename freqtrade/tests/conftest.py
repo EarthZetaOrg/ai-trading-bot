@@ -13,14 +13,14 @@ import pytest
 import numpy as np
 from telegram import Chat, Message, Update
 
-from freqtrade import constants, persistence
-from freqtrade.configuration import Arguments
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.edge import Edge, PairInfo
-from freqtrade.exchange import Exchange
-from freqtrade.freqtradebot import FreqtradeBot
-from freqtrade.resolvers import ExchangeResolver
-from freqtrade.worker import Worker
+from earthzetaorg import constants, persistence
+from earthzetaorg.configuration import Arguments
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.edge import Edge, PairInfo
+from earthzetaorg.exchange import Exchange
+from earthzetaorg.earthzetaorgbot import earthzetaorgBot
+from earthzetaorg.resolvers import ExchangeResolver
+from earthzetaorg.worker import Worker
 
 
 logging.getLogger('').setLevel(logging.INFO)
@@ -31,7 +31,7 @@ np.seterr(all='raise')
 
 
 def log_has(line, logs):
-    # caplog mocker returns log as a tuple: ('freqtrade.something', logging.WARNING, 'foobar')
+    # caplog mocker returns log as a tuple: ('earthzetaorg.something', logging.WARNING, 'foobar')
     # and we want to match line against foobar in the tuple
     return reduce(lambda a, b: a or b,
                   filter(lambda x: x[2] == line, logs.record_tuples),
@@ -50,23 +50,23 @@ def get_args(args):
 
 def patched_configuration_load_config_file(mocker, config) -> None:
     mocker.patch(
-        'freqtrade.configuration.configuration.load_config_file',
+        'earthzetaorg.configuration.configuration.load_config_file',
         lambda *args, **kwargs: config
     )
 
 
 def patch_exchange(mocker, api_mock=None, id='bittrex') -> None:
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_ordertypes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.id', PropertyMock(return_value=id))
-    mocker.patch('freqtrade.exchange.Exchange.name', PropertyMock(return_value=id.title()))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_ordertypes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.id', PropertyMock(return_value=id))
+    mocker.patch('earthzetaorg.exchange.Exchange.name', PropertyMock(return_value=id.title()))
 
     if api_mock:
-        mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+        mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
     else:
-        mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock())
+        mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock())
 
 
 def get_patched_exchange(mocker, config, api_mock=None, id='bittrex') -> Exchange:
@@ -80,7 +80,7 @@ def get_patched_exchange(mocker, config, api_mock=None, id='bittrex') -> Exchang
 
 
 def patch_wallet(mocker, free=999.9) -> None:
-    mocker.patch('freqtrade.wallets.Wallets.get_free', MagicMock(
+    mocker.patch('earthzetaorg.wallets.Wallets.get_free', MagicMock(
         return_value=free
     ))
 
@@ -91,13 +91,13 @@ def patch_edge(mocker) -> None:
     # "XRP/BTC",
     # "NEO/BTC"
 
-    mocker.patch('freqtrade.edge.Edge._cached_pairs', mocker.PropertyMock(
+    mocker.patch('earthzetaorg.edge.Edge._cached_pairs', mocker.PropertyMock(
         return_value={
             'NEO/BTC': PairInfo(-0.20, 0.66, 3.71, 0.50, 1.71, 10, 25),
             'LTC/BTC': PairInfo(-0.21, 0.66, 3.71, 0.50, 1.71, 11, 20),
         }
     ))
-    mocker.patch('freqtrade.edge.Edge.calculate', MagicMock(return_value=True))
+    mocker.patch('earthzetaorg.edge.Edge.calculate', MagicMock(return_value=True))
 
 
 def get_patched_edge(mocker, config) -> Edge:
@@ -108,29 +108,29 @@ def get_patched_edge(mocker, config) -> Edge:
 # Functions for recurrent object patching
 
 
-def patch_freqtradebot(mocker, config) -> None:
+def patch_earthzetaorgbot(mocker, config) -> None:
     """
     This function patch _init_modules() to not call dependencies
     :param mocker: a Mocker object to apply patches
     :param config: Config to pass to the bot
     :return: None
     """
-    mocker.patch('freqtrade.freqtradebot.RPCManager', MagicMock())
+    mocker.patch('earthzetaorg.earthzetaorgbot.RPCManager', MagicMock())
     persistence.init(config['db_url'])
     patch_exchange(mocker, None)
-    mocker.patch('freqtrade.freqtradebot.RPCManager._init', MagicMock())
-    mocker.patch('freqtrade.freqtradebot.RPCManager.send_msg', MagicMock())
+    mocker.patch('earthzetaorg.earthzetaorgbot.RPCManager._init', MagicMock())
+    mocker.patch('earthzetaorg.earthzetaorgbot.RPCManager.send_msg', MagicMock())
 
 
-def get_patched_freqtradebot(mocker, config) -> FreqtradeBot:
+def get_patched_earthzetaorgbot(mocker, config) -> earthzetaorgBot:
     """
     This function patches _init_modules() to not call dependencies
     :param mocker: a Mocker object to apply patches
     :param config: Config to pass to the bot
-    :return: FreqtradeBot
+    :return: earthzetaorgBot
     """
-    patch_freqtradebot(mocker, config)
-    return FreqtradeBot(config)
+    patch_earthzetaorgbot(mocker, config)
+    return earthzetaorgBot(config)
 
 
 def get_patched_worker(mocker, config) -> Worker:
@@ -140,18 +140,18 @@ def get_patched_worker(mocker, config) -> Worker:
     :param config: Config to pass to the bot
     :return: Worker
     """
-    patch_freqtradebot(mocker, config)
+    patch_earthzetaorgbot(mocker, config)
     return Worker(args=None, config=config)
 
 
-def patch_get_signal(freqtrade: FreqtradeBot, value=(True, False)) -> None:
+def patch_get_signal(earthzetaorg: earthzetaorgBot, value=(True, False)) -> None:
     """
     :param mocker: mocker to patch IStrategy class
     :param value: which value IStrategy.get_signal() must return
     :return: None
     """
-    freqtrade.strategy.get_signal = lambda e, s, t: value
-    freqtrade.exchange.refresh_latest_ohlcv = lambda p: None
+    earthzetaorg.strategy.get_signal = lambda e, s, t: value
+    earthzetaorg.exchange.refresh_latest_ohlcv = lambda p: None
 
 
 @pytest.fixture(autouse=True)
@@ -169,7 +169,7 @@ def patch_coinmarketcap(mocker) -> None:
                                                  'website_slug': 'ethereum'}
                                                 ]})
     mocker.patch.multiple(
-        'freqtrade.rpc.fiat_convert.Market',
+        'earthzetaorg.rpc.fiat_convert.Market',
         ticker=tickermock,
         listings=listmock,
 
@@ -891,7 +891,7 @@ def tickers():
 
 @pytest.fixture
 def result():
-    with Path('freqtrade/tests/testdata/UNITTEST_BTC-1m.json').open('r') as data_file:
+    with Path('earthzetaorg/tests/testdata/UNITTEST_BTC-1m.json').open('r') as data_file:
         return parse_ticker_dataframe(json.load(data_file), '1m', pair="UNITTEST/BTC",
                                       fill_missing=True)
 

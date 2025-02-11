@@ -9,15 +9,15 @@ import pytest
 from flask import Flask
 from requests.auth import _basic_auth_str
 
-from freqtrade.__init__ import __version__
-from freqtrade.persistence import Trade
-from freqtrade.rpc.api_server import BASE_URI, ApiServer
-from freqtrade.state import State
-from freqtrade.tests.conftest import (get_patched_freqtradebot, log_has,
+from earthzetaorg.__init__ import __version__
+from earthzetaorg.persistence import Trade
+from earthzetaorg.rpc.api_server import BASE_URI, ApiServer
+from earthzetaorg.state import State
+from earthzetaorg.tests.conftest import (get_patched_earthzetaorgbot, log_has,
                                       patch_get_signal)
 
 
-_TEST_USER = "FreqTrader"
+_TEST_USER = "earthzetaorgr"
 _TEST_PASS = "SuperSecurePassword1!"
 
 
@@ -30,8 +30,8 @@ def botclient(default_conf, mocker):
                                         "password": _TEST_PASS,
                                         }})
 
-    ftbot = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.rpc.api_server.ApiServer.run', MagicMock())
+    ftbot = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.rpc.api_server.ApiServer.run', MagicMock())
     apiserver = ApiServer(ftbot)
     yield ftbot, apiserver.app.test_client()
     # Cleanup ... ?
@@ -121,10 +121,10 @@ def test_api__init__(default_conf, mocker):
     """
     Test __init__() method
     """
-    mocker.patch('freqtrade.rpc.telegram.Updater', MagicMock())
-    mocker.patch('freqtrade.rpc.api_server.ApiServer.run', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Updater', MagicMock())
+    mocker.patch('earthzetaorg.rpc.api_server.ApiServer.run', MagicMock())
 
-    apiserver = ApiServer(get_patched_freqtradebot(mocker, default_conf))
+    apiserver = ApiServer(get_patched_earthzetaorgbot(mocker, default_conf))
     assert apiserver._config == default_conf
 
 
@@ -132,13 +132,13 @@ def test_api_run(default_conf, mocker, caplog):
     default_conf.update({"api_server": {"enabled": True,
                                         "listen_ip_address": "127.0.0.1",
                                         "listen_port": "8080"}})
-    mocker.patch('freqtrade.rpc.telegram.Updater', MagicMock())
-    mocker.patch('freqtrade.rpc.api_server.threading.Thread', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Updater', MagicMock())
+    mocker.patch('earthzetaorg.rpc.api_server.threading.Thread', MagicMock())
 
     server_mock = MagicMock()
-    mocker.patch('freqtrade.rpc.api_server.make_server', server_mock)
+    mocker.patch('earthzetaorg.rpc.api_server.make_server', server_mock)
 
-    apiserver = ApiServer(get_patched_freqtradebot(mocker, default_conf))
+    apiserver = ApiServer(get_patched_earthzetaorgbot(mocker, default_conf))
 
     assert apiserver._config == default_conf
     apiserver.run()
@@ -176,7 +176,7 @@ def test_api_run(default_conf, mocker, caplog):
 
     # Test crashing flask
     caplog.clear()
-    mocker.patch('freqtrade.rpc.api_server.make_server', MagicMock(side_effect=Exception))
+    mocker.patch('earthzetaorg.rpc.api_server.make_server', MagicMock(side_effect=Exception))
     apiserver.run()
     assert log_has("Api server failed to start.", caplog)
 
@@ -185,11 +185,11 @@ def test_api_cleanup(default_conf, mocker, caplog):
     default_conf.update({"api_server": {"enabled": True,
                                         "listen_ip_address": "127.0.0.1",
                                         "listen_port": "8080"}})
-    mocker.patch('freqtrade.rpc.telegram.Updater', MagicMock())
-    mocker.patch('freqtrade.rpc.api_server.threading.Thread', MagicMock())
-    mocker.patch('freqtrade.rpc.api_server.make_server', MagicMock())
+    mocker.patch('earthzetaorg.rpc.telegram.Updater', MagicMock())
+    mocker.patch('earthzetaorg.rpc.api_server.threading.Thread', MagicMock())
+    mocker.patch('earthzetaorg.rpc.api_server.make_server', MagicMock())
 
-    apiserver = ApiServer(get_patched_freqtradebot(mocker, default_conf))
+    apiserver = ApiServer(get_patched_earthzetaorgbot(mocker, default_conf))
     apiserver.run()
     stop_mock = MagicMock()
     stop_mock.shutdown = MagicMock()
@@ -240,9 +240,9 @@ def test_api_balance(botclient, mocker, rpc_balance):
             'ask': 0.1,
             'last': 0.1,
         }
-    mocker.patch('freqtrade.exchange.Exchange.get_balances', return_value=rpc_balance)
-    mocker.patch('freqtrade.exchange.Exchange.get_ticker', side_effect=mock_ticker)
-    mocker.patch('freqtrade.exchange.Exchange.get_valid_pair_combination',
+    mocker.patch('earthzetaorg.exchange.Exchange.get_balances', return_value=rpc_balance)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_ticker', side_effect=mock_ticker)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_valid_pair_combination',
                  side_effect=lambda a, b: f"{a}/{b}")
 
     rc = client_get(client, f"{BASE_URI}/balance")
@@ -262,7 +262,7 @@ def test_api_count(botclient, mocker, ticker, fee, markets):
     ftbot, client = botclient
     patch_get_signal(ftbot, (True, False))
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
@@ -286,7 +286,7 @@ def test_api_daily(botclient, mocker, ticker, fee, markets):
     ftbot, client = botclient
     patch_get_signal(ftbot, (True, False))
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
@@ -302,7 +302,7 @@ def test_api_edge_disabled(botclient, mocker, ticker, fee, markets):
     ftbot, client = botclient
     patch_get_signal(ftbot, (True, False))
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
@@ -317,7 +317,7 @@ def test_api_profit(botclient, mocker, ticker, fee, markets, limit_buy_order, li
     ftbot, client = botclient
     patch_get_signal(ftbot, (True, False))
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
@@ -407,7 +407,7 @@ def test_api_status(botclient, mocker, ticker, fee, markets):
     ftbot, client = botclient
     patch_get_signal(ftbot, (True, False))
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,
@@ -491,7 +491,7 @@ def test_api_forcebuy(botclient, mocker, fee):
     ftbot.config["forcebuy_enable"] = True
 
     fbuy_mock = MagicMock(return_value=None)
-    mocker.patch("freqtrade.rpc.RPC._rpc_forcebuy", fbuy_mock)
+    mocker.patch("earthzetaorg.rpc.RPC._rpc_forcebuy", fbuy_mock)
     rc = client_post(client, f"{BASE_URI}/forcebuy",
                      data='{"pair": "ETH/BTC"}')
     assert_response(rc)
@@ -511,7 +511,7 @@ def test_api_forcebuy(botclient, mocker, fee):
         fee_open=fee.return_value,
         close_rate=0.265441,
     ))
-    mocker.patch("freqtrade.rpc.RPC._rpc_forcebuy", fbuy_mock)
+    mocker.patch("earthzetaorg.rpc.RPC._rpc_forcebuy", fbuy_mock)
 
     rc = client_post(client, f"{BASE_URI}/forcebuy",
                      data='{"pair": "ETH/BTC"}')
@@ -535,7 +535,7 @@ def test_api_forcebuy(botclient, mocker, fee):
 def test_api_forcesell(botclient, mocker, ticker, fee, markets):
     ftbot, client = botclient
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         get_balances=MagicMock(return_value=ticker),
         get_ticker=ticker,
         get_fee=fee,

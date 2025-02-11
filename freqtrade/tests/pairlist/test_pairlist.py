@@ -2,10 +2,10 @@
 
 from unittest.mock import MagicMock, PropertyMock
 
-from freqtrade import OperationalException
-from freqtrade.constants import AVAILABLE_PAIRLISTS
-from freqtrade.resolvers import PairListResolver
-from freqtrade.tests.conftest import get_patched_freqtradebot
+from earthzetaorg import OperationalException
+from earthzetaorg.constants import AVAILABLE_PAIRLISTS
+from earthzetaorg.resolvers import PairListResolver
+from earthzetaorg.tests.conftest import get_patched_earthzetaorgbot
 import pytest
 
 # whitelist, blacklist
@@ -32,39 +32,39 @@ def whitelist_conf(default_conf):
 
 
 def test_load_pairlist_noexist(mocker, markets, default_conf):
-    freqtradebot = get_patched_freqtradebot(mocker, default_conf)
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    earthzetaorgbot = get_patched_earthzetaorgbot(mocker, default_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
     with pytest.raises(OperationalException,
                        match=r"Impossible to load Pairlist 'NonexistingPairList'. "
                              r"This class does not exist or contains Python code errors."):
-        PairListResolver('NonexistingPairList', freqtradebot, default_conf).pairlist
+        PairListResolver('NonexistingPairList', earthzetaorgbot, default_conf).pairlist
 
 
 def test_refresh_market_pair_not_in_whitelist(mocker, markets, whitelist_conf):
 
-    freqtradebot = get_patched_freqtradebot(mocker, whitelist_conf)
+    earthzetaorgbot = get_patched_earthzetaorgbot(mocker, whitelist_conf)
 
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
-    freqtradebot.pairlists.refresh_pairlist()
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    earthzetaorgbot.pairlists.refresh_pairlist()
     # List ordered by BaseVolume
     whitelist = ['ETH/BTC', 'TKN/BTC']
     # Ensure all except those in whitelist are removed
-    assert set(whitelist) == set(freqtradebot.pairlists.whitelist)
+    assert set(whitelist) == set(earthzetaorgbot.pairlists.whitelist)
     # Ensure config dict hasn't been changed
     assert (whitelist_conf['exchange']['pair_whitelist'] ==
-            freqtradebot.config['exchange']['pair_whitelist'])
+            earthzetaorgbot.config['exchange']['pair_whitelist'])
 
 
 def test_refresh_pairlists(mocker, markets, whitelist_conf):
-    freqtradebot = get_patched_freqtradebot(mocker, whitelist_conf)
+    earthzetaorgbot = get_patched_earthzetaorgbot(mocker, whitelist_conf)
 
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
-    freqtradebot.pairlists.refresh_pairlist()
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    earthzetaorgbot.pairlists.refresh_pairlist()
     # List ordered by BaseVolume
     whitelist = ['ETH/BTC', 'TKN/BTC']
     # Ensure all except those in whitelist are removed
-    assert set(whitelist) == set(freqtradebot.pairlists.whitelist)
-    assert whitelist_conf['exchange']['pair_blacklist'] == freqtradebot.pairlists.blacklist
+    assert set(whitelist) == set(earthzetaorgbot.pairlists.whitelist)
+    assert whitelist_conf['exchange']['pair_blacklist'] == earthzetaorgbot.pairlists.blacklist
 
 
 def test_refresh_pairlist_dynamic(mocker, markets, tickers, whitelist_conf):
@@ -72,18 +72,18 @@ def test_refresh_pairlist_dynamic(mocker, markets, tickers, whitelist_conf):
                                   'config': {'number_assets': 5}
                                   }
     mocker.patch.multiple(
-        'freqtrade.exchange.Exchange',
+        'earthzetaorg.exchange.Exchange',
         markets=PropertyMock(return_value=markets),
         get_tickers=tickers,
         exchange_has=MagicMock(return_value=True)
     )
-    freqtradebot = get_patched_freqtradebot(mocker, whitelist_conf)
+    earthzetaorgbot = get_patched_earthzetaorgbot(mocker, whitelist_conf)
 
     # argument: use the whitelist dynamically by exchange-volume
     whitelist = ['ETH/BTC', 'TKN/BTC', 'BTT/BTC']
-    freqtradebot.pairlists.refresh_pairlist()
+    earthzetaorgbot.pairlists.refresh_pairlist()
 
-    assert whitelist == freqtradebot.pairlists.whitelist
+    assert whitelist == earthzetaorgbot.pairlists.whitelist
 
     whitelist_conf['pairlist'] = {'method': 'VolumePairList',
                                   'config': {}
@@ -91,17 +91,17 @@ def test_refresh_pairlist_dynamic(mocker, markets, tickers, whitelist_conf):
     with pytest.raises(OperationalException,
                        match=r'`number_assets` not specified. Please check your configuration '
                              r'for "pairlist.config.number_assets"'):
-        PairListResolver('VolumePairList', freqtradebot, whitelist_conf).pairlist
+        PairListResolver('VolumePairList', earthzetaorgbot, whitelist_conf).pairlist
 
 
 def test_VolumePairList_refresh_empty(mocker, markets_empty, whitelist_conf):
-    freqtradebot = get_patched_freqtradebot(mocker, whitelist_conf)
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets_empty))
+    earthzetaorgbot = get_patched_earthzetaorgbot(mocker, whitelist_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets_empty))
 
     # argument: use the whitelist dynamically by exchange-volume
     whitelist = []
     whitelist_conf['exchange']['pair_whitelist'] = []
-    freqtradebot.pairlists.refresh_pairlist()
+    earthzetaorgbot.pairlists.refresh_pairlist()
     pairslist = whitelist_conf['exchange']['pair_whitelist']
 
     assert set(whitelist) == set(pairslist)
@@ -118,15 +118,15 @@ def test_VolumePairList_refresh_empty(mocker, markets_empty, whitelist_conf):
 def test_VolumePairList_whitelist_gen(mocker, whitelist_conf, markets, tickers, base_currency, key,
                                       whitelist_result, precision_filter) -> None:
     whitelist_conf['pairlist']['method'] = 'VolumePairList'
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=True))
-    freqtrade = get_patched_freqtradebot(mocker, whitelist_conf)
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
-    mocker.patch('freqtrade.exchange.Exchange.get_tickers', tickers)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, p, r: round(r, 8))
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=True))
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, whitelist_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_tickers', tickers)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, p, r: round(r, 8))
 
-    freqtrade.pairlists._precision_filter = precision_filter
-    freqtrade.config['stake_currency'] = base_currency
-    whitelist = freqtrade.pairlists._gen_pair_whitelist(base_currency=base_currency, key=key)
+    earthzetaorg.pairlists._precision_filter = precision_filter
+    earthzetaorg.config['stake_currency'] = base_currency
+    whitelist = earthzetaorg.pairlists._gen_pair_whitelist(base_currency=base_currency, key=key)
     assert whitelist == whitelist_result
 
 
@@ -134,24 +134,24 @@ def test_gen_pair_whitelist_not_supported(mocker, default_conf, tickers) -> None
     default_conf['pairlist'] = {'method': 'VolumePairList',
                                 'config': {'number_assets': 10}
                                 }
-    mocker.patch('freqtrade.exchange.Exchange.get_tickers', tickers)
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=False))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_tickers', tickers)
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=False))
 
     with pytest.raises(OperationalException):
-        get_patched_freqtradebot(mocker, default_conf)
+        get_patched_earthzetaorgbot(mocker, default_conf)
 
 
 @pytest.mark.parametrize("pairlist", AVAILABLE_PAIRLISTS)
 def test_pairlist_class(mocker, whitelist_conf, markets, pairlist):
     whitelist_conf['pairlist']['method'] = pairlist
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=True))
-    freqtrade = get_patched_freqtradebot(mocker, whitelist_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=True))
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, whitelist_conf)
 
-    assert freqtrade.pairlists.name == pairlist
-    assert pairlist in freqtrade.pairlists.short_desc()
-    assert isinstance(freqtrade.pairlists.whitelist, list)
-    assert isinstance(freqtrade.pairlists.blacklist, list)
+    assert earthzetaorg.pairlists.name == pairlist
+    assert pairlist in earthzetaorg.pairlists.short_desc()
+    assert isinstance(earthzetaorg.pairlists.whitelist, list)
+    assert isinstance(earthzetaorg.pairlists.blacklist, list)
 
 
 @pytest.mark.parametrize("pairlist", AVAILABLE_PAIRLISTS)
@@ -165,12 +165,12 @@ def test_pairlist_class(mocker, whitelist_conf, markets, pairlist):
 def test_validate_whitelist(mocker, whitelist_conf, markets, pairlist, whitelist, caplog,
                             log_message):
     whitelist_conf['pairlist']['method'] = pairlist
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets))
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=True))
-    freqtrade = get_patched_freqtradebot(mocker, whitelist_conf)
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets))
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=True))
+    earthzetaorg = get_patched_earthzetaorgbot(mocker, whitelist_conf)
     caplog.clear()
 
-    new_whitelist = freqtrade.pairlists._validate_whitelist(whitelist)
+    new_whitelist = earthzetaorg.pairlists._validate_whitelist(whitelist)
 
     assert set(new_whitelist) == set(['ETH/BTC', 'TKN/BTC'])
     assert log_message in caplog.text

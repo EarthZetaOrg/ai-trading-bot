@@ -5,9 +5,9 @@ Backtesting.
 
 ## Getting data for backtesting and hyperopt
 
-To download data (candles / OHLCV) needed for backtesting and hyperoptimization use the `freqtrade download-data` command.
+To download data (candles / OHLCV) needed for backtesting and hyperoptimization use the `earthzetaorg download-data` command.
 
-If no additional parameter is specified, freqtrade will download data for `"1m"` and `"5m"` timeframes.
+If no additional parameter is specified, earthzetaorg will download data for `"1m"` and `"5m"` timeframes.
 Exchange and pairs will come from `config.json` (if specified using `-c/--config`). Otherwise `--exchange` becomes mandatory.
 
 Alternatively, a `pairs.json` file can be used.
@@ -19,13 +19,13 @@ If you are using Binance for example:
 
 ```bash
 mkdir -p user_data/data/binance
-cp freqtrade/tests/testdata/pairs.json user_data/data/binance
+cp earthzetaorg/tests/testdata/pairs.json user_data/data/binance
 ```
 
 Then run:
 
 ```bash
-freqtrade download-data --exchange binance
+earthzetaorg download-data --exchange binance
 ```
 
 This will download ticker data for all the currency pairs you defined in `pairs.json`.
@@ -45,26 +45,26 @@ real data. This is what we call
 
 Backtesting will use the crypto-currencies (pair) from your config file
 and load static tickers located in
-[/freqtrade/tests/testdata](https://github.com/freqtrade/freqtrade/tree/develop/freqtrade/tests/testdata).
+[/earthzetaorg/tests/testdata](https://github.com/earthzetaorg/earthzetaorg/tree/develop/earthzetaorg/tests/testdata).
 If the 5 min and 1 min ticker for the crypto-currencies to test is not
 already in the `testdata` directory, backtesting will download them
 automatically. Testdata files will not be updated until you specify it.
 
 The result of backtesting will confirm you if your bot has better odds of making a profit than a loss.
 
-The backtesting is very easy with freqtrade.
+The backtesting is very easy with earthzetaorg.
 
 ### Run a backtesting against the currencies listed in your config file
 #### With 5 min tickers (Per default)
 
 ```bash
-freqtrade backtesting
+earthzetaorg backtesting
 ```
 
 #### With 1 min tickers
 
 ```bash
-freqtrade backtesting --ticker-interval 1m
+earthzetaorg backtesting --ticker-interval 1m
 ```
 
 #### Using a different on-disk ticker-data source
@@ -73,21 +73,21 @@ Assume you downloaded the history data from the Bittrex exchange and kept it in 
 You can then use this data for backtesting as follows:
 
 ```bash
-freqtrade backtesting --datadir user_data/data/bittrex-20180101
+earthzetaorg backtesting --datadir user_data/data/bittrex-20180101
 ```
 
 #### With a (custom) strategy file
 
 ```bash
-freqtrade -s SampleStrategy backtesting
+earthzetaorg -s SampleStrategy backtesting
 ```
 
-Where `-s SampleStrategy` refers to the class name within the strategy file `sample_strategy.py` found in the `freqtrade/user_data/strategies` directory.
+Where `-s SampleStrategy` refers to the class name within the strategy file `sample_strategy.py` found in the `earthzetaorg/user_data/strategies` directory.
 
 #### Comparing multiple Strategies
 
 ```bash
-freqtrade backtesting --strategy-list SampleStrategy1 AwesomeStrategy --ticker-interval 5m
+earthzetaorg backtesting --strategy-list SampleStrategy1 AwesomeStrategy --ticker-interval 5m
 ```
 
 Where `SampleStrategy1` and `AwesomeStrategy` refer to class names of strategies.
@@ -95,7 +95,7 @@ Where `SampleStrategy1` and `AwesomeStrategy` refer to class names of strategies
 #### Exporting trades to file
 
 ```bash
-freqtrade backtesting --export trades
+earthzetaorg backtesting --export trades
 ```
 
 The exported trades can be used for [further analysis](#further-backtest-result-analysis), or can be used by the plotting script `plot_dataframe.py` in the scripts directory.
@@ -103,7 +103,7 @@ The exported trades can be used for [further analysis](#further-backtest-result-
 #### Exporting trades to file specifying a custom filename
 
 ```bash
-freqtrade backtesting --export trades --export-filename=backtest_samplestrategy.json
+earthzetaorg backtesting --export trades --export-filename=backtest_samplestrategy.json
 ```
 
 #### Running backtest with smaller testset
@@ -114,7 +114,7 @@ you want to use. The last N ticks/timeframes will be used.
 Example:
 
 ```bash
-freqtrade backtesting --timerange=-200
+earthzetaorg backtesting --timerange=-200
 ```
 
 #### Advanced use of timerange
@@ -236,7 +236,7 @@ strategies you'd like to compare, this should give a nice runtime boost.
 All listed Strategies need to be in the same directory.
 
 ``` bash
-freqtrade backtesting --timerange 20180401-20180410 --ticker-interval 5m --strategy-list Strategy001 Strategy002 --export trades
+earthzetaorg backtesting --timerange 20180401-20180410 --ticker-interval 5m --strategy-list Strategy001 Strategy002 --export trades
 ```
 
 This will save the results to `user_data/backtest_results/backtest-result-<strategy>.json`, injecting the strategy-name into the target filename.

@@ -6,7 +6,7 @@ if version_info.major == 3 and version_info.minor < 6 or \
     print('Your Python interpreter must be 3.6 or greater!')
     exit(1)
 
-from freqtrade import __version__
+from earthzetaorg import __version__
 
 # Requirements used for submodules
 api = ['flask']
@@ -33,14 +33,14 @@ jupyter = [
 
 all_extra = api + plot + develop + jupyter
 
-setup(name='freqtrade',
+setup(name='earthzetaorg',
       version=__version__,
       description='Crypto Trading Bot',
-      url='https://github.com/freqtrade/freqtrade',
+      url='https://github.com/earthzetaorg/earthzetaorg',
       author='gcarq and contributors',
       author_email='michael.egger@tsn.at',
       license='GPLv3',
-      packages=['freqtrade'],
+      packages=['earthzetaorg'],
       setup_requires=['pytest-runner', 'numpy'],
       tests_require=['pytest', 'pytest-mock', 'pytest-cov'],
       install_requires=[
@@ -82,7 +82,7 @@ setup(name='freqtrade',
       zip_safe=False,
       entry_points={
           'console_scripts': [
-              'freqtrade = freqtrade.main:main',
+              'earthzetaorg = earthzetaorg.main:main',
           ],
       },
       classifiers=[

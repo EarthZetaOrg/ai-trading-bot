@@ -7,7 +7,7 @@ from math import exp
 
 from pandas import DataFrame
 
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from earthzetaorg.optimize.hyperopt import IHyperOptLoss
 
 
 # Set TARGET_TRADES to suit your number concurrent trades so its realistic

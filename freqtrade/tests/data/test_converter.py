@@ -1,9 +1,9 @@
 # pragma pylint: disable=missing-docstring, C0103
 import logging
 
-from freqtrade.data.converter import parse_ticker_dataframe, ohlcv_fill_up_missing_data
-from freqtrade.data.history import load_pair_history, validate_backtest_data, get_timeframe
-from freqtrade.tests.conftest import log_has
+from earthzetaorg.data.converter import parse_ticker_dataframe, ohlcv_fill_up_missing_data
+from earthzetaorg.data.history import load_pair_history, validate_backtest_data, get_timeframe
+from earthzetaorg.tests.conftest import log_has
 
 
 def test_dataframe_correct_columns(result):

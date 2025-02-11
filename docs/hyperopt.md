@@ -7,12 +7,12 @@ search will burn all your CPU cores, make your laptop sound like a fighter jet
 and still take a long time.
 
 !!! Bug
-    Hyperopt will crash when used with only 1 CPU Core as found out in [Issue #1133](https://github.com/freqtrade/freqtrade/issues/1133)
+    Hyperopt will crash when used with only 1 CPU Core as found out in [Issue #1133](https://github.com/earthzetaorg/earthzetaorg/issues/1133)
 
 ## Prepare Hyperopting
 
 Before we start digging into Hyperopt, we recommend you to take a look at
-an example hyperopt file located into [user_data/hyperopts/](https://github.com/freqtrade/freqtrade/blob/develop/user_data/hyperopts/sample_hyperopt.py)
+an example hyperopt file located into [user_data/hyperopts/](https://github.com/earthzetaorg/earthzetaorg/blob/develop/user_data/hyperopts/sample_hyperopt.py)
 
 Configuring hyperopt is similar to writing your own strategy, and many tasks will be similar and a lot of code can be copied across from the strategy.
 
@@ -159,14 +159,14 @@ add it to the `populate_indicators()` method in `hyperopt.py`.
 
 Each hyperparameter tuning requires a target. This is usually defined as a loss function (sometimes also called objective function), which should decrease for more desirable results, and increase for bad results.
 
-By default, FreqTrade uses a loss function, which has been with freqtrade since the beginning and optimizes mostly for short trade duration and avoiding losses.
+By default, earthzetaorg uses a loss function, which has been with earthzetaorg since the beginning and optimizes mostly for short trade duration and avoiding losses.
 
 A different loss function can be specified by using the `--hyperopt-loss <Class-name>` argument.
 This class should be in its own file within the `user_data/hyperopts/` directory.
 
 Currently, the following loss functions are builtin:
 
-* `DefaultHyperOptLoss` (default legacy Freqtrade hyperoptimization loss function)
+* `DefaultHyperOptLoss` (default legacy earthzetaorg hyperoptimization loss function)
 * `OnlyProfitHyperOptLoss` (which takes only amount of profit into consideration)
 * `SharpeHyperOptLoss` (optimizes Sharpe Ratio calculated on the trade returns)
 
@@ -175,10 +175,10 @@ Currently, the following loss functions are builtin:
 To use a custom loss function class, make sure that the function `hyperopt_loss_function` is defined in your custom hyperopt loss class.
 For the sample below, you then need to add the command line parameter `--hyperopt-loss SuperDuperHyperOptLoss` to your hyperopt call so this fuction is being used.
 
-A sample of this can be found below, which is identical to the Default Hyperopt loss implementation. A full sample can be found [user_data/hyperopts/](https://github.com/freqtrade/freqtrade/blob/develop/user_data/hyperopts/sample_hyperopt_loss.py)
+A sample of this can be found below, which is identical to the Default Hyperopt loss implementation. A full sample can be found [user_data/hyperopts/](https://github.com/earthzetaorg/earthzetaorg/blob/develop/user_data/hyperopts/sample_hyperopt_loss.py)
 
 ``` python
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from earthzetaorg.optimize.hyperopt import IHyperOptLoss
 
 TARGET_TRADES = 600
 EXPECTED_MAX_PROFIT = 3.0
@@ -195,7 +195,7 @@ class SuperDuperHyperOptLoss(IHyperOptLoss):
                                *args, **kwargs) -> float:
         """
         Objective function, returns smaller number for better results
-        This is the legacy algorithm (used until now in freqtrade).
+        This is the legacy algorithm (used until now in earthzetaorg).
         Weights are distributed as follows:
         * 0.4 to trade duration
         * 0.25: Avoiding trade loss
@@ -236,7 +236,7 @@ Because hyperopt tries a lot of combinations to find the best parameters it will
 We strongly recommend to use `screen` or `tmux` to prevent any connection loss.
 
 ```bash
-freqtrade -c config.json hyperopt --customhyperopt <hyperoptname> -e 5000 --spaces all
+earthzetaorg -c config.json hyperopt --customhyperopt <hyperoptname> -e 5000 --spaces all
 ```
 
 Use  `<hyperoptname>` as the name of the custom hyperopt used.
@@ -264,7 +264,7 @@ Use the `--timerange` argument to change how much of the testset you want to use
 For example, to use one month of data, pass the following parameter to the hyperopt call:
 
 ```bash
-freqtrade hyperopt --timerange 20180401-20180501
+earthzetaorg hyperopt --timerange 20180401-20180501
 ```
 
 ### Running Hyperopt with Smaller Search Space
@@ -289,7 +289,7 @@ Legal values are:
 In some situations, you may need to run Hyperopt (and Backtesting) with the 
 `--eps`/`--enable-position-staking` and `--dmmp`/`--disable-max-market-positions` arguments.
 
-By default, hyperopt emulates the behavior of the Freqtrade Live Run/Dry Run, where only one
+By default, hyperopt emulates the behavior of the earthzetaorg Live Run/Dry Run, where only one
 open trade is allowed for every traded pair. The total number of trades open for all pairs 
 is also limited by the `max_open_trades` setting. During Hyperopt/Backtesting this may lead to
 some potential trades to be hidden (or masked) by previosly open trades.
@@ -389,7 +389,7 @@ minimal_roi = {
     }
 ```
 
-If you are optimizing ROI, Freqtrade creates the 'roi' optimization hyperspace for you -- it's the hyperspace of components for the ROI tables. By default, each ROI table generated by the Freqtrade consists of 4 rows (steps). Hyperopt implements adaptive ranges for ROI tables with ranges for values in the ROI steps that depend on the ticker_interval used. By default the values can vary in the following ranges (for some of the most used ticker intervals, values are rounded to 5 digits after the decimal point):
+If you are optimizing ROI, earthzetaorg creates the 'roi' optimization hyperspace for you -- it's the hyperspace of components for the ROI tables. By default, each ROI table generated by the earthzetaorg consists of 4 rows (steps). Hyperopt implements adaptive ranges for ROI tables with ranges for values in the ROI steps that depend on the ticker_interval used. By default the values can vary in the following ranges (for some of the most used ticker intervals, values are rounded to 5 digits after the decimal point):
 
 | # step <td colspan=2> 1m <td colspan=2> 5m <td colspan=2> 1h <td colspan=2> 1d |
 |---|---|---|---|---|---|---|---|---|
@@ -400,9 +400,9 @@ If you are optimizing ROI, Freqtrade creates the 'roi' optimization hyperspace f
 
 These ranges should be sufficient in most cases. The minutes in the steps (ROI dict keys) are scaled linearly depending on the ticker interval used. The ROI values in the steps (ROI dict values) are scaled logarithmically depending on the ticker interval used.
 
-If you have the `generate_roi_table()` and `roi_space()` methods in your custom hyperopt file, remove them in order to utilize these adaptive ROI tables and the ROI hyperoptimization space generated by Freqtrade by default.
+If you have the `generate_roi_table()` and `roi_space()` methods in your custom hyperopt file, remove them in order to utilize these adaptive ROI tables and the ROI hyperoptimization space generated by earthzetaorg by default.
 
-Override the `roi_space()` method if you need components of the ROI tables to vary in other ranges. Override the `generate_roi_table()` and `roi_space()` methods and implement your own custom approach for generation of the ROI tables during hyperoptimization if you need a different structure of the ROI tables or other amount of rows (steps). A sample for these methods can be found in [user_data/hyperopts/sample_hyperopt_advanced.py](https://github.com/freqtrade/freqtrade/blob/develop/user_data/hyperopts/sample_hyperopt_advanced.py).
+Override the `roi_space()` method if you need components of the ROI tables to vary in other ranges. Override the `generate_roi_table()` and `roi_space()` methods and implement your own custom approach for generation of the ROI tables during hyperoptimization if you need a different structure of the ROI tables or other amount of rows (steps). A sample for these methods can be found in [user_data/hyperopts/sample_hyperopt_advanced.py](https://github.com/earthzetaorg/earthzetaorg/blob/develop/user_data/hyperopts/sample_hyperopt_advanced.py).
 
 ### Understand Hyperopt Stoploss results
 
@@ -422,11 +422,11 @@ Buy hyperspace params:
 Stoploss: -0.37996664668703606
 ```
 
-If you are optimizing stoploss values, Freqtrade creates the 'stoploss' optimization hyperspace for you. By default, the stoploss values in that hyperspace can vary in the range -0.5...-0.02, which is sufficient in most cases.
+If you are optimizing stoploss values, earthzetaorg creates the 'stoploss' optimization hyperspace for you. By default, the stoploss values in that hyperspace can vary in the range -0.5...-0.02, which is sufficient in most cases.
 
-If you have the `stoploss_space()` method in your custom hyperopt file, remove it in order to utilize Stoploss hyperoptimization space generated by Freqtrade by default.
+If you have the `stoploss_space()` method in your custom hyperopt file, remove it in order to utilize Stoploss hyperoptimization space generated by earthzetaorg by default.
 
-Override the `stoploss_space()` method and define the desired range in it if you need stoploss values to vary in other range during hyperoptimization. A sample for this method can be found in [user_data/hyperopts/sample_hyperopt_advanced.py](https://github.com/freqtrade/freqtrade/blob/develop/user_data/hyperopts/sample_hyperopt_advanced.py).
+Override the `stoploss_space()` method and define the desired range in it if you need stoploss values to vary in other range during hyperoptimization. A sample for this method can be found in [user_data/hyperopts/sample_hyperopt_advanced.py](https://github.com/earthzetaorg/earthzetaorg/blob/develop/user_data/hyperopts/sample_hyperopt_advanced.py).
 
 ### Validate backtesting results
 

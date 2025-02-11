@@ -11,9 +11,9 @@ from telegram import ParseMode, ReplyKeyboardMarkup, Update
 from telegram.error import NetworkError, TelegramError
 from telegram.ext import CommandHandler, Updater, CallbackContext
 
-from freqtrade.__init__ import __version__
-from freqtrade.rpc import RPC, RPCException, RPCMessageType
-from freqtrade.rpc.fiat_convert import CryptoToFiatConverter
+from earthzetaorg.__init__ import __version__
+from earthzetaorg.rpc import RPC, RPCException, RPCMessageType
+from earthzetaorg.rpc.fiat_convert import CryptoToFiatConverter
 
 logger = logging.getLogger(__name__)
 
@@ -59,16 +59,16 @@ def authorized_only(command_handler: Callable[..., None]) -> Callable[..., Any]:
 class Telegram(RPC):
     """  This class handles all telegram communication """
 
-    def __init__(self, freqtrade) -> None:
+    def __init__(self, earthzetaorg) -> None:
         """
         Init the Telegram call, and init the super class RPC
-        :param freqtrade: Instance of a freqtrade bot
+        :param earthzetaorg: Instance of a earthzetaorg bot
         :return: None
         """
-        super().__init__(freqtrade)
+        super().__init__(earthzetaorg)
 
         self._updater: Updater = None
-        self._config = freqtrade.config
+        self._config = earthzetaorg.config
         self._init()
         if self._config.get('fiat_display_currency', None):
             self._fiat_converter = CryptoToFiatConverter()

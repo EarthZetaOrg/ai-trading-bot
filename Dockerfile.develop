@@ -1,7 +1,7 @@
-FROM freqtradeorg/freqtrade:develop
+FROM earthzetaorgorg/earthzetaorg:develop
 
 # Install dependencies
-COPY requirements-dev.txt /freqtrade/
+COPY requirements-dev.txt /earthzetaorg/
 RUN pip install numpy --no-cache-dir \
   && pip install -r requirements-dev.txt --no-cache-dir
 

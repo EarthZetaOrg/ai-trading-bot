@@ -11,7 +11,7 @@ from pandas import DataFrame
 
 class IHyperOptLoss(ABC):
     """
-    Interface for freqtrade hyperopts Loss functions.
+    Interface for earthzetaorg hyperopts Loss functions.
     Defines the custom loss function (`hyperopt_loss_function()` which is evaluated every epoch.)
     """
     ticker_interval: str

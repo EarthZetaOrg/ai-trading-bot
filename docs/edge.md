@@ -209,7 +209,7 @@ Edge will remove sudden pumps in a given market while going through historical d
 You can run Edge independently in order to see in details the result. Here is an example:
 
 ```bash
-freqtrade edge
+earthzetaorg edge
 ```
 
 An example of its output:
@@ -240,13 +240,13 @@ Please refer to the [download section](backtesting.md#Getting-data-for-backtesti
 ### Precising stoploss range
 
 ```bash
-freqtrade edge --stoplosses=-0.01,-0.1,-0.001 #min,max,step
+earthzetaorg edge --stoplosses=-0.01,-0.1,-0.001 #min,max,step
 ```
 
 ### Advanced use of timerange
 
 ```bash
-freqtrade edge --timerange=20181110-20181113
+earthzetaorg edge --timerange=20181110-20181113
 ```
 
 Doing `--timerange=-200` will get the last 200 timeframes from your inputdata. You can also specify specific dates, or a range span indexed by start and stop.

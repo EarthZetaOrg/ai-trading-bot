@@ -1,7 +1,7 @@
 # pragma pylint: disable=missing-docstring, C0103
 import pytest
 
-from freqtrade.configuration import TimeRange
+from earthzetaorg.configuration import TimeRange
 
 
 def test_parse_timerange_incorrect() -> None:

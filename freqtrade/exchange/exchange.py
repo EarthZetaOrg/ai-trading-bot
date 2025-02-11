@@ -17,10 +17,10 @@ import ccxt.async_support as ccxt_async
 from ccxt.base.decimal_to_precision import ROUND_UP, ROUND_DOWN
 from pandas import DataFrame
 
-from freqtrade import (DependencyException, InvalidOrderException,
+from earthzetaorg import (DependencyException, InvalidOrderException,
                        OperationalException, TemporaryError, constants)
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.misc import deep_merge_dicts
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.misc import deep_merge_dicts
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ API_RETRY_COUNT = 4
 BAD_EXCHANGES = {
     "bitmex": "Various reasons",
     "bitstamp": "Does not provide history. "
-                "Details in https://github.com/freqtrade/freqtrade/issues/1983",
+                "Details in https://github.com/earthzetaorg/earthzetaorg/issues/1983",
     }
 
 

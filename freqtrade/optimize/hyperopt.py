@@ -22,14 +22,14 @@ from pandas import DataFrame
 from skopt import Optimizer
 from skopt.space import Dimension
 
-from freqtrade.configuration import TimeRange
-from freqtrade.data.history import load_data, get_timeframe
-from freqtrade.misc import round_dict
-from freqtrade.optimize.backtesting import Backtesting
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data.history import load_data, get_timeframe
+from earthzetaorg.misc import round_dict
+from earthzetaorg.optimize.backtesting import Backtesting
 # Import IHyperOpt and IHyperOptLoss to allow unpickling classes from these modules
-from freqtrade.optimize.hyperopt_interface import IHyperOpt  # noqa: F4
-from freqtrade.optimize.hyperopt_loss_interface import IHyperOptLoss  # noqa: F4
-from freqtrade.resolvers.hyperopt_resolver import HyperOptResolver, HyperOptLossResolver
+from earthzetaorg.optimize.hyperopt_interface import IHyperOpt  # noqa: F4
+from earthzetaorg.optimize.hyperopt_loss_interface import IHyperOptLoss  # noqa: F4
+from earthzetaorg.resolvers.hyperopt_resolver import HyperOptResolver, HyperOptLossResolver
 
 
 logger = logging.getLogger(__name__)

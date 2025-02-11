@@ -9,8 +9,8 @@ from flask import Flask, jsonify, request
 from flask.json import JSONEncoder
 from werkzeug.serving import make_server
 
-from freqtrade.__init__ import __version__
-from freqtrade.rpc.rpc import RPC, RPCException
+from earthzetaorg.__init__ import __version__
+from earthzetaorg.rpc.rpc import RPC, RPCException
 
 logger = logging.getLogger(__name__)
 
@@ -69,15 +69,15 @@ class ApiServer(RPC):
 
         return func_wrapper
 
-    def __init__(self, freqtrade) -> None:
+    def __init__(self, earthzetaorg) -> None:
         """
         Init the api server, and init the super class RPC
-        :param freqtrade: Instance of a freqtrade bot
+        :param earthzetaorg: Instance of a earthzetaorg bot
         :return: None
         """
-        super().__init__(freqtrade)
+        super().__init__(earthzetaorg)
 
-        self._config = freqtrade.config
+        self._config = earthzetaorg.config
         self.app = Flask(__name__)
         self.app.json_encoder = ArrowJSONEncoder
 

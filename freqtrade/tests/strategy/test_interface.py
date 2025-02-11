@@ -6,12 +6,12 @@ from unittest.mock import MagicMock
 import arrow
 from pandas import DataFrame
 
-from freqtrade.configuration import TimeRange
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.data.history import load_tickerdata_file
-from freqtrade.persistence import Trade
-from freqtrade.tests.conftest import get_patched_exchange, log_has
-from freqtrade.strategy.default_strategy import DefaultStrategy
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.data.history import load_tickerdata_file
+from earthzetaorg.persistence import Trade
+from earthzetaorg.tests.conftest import get_patched_exchange, log_has
+from earthzetaorg.strategy.default_strategy import DefaultStrategy
 
 # Avoid to reinit the same object again and again
 _STRATEGY = DefaultStrategy(config={})
@@ -222,7 +222,7 @@ def test_analyze_ticker_default(ticker_history, mocker, caplog) -> None:
     buy_mock = MagicMock(side_effect=lambda x, meta: x)
     sell_mock = MagicMock(side_effect=lambda x, meta: x)
     mocker.patch.multiple(
-        'freqtrade.strategy.interface.IStrategy',
+        'earthzetaorg.strategy.interface.IStrategy',
         advise_indicators=ind_mock,
         advise_buy=buy_mock,
         advise_sell=sell_mock,
@@ -253,7 +253,7 @@ def test__analyze_ticker_internal_skip_analyze(ticker_history, mocker, caplog) -
     buy_mock = MagicMock(side_effect=lambda x, meta: x)
     sell_mock = MagicMock(side_effect=lambda x, meta: x)
     mocker.patch.multiple(
-        'freqtrade.strategy.interface.IStrategy',
+        'earthzetaorg.strategy.interface.IStrategy',
         advise_indicators=ind_mock,
         advise_buy=buy_mock,
         advise_sell=sell_mock,

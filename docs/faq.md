@@ -1,10 +1,10 @@
-# Freqtrade FAQ
+# earthzetaorg FAQ
 
-## Freqtrade common issues
+## earthzetaorg common issues
 
 ### The bot does not start
 
-Running the bot with `freqtrade --config config.json` does show the output `freqtrade: command not found`.
+Running the bot with `earthzetaorg --config config.json` does show the output `earthzetaorg: command not found`.
 
 This could have the following reasons:
 
@@ -51,7 +51,7 @@ Currently known to happen for US Bittrex users.
 Bittrex split its exchange into US and International versions.
 The International version has more pairs available, however the API always returns all pairs, so there is currently no automated way to detect if you're affected by the restriction.
 
-If you have restricted pairs in your whitelist, you'll get a warning message in the log on FreqTrade startup for each restricted pair.
+If you have restricted pairs in your whitelist, you'll get a warning message in the log on earthzetaorg startup for each restricted pair.
 If you're an "International" Customer on the Bittrex exchange, then this warning will probably not impact you.
 If you're a US customer, the bot will fail to create orders for these pairs, and you should remove them from your Whitelist.
 
@@ -68,13 +68,13 @@ compute.
 We recommend you to run it at least 10.000 epochs:
 
 ```bash
-freqtrade hyperopt -e 10000
+earthzetaorg hyperopt -e 10000
 ```
 
 or if you want intermediate result to see
 
 ```bash
-for i in {1..100}; do freqtrade hyperopt -e 100; done
+for i in {1..100}; do earthzetaorg hyperopt -e 100; done
 ```
 
 ### Why it is so long to run hyperopt?
@@ -99,7 +99,7 @@ of the search space.
 
 ### Edge implements interesting approach for controlling position size, is there any theory behind it?
 
-The Edge module is mostly a result of brainstorming of [@mishaker](https://github.com/mishaker) and [@creslinux](https://github.com/creslinux) freqtrade team members.
+The Edge module is mostly a result of brainstorming of [@mishaker](https://github.com/mishaker) and [@creslinux](https://github.com/creslinux) earthzetaorg team members.
 
 You can find further info on expectancy, winrate, risk management and position size in the following sources:
 

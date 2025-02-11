@@ -11,16 +11,16 @@ import ccxt
 import pytest
 from pandas import DataFrame
 
-from freqtrade import (DependencyException, InvalidOrderException,
+from earthzetaorg import (DependencyException, InvalidOrderException,
                        OperationalException, TemporaryError)
-from freqtrade.exchange import Binance, Exchange, Kraken
-from freqtrade.exchange.exchange import (API_RETRY_COUNT, timeframe_to_minutes,
+from earthzetaorg.exchange import Binance, Exchange, Kraken
+from earthzetaorg.exchange.exchange import (API_RETRY_COUNT, timeframe_to_minutes,
                                          timeframe_to_msecs,
                                          timeframe_to_next_date,
                                          timeframe_to_prev_date,
                                          timeframe_to_seconds)
-from freqtrade.resolvers.exchange_resolver import ExchangeResolver
-from freqtrade.tests.conftest import get_patched_exchange, log_has, log_has_re
+from earthzetaorg.resolvers.exchange_resolver import ExchangeResolver
+from earthzetaorg.tests.conftest import get_patched_exchange, log_has, log_has_re
 
 # Make sure to always keep one exchange here which is NOT subclassed!!
 EXCHANGES = ['bittrex', 'binance', 'kraken', ]
@@ -70,7 +70,7 @@ def test_init(default_conf, mocker, caplog):
 
 
 def test_init_ccxt_kwargs(default_conf, mocker, caplog):
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
     caplog.set_level(logging.INFO)
     conf = copy.deepcopy(default_conf)
     conf['exchange']['ccxt_async_config'] = {'aiohttp_trust_env': True}
@@ -118,10 +118,10 @@ def test_init_exception(default_conf, mocker):
 
 
 def test_exchange_resolver(default_conf, mocker, caplog):
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=MagicMock()))
-    mocker.patch('freqtrade.exchange.Exchange._load_async_markets', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=MagicMock()))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_async_markets', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
     exchange = ExchangeResolver('Bittrex', default_conf).exchange
     assert isinstance(exchange, Exchange)
     assert log_has_re(r"No .* specific subclass found. Using the generic class instead.", caplog)
@@ -173,7 +173,7 @@ def test_symbol_amount_prec(default_conf, mocker):
     api_mock.load_markets = MagicMock(return_value={
         'ETH/BTC': '', 'LTC/BTC': '', 'XRP/BTC': '', 'NEO/BTC': ''
     })
-    mocker.patch('freqtrade.exchange.Exchange.name', PropertyMock(return_value='binance'))
+    mocker.patch('earthzetaorg.exchange.Exchange.name', PropertyMock(return_value='binance'))
 
     markets = PropertyMock(return_value={'ETH/BTC': {'precision': {'amount': 4}}})
     type(api_mock).markets = markets
@@ -194,7 +194,7 @@ def test_symbol_price_prec(default_conf, mocker):
     api_mock.load_markets = MagicMock(return_value={
         'ETH/BTC': '', 'LTC/BTC': '', 'XRP/BTC': '', 'NEO/BTC': ''
     })
-    mocker.patch('freqtrade.exchange.Exchange.name', PropertyMock(return_value='binance'))
+    mocker.patch('earthzetaorg.exchange.Exchange.name', PropertyMock(return_value='binance'))
 
     markets = PropertyMock(return_value={'ETH/BTC': {'precision': {'price': 4}}})
     type(api_mock).markets = markets
@@ -259,10 +259,10 @@ def test__load_markets(default_conf, mocker, caplog):
     caplog.set_level(logging.INFO)
     api_mock = MagicMock()
     api_mock.load_markets = MagicMock(side_effect=ccxt.BaseError("SomeError"))
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange._load_async_markets', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._load_async_markets', MagicMock())
     Exchange(default_conf)
     assert log_has('Unable to initialize markets. Reason: SomeError', caplog)
 
@@ -325,9 +325,9 @@ def test_validate_pairs(default_conf, mocker):  # test exchange.validate_pairs d
     id_mock = PropertyMock(return_value='test_exchange')
     type(api_mock).id = id_mock
 
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange._load_async_markets', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._load_async_markets', MagicMock())
     Exchange(default_conf)
 
 
@@ -336,9 +336,9 @@ def test_validate_pairs_not_available(default_conf, mocker):
     type(api_mock).markets = PropertyMock(return_value={
         'XRP/BTC': {'inactive': True}
     })
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange._load_async_markets', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._load_async_markets', MagicMock())
 
     with pytest.raises(OperationalException, match=r'not available'):
         Exchange(default_conf)
@@ -347,17 +347,17 @@ def test_validate_pairs_not_available(default_conf, mocker):
 def test_validate_pairs_exception(default_conf, mocker, caplog):
     caplog.set_level(logging.INFO)
     api_mock = MagicMock()
-    mocker.patch('freqtrade.exchange.Exchange.name', PropertyMock(return_value='Binance'))
+    mocker.patch('earthzetaorg.exchange.Exchange.name', PropertyMock(return_value='Binance'))
 
     type(api_mock).markets = PropertyMock(return_value={})
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', api_mock)
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange._load_async_markets', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', api_mock)
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._load_async_markets', MagicMock())
 
     with pytest.raises(OperationalException, match=r'Pair ETH/BTC is not available on Binance'):
         Exchange(default_conf)
 
-    mocker.patch('freqtrade.exchange.Exchange.markets', PropertyMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value={}))
     Exchange(default_conf)
     assert log_has('Unable to validate pairs (assuming they are correct).', caplog)
 
@@ -368,9 +368,9 @@ def test_validate_pairs_restricted(default_conf, mocker, caplog):
         'ETH/BTC': {}, 'LTC/BTC': {}, 'NEO/BTC': {},
         'XRP/BTC': {'info': {'IsRestricted': True}}
     })
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange._load_async_markets', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._load_async_markets', MagicMock())
 
     Exchange(default_conf)
     assert log_has(f"Pair XRP/BTC is restricted for some users on this exchange."
@@ -389,9 +389,9 @@ def test_validate_timeframes(default_conf, mocker):
                                             '1h': '1h'})
     type(api_mock).timeframes = timeframes
 
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
     Exchange(default_conf)
 
 
@@ -406,9 +406,9 @@ def test_validate_timeframes_failed(default_conf, mocker):
                                             '1h': '1h'})
     type(api_mock).timeframes = timeframes
 
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
     with pytest.raises(OperationalException, match=r'Invalid ticker 3m, this Exchange supports.*'):
         Exchange(default_conf)
 
@@ -422,9 +422,9 @@ def test_validate_timeframes_emulated_ohlcv_1(default_conf, mocker):
     # delete timeframes so magicmock does not autocreate it
     del api_mock.timeframes
 
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
     with pytest.raises(OperationalException,
                        match=r'The ccxt library does not provide the list of timeframes '
                              r'for the exchange ".*" and this exchange '
@@ -441,10 +441,10 @@ def test_validate_timeframes_emulated_ohlcvi_2(default_conf, mocker):
     # delete timeframes so magicmock does not autocreate it
     del api_mock.timeframes
 
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets',
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets',
                  MagicMock(return_value={'timeframes': None}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
     with pytest.raises(OperationalException,
                        match=r'The ccxt library does not provide the list of timeframes '
                              r'for the exchange ".*" and this exchange '
@@ -463,9 +463,9 @@ def test_validate_timeframes_not_in_config(default_conf, mocker):
                                             '1h': '1h'})
     type(api_mock).timeframes = timeframes
 
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
     Exchange(default_conf)
 
 
@@ -473,11 +473,11 @@ def test_validate_order_types(default_conf, mocker):
     api_mock = MagicMock()
 
     type(api_mock).has = PropertyMock(return_value={'createMarketOrder': True})
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.name', 'Bittrex')
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.name', 'Bittrex')
     default_conf['order_types'] = {
         'buy': 'limit',
         'sell': 'limit',
@@ -488,7 +488,7 @@ def test_validate_order_types(default_conf, mocker):
     Exchange(default_conf)
 
     type(api_mock).has = PropertyMock(return_value={'createMarketOrder': False})
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
 
     default_conf['order_types'] = {
         'buy': 'limit',
@@ -515,10 +515,10 @@ def test_validate_order_types(default_conf, mocker):
 
 def test_validate_order_types_not_in_config(default_conf, mocker):
     api_mock = MagicMock()
-    mocker.patch('freqtrade.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
-    mocker.patch('freqtrade.exchange.Exchange.validate_pairs', MagicMock())
-    mocker.patch('freqtrade.exchange.Exchange.validate_timeframes', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange._init_ccxt', MagicMock(return_value=api_mock))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_pairs', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.validate_timeframes', MagicMock())
 
     conf = copy.deepcopy(default_conf)
     Exchange(conf)
@@ -578,8 +578,8 @@ def test_create_order(default_conf, mocker, side, ordertype, rate, marketprice, 
         }
     })
     default_conf['dry_run'] = False
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
     exchange = get_patched_exchange(mocker, default_conf, api_mock, id=exchange_name)
 
     order = exchange.create_order(
@@ -619,8 +619,8 @@ def test_buy_prod(default_conf, mocker, exchange_name):
         }
     })
     default_conf['dry_run'] = False
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
     exchange = get_patched_exchange(mocker, default_conf, api_mock, id=exchange_name)
 
     order = exchange.buy(pair='ETH/BTC', ordertype=order_type,
@@ -693,8 +693,8 @@ def test_buy_considers_time_in_force(default_conf, mocker, exchange_name):
         }
     })
     default_conf['dry_run'] = False
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
     exchange = get_patched_exchange(mocker, default_conf, api_mock, id=exchange_name)
 
     order_type = 'limit'
@@ -755,8 +755,8 @@ def test_sell_prod(default_conf, mocker, exchange_name):
     })
     default_conf['dry_run'] = False
 
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
     exchange = get_patched_exchange(mocker, default_conf, api_mock, id=exchange_name)
 
     order = exchange.sell(pair='ETH/BTC', ordertype=order_type, amount=1, rate=200)
@@ -819,8 +819,8 @@ def test_sell_considers_time_in_force(default_conf, mocker, exchange_name):
     })
     api_mock.options = {}
     default_conf['dry_run'] = False
-    mocker.patch('freqtrade.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
-    mocker.patch('freqtrade.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_amount_prec', lambda s, x, y: y)
+    mocker.patch('earthzetaorg.exchange.Exchange.symbol_price_prec', lambda s, x, y: y)
     exchange = get_patched_exchange(mocker, default_conf, api_mock, id=exchange_name)
 
     order_type = 'limit'
@@ -882,7 +882,7 @@ def test_get_balance_prod(default_conf, mocker, exchange_name):
 
     with pytest.raises(TemporaryError, match=r'.*balance due to malformed exchange response:.*'):
         exchange = get_patched_exchange(mocker, default_conf, api_mock, id=exchange_name)
-        mocker.patch('freqtrade.exchange.Exchange.get_balances', MagicMock(return_value={}))
+        mocker.patch('earthzetaorg.exchange.Exchange.get_balances', MagicMock(return_value={}))
         exchange.get_balance(currency='BTC')
 
 
@@ -1246,7 +1246,7 @@ async def test___async_get_candle_history_sort(default_conf, mocker, exchange_na
     ]
     exchange = get_patched_exchange(mocker, default_conf, id=exchange_name)
     exchange._api_async.fetch_ohlcv = get_mock_coro(tick)
-    sort_mock = mocker.patch('freqtrade.exchange.exchange.sorted', MagicMock(side_effect=sort_data))
+    sort_mock = mocker.patch('earthzetaorg.exchange.exchange.sorted', MagicMock(side_effect=sort_data))
     # Test the ticker history sort
     res = await exchange._async_get_candle_history('ETH/BTC', default_conf['ticker_interval'])
     assert res[0] == 'ETH/BTC'
@@ -1283,7 +1283,7 @@ async def test___async_get_candle_history_sort(default_conf, mocker, exchange_na
     ]
     exchange._api_async.fetch_ohlcv = get_mock_coro(tick)
     # Reset sort mock
-    sort_mock = mocker.patch('freqtrade.exchange.sorted', MagicMock(side_effect=sort_data))
+    sort_mock = mocker.patch('earthzetaorg.exchange.sorted', MagicMock(side_effect=sort_data))
     # Test the ticker history sort
     res = await exchange._async_get_candle_history('ETH/BTC', default_conf['ticker_interval'])
     assert res[0] == 'ETH/BTC'
@@ -1365,7 +1365,7 @@ def test_get_order(default_conf, mocker, exchange_name):
 
 @pytest.mark.parametrize("exchange_name", EXCHANGES)
 def test_name(default_conf, mocker, exchange_name):
-    mocker.patch('freqtrade.exchange.Exchange._load_markets', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.exchange.Exchange._load_markets', MagicMock(return_value={}))
     default_conf['exchange']['name'] = exchange_name
     exchange = Exchange(default_conf)
 
@@ -1378,7 +1378,7 @@ def test_get_trades_for_order(default_conf, mocker, exchange_name):
     order_id = 'ABCD-ABCD'
     since = datetime(2018, 5, 5, tzinfo=timezone.utc)
     default_conf["dry_run"] = False
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', return_value=True)
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', return_value=True)
     api_mock = MagicMock()
 
     api_mock.fetch_my_trades = MagicMock(return_value=[{'id': 'TTR67E-3PFBD-76IISV',
@@ -1418,7 +1418,7 @@ def test_get_trades_for_order(default_conf, mocker, exchange_name):
                            'get_trades_for_order', 'fetch_my_trades',
                            order_id=order_id, pair='LTC/BTC', since=since)
 
-    mocker.patch('freqtrade.exchange.Exchange.exchange_has', MagicMock(return_value=False))
+    mocker.patch('earthzetaorg.exchange.Exchange.exchange_has', MagicMock(return_value=False))
     assert exchange.get_trades_for_order(order_id, 'LTC/BTC', since) == []
 
 
@@ -1446,7 +1446,7 @@ def test_stoploss_limit_order_unsupported_exchange(default_conf, mocker):
 
 
 def test_merge_ft_has_dict(default_conf, mocker):
-    mocker.patch.multiple('freqtrade.exchange.Exchange',
+    mocker.patch.multiple('earthzetaorg.exchange.Exchange',
                           _init_ccxt=MagicMock(return_value=MagicMock()),
                           _load_async_markets=MagicMock(),
                           validate_pairs=MagicMock(),
@@ -1474,7 +1474,7 @@ def test_merge_ft_has_dict(default_conf, mocker):
 
 
 def test_get_valid_pair_combination(default_conf, mocker, markets):
-    mocker.patch.multiple('freqtrade.exchange.Exchange',
+    mocker.patch.multiple('earthzetaorg.exchange.Exchange',
                           _init_ccxt=MagicMock(return_value=MagicMock()),
                           _load_async_markets=MagicMock(),
                           validate_pairs=MagicMock(),

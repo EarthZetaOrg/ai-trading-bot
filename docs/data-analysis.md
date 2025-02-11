@@ -6,11 +6,11 @@ You can analyze the results of backtests and trading history easily using Jupyte
 
 * See [jupyter.org](https://jupyter.org/documentation) for usage instructions.
 * Don't forget to start a Jupyter notebook server from within your conda or venv environment or use [nb_conda_kernels](https://github.com/Anaconda-Platform/nb_conda_kernels)*
-* Copy the example notebook before use so your changes don't get clobbered with the next freqtrade update.
+* Copy the example notebook before use so your changes don't get clobbered with the next earthzetaorg update.
 
 ## Fine print  
 
-Some tasks don't work especially well in notebooks. For example, anything using asynchronous execution is a problem for Jupyter. Also, freqtrade's primary entry point is the shell cli, so using pure python in a notebook bypasses arguments that provide required objects and parameters to helper functions. You may need to set those values or create expected objects manually.
+Some tasks don't work especially well in notebooks. For example, anything using asynchronous execution is a problem for Jupyter. Also, earthzetaorg's primary entry point is the shell cli, so using pure python in a notebook bypasses arguments that provide required objects and parameters to helper functions. You may need to set those values or create expected objects manually.
 
 ## Recommended workflow  
 
@@ -48,7 +48,7 @@ from pathlib import Path
 # Change directory
 # Modify this cell to insure that the output shows the correct path.
 # Define all paths relative to the project root shown in the cell output
-project_root = "somedir/freqtrade"
+project_root = "somedir/earthzetaorg"
 i=0
 try:
     os.chdirdir(project_root)
@@ -68,7 +68,7 @@ These examples assume that you have already generated data using the cli. They w
 ### Load backtest results into a pandas dataframe
 
 ```python
-from freqtrade.data.btanalysis import load_backtest_data
+from earthzetaorg.data.btanalysis import load_backtest_data
 
 # Load backtest results
 df = load_backtest_data("user_data/backtest_results/backtest-result.json")
@@ -80,7 +80,7 @@ df.groupby("pair")["sell_reason"].value_counts()
 ### Load live trading results into a pandas dataframe
 
 ``` python
-from freqtrade.data.btanalysis import load_trades_from_db
+from earthzetaorg.data.btanalysis import load_trades_from_db
 
 # Fetch trades from database
 df = load_trades_from_db("sqlite:///tradesv3.sqlite")
@@ -95,7 +95,7 @@ This option can be useful to inspect the results of passing in multiple configs
 
 ``` python
 import json
-from freqtrade.configuration import Configuration
+from earthzetaorg.configuration import Configuration
 
 # Load config from multiple files
 config = Configuration.from_files(["config1.json", "config2.json"])
@@ -110,7 +110,7 @@ This loads candle data to a dataframe
 
 ```python
 from pathlib import Path
-from freqtrade.data.history import load_pair_history
+from earthzetaorg.data.history import load_pair_history
 
 # Load data using values passed to function
 ticker_interval = "5m"
@@ -127,7 +127,7 @@ candles.head()
 
 ## Strategy debugging example  
 
-Debugging a strategy can be time-consuming. FreqTrade offers helper functions to visualize raw data.
+Debugging a strategy can be time-consuming. earthzetaorg offers helper functions to visualize raw data.
 
 ### Define variables used in analyses  
 
@@ -154,7 +154,7 @@ pair = "BTC_USDT"
 
 ```python
 from pathlib import Path
-from freqtrade.data.history import load_pair_history
+from earthzetaorg.data.history import load_pair_history
 
 # Load data using values set above
 candles = load_pair_history(datadir=data_location,
@@ -171,7 +171,7 @@ candles.head()
 * Rerun each time the strategy file is changed
 
 ```python
-from freqtrade.resolvers import StrategyResolver
+from earthzetaorg.resolvers import StrategyResolver
 
 # Load strategy using values set above
 strategy = StrategyResolver({'strategy': strategy_name,

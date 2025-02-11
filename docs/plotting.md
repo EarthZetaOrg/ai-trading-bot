@@ -12,7 +12,7 @@ pip install -U -r requirements-plot.txt
 
 ## Plot price and indicators
 
-The `freqtrade plot-dataframe` subcommand shows an interactive graph with three subplots:
+The `earthzetaorg plot-dataframe` subcommand shows an interactive graph with three subplots:
 
 * Main plot with candlestics and indicators following price (sma/ema)
 * Volume bars
@@ -23,7 +23,7 @@ The `freqtrade plot-dataframe` subcommand shows an interactive graph with three 
 Possible arguments:
 
 ```
-usage: freqtrade plot-dataframe [-h] [-p PAIRS [PAIRS ...]]
+usage: earthzetaorg plot-dataframe [-h] [-p PAIRS [PAIRS ...]]
                                 [--indicators1 INDICATORS1 [INDICATORS1 ...]]
                                 [--indicators2 INDICATORS2 [INDICATORS2 ...]]
                                 [--plot-limit INT] [--db-url PATH]
@@ -68,13 +68,13 @@ optional arguments:
 Example:
 
 ``` bash
-freqtrade plot-dataframe -p BTC/ETH
+earthzetaorg plot-dataframe -p BTC/ETH
 ```
 
 The `-p/--pairs` argument can be used to specify pairs you would like to plot.
 
 !!! Note
-    The `freqtrade plot-dataframe` subcommand generates one plot-file per pair.
+    The `earthzetaorg plot-dataframe` subcommand generates one plot-file per pair.
 
 Specify custom indicators.
 Use `--indicators1` for the main plot and `--indicators2` for the subplot below (if values are in a different range than prices).
@@ -83,7 +83,7 @@ Use `--indicators1` for the main plot and `--indicators2` for the subplot below 
     You will almost certainly want to specify a custom strategy! This can be done by adding `-s Classname` / `--strategy ClassName` to the command.
 
 ``` bash
-freqtrade --strategy AwesomeStrategy plot-dataframe -p BTC/ETH --indicators1 sma ema --indicators2 macd
+earthzetaorg --strategy AwesomeStrategy plot-dataframe -p BTC/ETH --indicators1 sma ema --indicators2 macd
 ```
 
 ### Further usage examples
@@ -91,32 +91,32 @@ freqtrade --strategy AwesomeStrategy plot-dataframe -p BTC/ETH --indicators1 sma
 To plot multiple pairs, separate them with a space:
 
 ``` bash
-freqtrade --strategy AwesomeStrategy plot-dataframe -p BTC/ETH XRP/ETH
+earthzetaorg --strategy AwesomeStrategy plot-dataframe -p BTC/ETH XRP/ETH
 ```
 
 To plot a timerange (to zoom in)
 
 ``` bash
-freqtrade --strategy AwesomeStrategy plot-dataframe -p BTC/ETH --timerange=20180801-20180805
+earthzetaorg --strategy AwesomeStrategy plot-dataframe -p BTC/ETH --timerange=20180801-20180805
 ```
 
 To plot trades stored in a database use `--db-url` in combination with `--trade-source DB`:
 
 ``` bash
-freqtrade --strategy AwesomeStrategy plot-dataframe --db-url sqlite:///tradesv3.dry_run.sqlite -p BTC/ETH --trade-source DB
+earthzetaorg --strategy AwesomeStrategy plot-dataframe --db-url sqlite:///tradesv3.dry_run.sqlite -p BTC/ETH --trade-source DB
 ```
 
 To plot trades from a backtesting result, use `--export-filename <filename>`
 
 ``` bash
-freqtrade --strategy AwesomeStrategy plot-dataframe --export-filename user_data/backtest_results/backtest-result.json -p BTC/ETH
+earthzetaorg --strategy AwesomeStrategy plot-dataframe --export-filename user_data/backtest_results/backtest-result.json -p BTC/ETH
 ```
 
 ## Plot profit
 
 ![plot-profit](assets/plot-profit.png)
 
-The `freqtrade plot-profit` subcommand shows an interactive graph with three plots:
+The `earthzetaorg plot-profit` subcommand shows an interactive graph with three plots:
 
 1) Average closing price for all pairs
 2) The summarized profit made by backtesting.
@@ -130,10 +130,10 @@ Perhaps you want an algorithm that steadily makes small profits, or one that act
 
 The third graph can be useful to spot outliers, events in pairs that cause profit spikes.
 
-Possible options for the `freqtrade plot-profit` subcommand:
+Possible options for the `earthzetaorg plot-profit` subcommand:
 
 ```
-usage: freqtrade plot-profit [-h] [-p PAIRS [PAIRS ...]]
+usage: earthzetaorg plot-profit [-h] [-p PAIRS [PAIRS ...]]
                              [--timerange TIMERANGE] [--export EXPORT]
                              [--export-filename PATH] [--db-url PATH]
                              [--trade-source {DB,file}]
@@ -169,15 +169,15 @@ Examples:
 Use custom backtest-export file
 
 ``` bash
-freqtrade plot-profit  -p LTC/BTC --export-filename user_data/backtest_results/backtest-result-Strategy005.json
+earthzetaorg plot-profit  -p LTC/BTC --export-filename user_data/backtest_results/backtest-result-Strategy005.json
 ```
 
 Use custom database
 
 ``` bash
-freqtrade plot-profit  -p LTC/BTC --db-url sqlite:///tradesv3.sqlite --trade-source DB
+earthzetaorg plot-profit  -p LTC/BTC --db-url sqlite:///tradesv3.sqlite --trade-source DB
 ```
 
 ``` bash
-freqtrade plot-profit --datadir ../freqtrade/freqtrade/tests/testdata-20171221/ -p LTC/BTC
+earthzetaorg plot-profit --datadir ../earthzetaorg/earthzetaorg/tests/testdata-20171221/ -p LTC/BTC
 ```

@@ -2,8 +2,8 @@
 
 Where an exchange provides a sandbox for risk-free integration, or end-to-end, testing CCXT provides access to these.
 
-This document is a *light overview of configuring Freqtrade and GDAX sandbox.
-This can be useful to developers and trader alike as Freqtrade is quite customisable.
+This document is a *light overview of configuring earthzetaorg and GDAX sandbox.
+This can be useful to developers and trader alike as earthzetaorg is quite customisable.
 
 When testing your API connectivity, make sure to use the following URLs.
 ***Website**
@@ -76,11 +76,11 @@ To begin select 'Wallets' from the top menu.
 
 ---
 
-# Configure Freqtrade to use Gax Sandbox 
+# Configure earthzetaorg to use Gax Sandbox 
 
 The aim of this document section
 
-- Enable sandbox URLs in Freqtrade
+- Enable sandbox URLs in earthzetaorg
 - Configure API
 - - secret
 - - key
@@ -88,7 +88,7 @@ The aim of this document section
  
 ## Sandbox URLs
 
-Freqtrade makes use of CCXT which in turn provides a list of URLs to Freqtrade.
+earthzetaorg makes use of CCXT which in turn provides a list of URLs to earthzetaorg.
 These include `['test']` and `['api']`.
 
 - `[Test]` if available will point to an Exchanges sandbox. 
@@ -118,12 +118,12 @@ Also insert your
 
 ## You should now be ready to test your sandbox
 
-Ensure Freqtrade logs show the sandbox URL, and trades made are shown in sandbox.
+Ensure earthzetaorg logs show the sandbox URL, and trades made are shown in sandbox.
 ** Typically the  BTC/USD has the most activity in sandbox to test against.
 
 ## GDAX - Old Candles problem
 
-It is my experience that GDAX sandbox candles may be 20+- minutes out of date. This can cause trades to fail as one of Freqtrades safety checks.
+It is my experience that GDAX sandbox candles may be 20+- minutes out of date. This can cause trades to fail as one of earthzetaorgs safety checks.
 
 To disable this check, add / change the `"outdated_offset"` parameter in the exchange section of your configuration to adjust for this delay.
 Example based on the above configuration:

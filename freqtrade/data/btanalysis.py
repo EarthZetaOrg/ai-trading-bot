@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 import pytz
 
-from freqtrade import persistence
-from freqtrade.misc import json_load
-from freqtrade.persistence import Trade
+from earthzetaorg import persistence
+from earthzetaorg.misc import json_load
+from earthzetaorg.persistence import Trade
 
 logger = logging.getLogger(__name__)
 

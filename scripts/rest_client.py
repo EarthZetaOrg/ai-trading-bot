@@ -3,7 +3,7 @@
 Simple command line client into RPC commands
 Can be used as an alternate to Telegram
 
-Should not import anything from freqtrade,
+Should not import anything from earthzetaorg,
 so it can be used as a standalone script.
 """
 

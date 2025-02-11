@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
-Main Freqtrade bot script.
+Main earthzetaorg bot script.
 Read the documentation to know what cli arguments you need.
 """
 
 import sys
 # check min. python version
 if sys.version_info < (3, 6):
-    sys.exit("Freqtrade requires Python version >= 3.6")
+    sys.exit("earthzetaorg requires Python version >= 3.6")
 
 # flake8: noqa E402
 import logging
 from argparse import Namespace
 from typing import Any, List
 
-from freqtrade import OperationalException
-from freqtrade.configuration import Arguments
-from freqtrade.worker import Worker
+from earthzetaorg import OperationalException
+from earthzetaorg.configuration import Arguments
+from earthzetaorg.worker import Worker
 
 
-logger = logging.getLogger('freqtrade')
+logger = logging.getLogger('earthzetaorg')
 
 
 def main(sysargv: List[str] = None) -> None:

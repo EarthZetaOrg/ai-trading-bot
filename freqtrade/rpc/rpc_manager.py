@@ -4,7 +4,7 @@ This module contains class to manage RPC communications (Telegram, Slack, ...)
 import logging
 from typing import Any, Dict, List
 
-from freqtrade.rpc import RPC, RPCMessageType
+from earthzetaorg.rpc import RPC, RPCMessageType
 
 logger = logging.getLogger(__name__)
 
@@ -13,27 +13,27 @@ class RPCManager(object):
     """
     Class to manage RPC objects (Telegram, Slack, ...)
     """
-    def __init__(self, freqtrade) -> None:
+    def __init__(self, earthzetaorg) -> None:
         """ Initializes all enabled rpc modules """
         self.registered_modules: List[RPC] = []
 
         # Enable telegram
-        if freqtrade.config['telegram'].get('enabled', False):
+        if earthzetaorg.config['telegram'].get('enabled', False):
             logger.info('Enabling rpc.telegram ...')
-            from freqtrade.rpc.telegram import Telegram
-            self.registered_modules.append(Telegram(freqtrade))
+            from earthzetaorg.rpc.telegram import Telegram
+            self.registered_modules.append(Telegram(earthzetaorg))
 
         # Enable Webhook
-        if freqtrade.config.get('webhook', {}).get('enabled', False):
+        if earthzetaorg.config.get('webhook', {}).get('enabled', False):
             logger.info('Enabling rpc.webhook ...')
-            from freqtrade.rpc.webhook import Webhook
-            self.registered_modules.append(Webhook(freqtrade))
+            from earthzetaorg.rpc.webhook import Webhook
+            self.registered_modules.append(Webhook(earthzetaorg))
 
         # Enable local rest api server for cmd line control
-        if freqtrade.config.get('api_server', {}).get('enabled', False):
+        if earthzetaorg.config.get('api_server', {}).get('enabled', False):
             logger.info('Enabling rpc.api_server')
-            from freqtrade.rpc.api_server import ApiServer
-            self.registered_modules.append(ApiServer(freqtrade))
+            from earthzetaorg.rpc.api_server import ApiServer
+            self.registered_modules.append(ApiServer(earthzetaorg))
 
     def cleanup(self) -> None:
         """ Stops all enabled rpc modules """

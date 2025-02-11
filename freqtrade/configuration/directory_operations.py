@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Optional
 from pathlib import Path
 
-from freqtrade import OperationalException
+from earthzetaorg import OperationalException
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def create_userdata_dir(directory: str, create_dir=False) -> Path:
         else:
             raise OperationalException(
                 f"Directory `{folder}` does not exist. "
-                "Please use `freqtrade create-userdir` to create a user directory")
+                "Please use `earthzetaorg create-userdir` to create a user directory")
 
     # Create required subdirectories
     for f in sub_dirs:

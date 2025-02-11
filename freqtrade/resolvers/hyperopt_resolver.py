@@ -7,11 +7,11 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict
 
-from freqtrade import OperationalException
-from freqtrade.constants import DEFAULT_HYPEROPT, DEFAULT_HYPEROPT_LOSS
-from freqtrade.optimize.hyperopt_interface import IHyperOpt
-from freqtrade.optimize.hyperopt_loss_interface import IHyperOptLoss
-from freqtrade.resolvers import IResolver
+from earthzetaorg import OperationalException
+from earthzetaorg.constants import DEFAULT_HYPEROPT, DEFAULT_HYPEROPT_LOSS
+from earthzetaorg.optimize.hyperopt_interface import IHyperOpt
+from earthzetaorg.optimize.hyperopt_loss_interface import IHyperOptLoss
+from earthzetaorg.resolvers import IResolver
 
 logger = logging.getLogger(__name__)
 

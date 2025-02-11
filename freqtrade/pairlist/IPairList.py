@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 class IPairList(ABC):
 
-    def __init__(self, freqtrade, config: dict) -> None:
-        self._freqtrade = freqtrade
+    def __init__(self, earthzetaorg, config: dict) -> None:
+        self._earthzetaorg = earthzetaorg
         self._config = config
         self._whitelist = self._config['exchange']['pair_whitelist']
         self._blacklist = self._config['exchange'].get('pair_blacklist', [])
@@ -64,7 +64,7 @@ class IPairList(ABC):
         :return: the list of pairs the user wants to trade without those unavailable or
         black_listed
         """
-        markets = self._freqtrade.exchange.markets
+        markets = self._earthzetaorg.exchange.markets
 
         sanitized_whitelist = set()
         for pair in whitelist:
@@ -72,7 +72,7 @@ class IPairList(ABC):
             if (pair in self.blacklist or pair not in markets
                     or not pair.endswith(self._config['stake_currency'])):
                 logger.warning(f"Pair {pair} is not compatible with exchange "
-                               f"{self._freqtrade.exchange.name} or contained in "
+                               f"{self._earthzetaorg.exchange.name} or contained in "
                                f"your blacklist. Removing it from whitelist..")
                 continue
             # Check if market is active

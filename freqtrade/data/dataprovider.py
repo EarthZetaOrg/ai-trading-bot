@@ -10,9 +10,9 @@ from typing import List, Tuple
 
 from pandas import DataFrame
 
-from freqtrade.data.history import load_pair_history
-from freqtrade.exchange import Exchange
-from freqtrade.state import RunMode
+from earthzetaorg.data.history import load_pair_history
+from earthzetaorg.exchange import Exchange
+from earthzetaorg.state import RunMode
 
 logger = logging.getLogger(__name__)
 

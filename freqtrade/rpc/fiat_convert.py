@@ -9,7 +9,7 @@ from typing import Dict, List
 
 from coinmarketcap import Market
 
-from freqtrade.constants import SUPPORTED_FIAT
+from earthzetaorg.constants import SUPPORTED_FIAT
 
 
 logger = logging.getLogger(__name__)

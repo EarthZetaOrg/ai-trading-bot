@@ -1,4 +1,4 @@
-name: freqtrade
+name: earthzetaorg
 channels:
   - defaults
   - conda-forge

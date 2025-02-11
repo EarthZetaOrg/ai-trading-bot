@@ -63,7 +63,7 @@ def ohlcv_fill_up_missing_data(dataframe: DataFrame, ticker_interval: str, pair:
     using the previous close as price for "open", "high" "low" and "close", volume is set to 0
 
     """
-    from freqtrade.exchange import timeframe_to_minutes
+    from earthzetaorg.exchange import timeframe_to_minutes
 
     ohlc_dict = {
         'open': 'first',

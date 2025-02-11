@@ -4,7 +4,7 @@ from typing import Any, Dict
 from jsonschema import Draft4Validator, validators
 from jsonschema.exceptions import ValidationError, best_match
 
-from freqtrade import constants, OperationalException
+from earthzetaorg import constants, OperationalException
 
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def _extend_validator(validator_class):
     """
-    Extended validator for the Freqtrade configuration JSON Schema.
+    Extended validator for the earthzetaorg configuration JSON Schema.
     Currently it only handles defaults for subschemas.
     """
     validate_properties = validator_class.VALIDATORS['properties']
@@ -32,7 +32,7 @@ def _extend_validator(validator_class):
     )
 
 
-FreqtradeValidator = _extend_validator(Draft4Validator)
+earthzetaorgValidator = _extend_validator(Draft4Validator)
 
 
 def validate_config_schema(conf: Dict[str, Any]) -> Dict[str, Any]:
@@ -42,7 +42,7 @@ def validate_config_schema(conf: Dict[str, Any]) -> Dict[str, Any]:
     :return: Returns the config if valid, otherwise throw an exception
     """
     try:
-        FreqtradeValidator(constants.CONF_SCHEMA).validate(conf)
+        earthzetaorgValidator(constants.CONF_SCHEMA).validate(conf)
         return conf
     except ValidationError as e:
         logger.critical(

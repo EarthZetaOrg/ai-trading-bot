@@ -1,4 +1,4 @@
-""" FreqTrade bot """
+""" earthzetaorg bot """
 __version__ = '2019.7-dev'
 
 

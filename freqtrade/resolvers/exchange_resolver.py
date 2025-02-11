@@ -3,9 +3,9 @@ This module loads custom exchanges
 """
 import logging
 
-from freqtrade.exchange import Exchange
-import freqtrade.exchange as exchanges
-from freqtrade.resolvers import IResolver
+from earthzetaorg.exchange import Exchange
+import earthzetaorg.exchange as exchanges
+from earthzetaorg.resolvers import IResolver
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class ExchangeResolver(IResolver):
             self, exchange_name: str, kwargs: dict) -> Exchange:
         """
         Loads the specified exchange.
-        Only checks for exchanges exported in freqtrade.exchanges
+        Only checks for exchanges exported in earthzetaorg.exchanges
         :param exchange_name: name of the module to import
         :return: Exchange instance or None
         """

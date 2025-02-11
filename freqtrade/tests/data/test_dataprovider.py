@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 from pandas import DataFrame
 
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.state import RunMode
-from freqtrade.tests.conftest import get_patched_exchange
+from earthzetaorg.data.dataprovider import DataProvider
+from earthzetaorg.state import RunMode
+from earthzetaorg.tests.conftest import get_patched_exchange
 
 
 def test_ohlcv(mocker, default_conf, ticker_history):
@@ -39,7 +39,7 @@ def test_ohlcv(mocker, default_conf, ticker_history):
 
 def test_historic_ohlcv(mocker, default_conf, ticker_history):
     historymock = MagicMock(return_value=ticker_history)
-    mocker.patch("freqtrade.data.dataprovider.load_pair_history", historymock)
+    mocker.patch("earthzetaorg.data.dataprovider.load_pair_history", historymock)
 
     dp = DataProvider(default_conf, None)
     data = dp.historic_ohlcv("UNITTEST/BTC", "5m")
@@ -76,7 +76,7 @@ def test_get_pair_dataframe(mocker, default_conf, ticker_history):
     assert dp.get_pair_dataframe("NONESENSE/AAA", ticker_interval).empty
 
     historymock = MagicMock(return_value=ticker_history)
-    mocker.patch("freqtrade.data.dataprovider.load_pair_history", historymock)
+    mocker.patch("earthzetaorg.data.dataprovider.load_pair_history", historymock)
     default_conf["runmode"] = RunMode.BACKTEST
     dp = DataProvider(default_conf, exchange)
     assert dp.runmode == RunMode.BACKTEST
@@ -100,7 +100,7 @@ def test_available_pairs(mocker, default_conf, ticker_history):
 
 def test_refresh(mocker, default_conf, ticker_history):
     refresh_mock = MagicMock()
-    mocker.patch("freqtrade.exchange.Exchange.refresh_latest_ohlcv", refresh_mock)
+    mocker.patch("earthzetaorg.exchange.Exchange.refresh_latest_ohlcv", refresh_mock)
 
     exchange = get_patched_exchange(mocker, default_conf, id="binance")
     ticker_interval = default_conf["ticker_interval"]

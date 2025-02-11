@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
-from freqtrade.state import RunMode
-from freqtrade.tests.conftest import get_args, log_has, patch_exchange
-from freqtrade.utils import (setup_utils_configuration, start_create_userdir,
+from earthzetaorg.state import RunMode
+from earthzetaorg.tests.conftest import get_args, log_has, patch_exchange
+from earthzetaorg.utils import (setup_utils_configuration, start_create_userdir,
                              start_download_data, start_list_exchanges)
 
 
@@ -57,11 +57,11 @@ def test_create_datadir_failed(caplog):
 
 
 def test_create_datadir(caplog, mocker):
-    cud = mocker.patch("freqtrade.utils.create_userdata_dir", MagicMock())
+    cud = mocker.patch("earthzetaorg.utils.create_userdata_dir", MagicMock())
     args = [
         "create-userdir",
         "--userdir",
-        "/temp/freqtrade/test"
+        "/temp/earthzetaorg/test"
     ]
     start_create_userdir(get_args(args))
 
@@ -70,11 +70,11 @@ def test_create_datadir(caplog, mocker):
 
 
 def test_download_data_keyboardInterrupt(mocker, caplog, markets):
-    dl_mock = mocker.patch('freqtrade.utils.refresh_backtest_ohlcv_data',
+    dl_mock = mocker.patch('earthzetaorg.utils.refresh_backtest_ohlcv_data',
                            MagicMock(side_effect=KeyboardInterrupt))
     patch_exchange(mocker)
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets', PropertyMock(return_value=markets)
+        'earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value=markets)
     )
     args = [
         "download-data",
@@ -88,11 +88,11 @@ def test_download_data_keyboardInterrupt(mocker, caplog, markets):
 
 
 def test_download_data_no_markets(mocker, caplog):
-    dl_mock = mocker.patch('freqtrade.utils.refresh_backtest_ohlcv_data',
+    dl_mock = mocker.patch('earthzetaorg.utils.refresh_backtest_ohlcv_data',
                            MagicMock(return_value=["ETH/BTC", "XRP/BTC"]))
     patch_exchange(mocker)
     mocker.patch(
-        'freqtrade.exchange.Exchange.markets', PropertyMock(return_value={})
+        'earthzetaorg.exchange.Exchange.markets', PropertyMock(return_value={})
     )
     args = [
         "download-data",

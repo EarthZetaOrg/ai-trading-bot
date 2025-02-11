@@ -6,12 +6,12 @@ from typing import Any, Dict, List
 
 import arrow
 
-from freqtrade.configuration import Configuration, TimeRange
-from freqtrade.configuration.directory_operations import create_userdata_dir
-from freqtrade.data.history import refresh_backtest_ohlcv_data
-from freqtrade.exchange import available_exchanges
-from freqtrade.resolvers import ExchangeResolver
-from freqtrade.state import RunMode
+from earthzetaorg.configuration import Configuration, TimeRange
+from earthzetaorg.configuration.directory_operations import create_userdata_dir
+from earthzetaorg.data.history import refresh_backtest_ohlcv_data
+from earthzetaorg.exchange import available_exchanges
+from earthzetaorg.resolvers import ExchangeResolver
+from earthzetaorg.state import RunMode
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def start_list_exchanges(args: Namespace) -> None:
     if args.print_one_column:
         print('\n'.join(available_exchanges()))
     else:
-        print(f"Exchanges supported by ccxt and available for Freqtrade: "
+        print(f"Exchanges supported by ccxt and available for earthzetaorg: "
               f"{', '.join(available_exchanges())}")
 
 

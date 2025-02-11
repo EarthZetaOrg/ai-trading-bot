@@ -4,9 +4,9 @@ from typing import Any, Dict
 
 from filelock import FileLock, Timeout
 
-from freqtrade import DependencyException, constants
-from freqtrade.state import RunMode
-from freqtrade.utils import setup_utils_configuration
+from earthzetaorg import DependencyException, constants
+from earthzetaorg.state import RunMode
+from earthzetaorg.utils import setup_utils_configuration
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def setup_configuration(args: Namespace, method: RunMode) -> Dict[str, Any]:
             logger.error("Please don't use --strategy for hyperopt.")
             logger.error(
                 "Read the documentation at "
-                "https://github.com/freqtrade/freqtrade/blob/develop/docs/hyperopt.md "
+                "https://github.com/earthzetaorg/earthzetaorg/blob/develop/docs/hyperopt.md "
                 "to understand how to configure hyperopt.")
             raise DependencyException("--strategy configured but not supported for hyperopt")
 
@@ -45,12 +45,12 @@ def start_backtesting(args: Namespace) -> None:
     :return: None
     """
     # Import here to avoid loading backtesting module when it's not used
-    from freqtrade.optimize.backtesting import Backtesting
+    from earthzetaorg.optimize.backtesting import Backtesting
 
     # Initialize configuration
     config = setup_configuration(args, RunMode.BACKTEST)
 
-    logger.info('Starting freqtrade in Backtesting mode')
+    logger.info('Starting earthzetaorg in Backtesting mode')
 
     # Initialize backtesting object
     backtesting = Backtesting(config)
@@ -64,12 +64,12 @@ def start_hyperopt(args: Namespace) -> None:
     :return: None
     """
     # Import here to avoid loading hyperopt module when it's not used
-    from freqtrade.optimize.hyperopt import Hyperopt
+    from earthzetaorg.optimize.hyperopt import Hyperopt
 
     # Initialize configuration
     config = setup_configuration(args, RunMode.HYPEROPT)
 
-    logger.info('Starting freqtrade in Hyperopt mode')
+    logger.info('Starting earthzetaorg in Hyperopt mode')
 
     lock = FileLock(Hyperopt.get_lock_filename(config))
 
@@ -85,12 +85,12 @@ def start_hyperopt(args: Namespace) -> None:
             hyperopt.start()
 
     except Timeout:
-        logger.info("Another running instance of freqtrade Hyperopt detected.")
+        logger.info("Another running instance of earthzetaorg Hyperopt detected.")
         logger.info("Simultaneous execution of multiple Hyperopt commands is not supported. "
                     "Hyperopt module is resource hungry. Please run your Hyperopts sequentially "
                     "or on separate machines.")
         logger.info("Quitting now.")
-        # TODO: return False here in order to help freqtrade to exit
+        # TODO: return False here in order to help earthzetaorg to exit
         # with non-zero exit code...
         # Same in Edge and Backtesting start() functions.
 
@@ -101,10 +101,10 @@ def start_edge(args: Namespace) -> None:
     :param args: Cli args from Arguments()
     :return: None
     """
-    from freqtrade.optimize.edge_cli import EdgeCli
+    from earthzetaorg.optimize.edge_cli import EdgeCli
     # Initialize configuration
     config = setup_configuration(args, RunMode.EDGE)
-    logger.info('Starting freqtrade in Edge mode')
+    logger.info('Starting earthzetaorg in Edge mode')
 
     # Initialize Edge object
     edge_cli = EdgeCli(config)

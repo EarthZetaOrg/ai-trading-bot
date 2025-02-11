@@ -1,4 +1,4 @@
-# Using FreqTrade with Docker
+# Using earthzetaorg with Docker
 
 ## Install Docker
 
@@ -8,18 +8,18 @@ Start by downloading and installing Docker CE for your platform:
 * [Windows](https://docs.docker.com/docker-for-windows/install/)
 * [Linux](https://docs.docker.com/install/)
 
-Once you have Docker installed, simply prepare the config file (e.g. `config.json`) and run the image for `freqtrade` as explained below.
+Once you have Docker installed, simply prepare the config file (e.g. `config.json`) and run the image for `earthzetaorg` as explained below.
 
-## Download the official FreqTrade docker image
+## Download the official earthzetaorg docker image
 
 Pull the image from docker hub.
 
-Branches / tags available can be checked out on [Dockerhub](https://hub.docker.com/r/freqtradeorg/freqtrade/tags/).
+Branches / tags available can be checked out on [Dockerhub](https://hub.docker.com/r/earthzetaorgorg/earthzetaorg/tags/).
 
 ```bash
-docker pull freqtradeorg/freqtrade:develop
+docker pull earthzetaorgorg/earthzetaorg:develop
 # Optionally tag the repository so the run-commands remain shorter
-docker tag freqtradeorg/freqtrade:develop freqtrade
+docker tag earthzetaorgorg/earthzetaorg:develop earthzetaorg
 ```
 
 To update the image, simply run the above commands again and restart your running container.
@@ -39,19 +39,19 @@ Even though you will use docker, you'll still need some files from the github re
 Linux/Mac/Windows with WSL
 
 ```bash
-git clone https://github.com/freqtrade/freqtrade.git
+git clone https://github.com/earthzetaorg/earthzetaorg.git
 ```
 
 Windows with docker
 
 ```bash
-git clone --config core.autocrlf=input https://github.com/freqtrade/freqtrade.git
+git clone --config core.autocrlf=input https://github.com/earthzetaorg/earthzetaorg.git
 ```
 
 #### Copy `config.json.example` to `config.json`
 
 ```bash
-cd freqtrade
+cd earthzetaorg
 cp -n config.json.example config.json
 ```
 
@@ -78,16 +78,16 @@ touch tradesv3.dryrun.sqlite
 
 Best start by pulling the official docker image from dockerhub as explained [here](#download-the-official-docker-image) to speed up building.
 
-To add additional libraries to your docker image, best check out [Dockerfile.technical](https://github.com/freqtrade/freqtrade/blob/develop/Dockerfile.technical) which adds the [technical](https://github.com/freqtrade/technical) module to the image.
+To add additional libraries to your docker image, best check out [Dockerfile.technical](https://github.com/earthzetaorg/earthzetaorg/blob/develop/Dockerfile.technical) which adds the [technical](https://github.com/earthzetaorg/technical) module to the image.
 
 ```bash
-docker build -t freqtrade -f Dockerfile.technical .
+docker build -t earthzetaorg -f Dockerfile.technical .
 ```
 
 If you are developing using Docker, use `Dockerfile.develop` to build a dev Docker image, which will also set up develop dependencies:
 
 ```bash
-docker build -f Dockerfile.develop -t freqtrade-dev .
+docker build -f Dockerfile.develop -t earthzetaorg-dev .
 ```
 
 !!! Note
@@ -101,14 +101,14 @@ After the build process you can verify that the image was created with:
 docker images
 ```
 
-The output should contain the freqtrade image.
+The output should contain the earthzetaorg image.
 
 ### Run the Docker image
 
 You can run a one-off container that is immediately deleted upon exiting with the following command (`config.json` must be in the current working directory):
 
 ```bash
-docker run --rm -v `pwd`/config.json:/freqtrade/config.json -it freqtrade
+docker run --rm -v `pwd`/config.json:/earthzetaorg/config.json -it earthzetaorg
 ```
 
 !!! Warning
@@ -125,7 +125,7 @@ Should you find this irritating please add the following to your docker commands
 -v /etc/timezone:/etc/timezone:ro
 
 # Complete command:
-docker run --rm -v /etc/timezone:/etc/timezone:ro -v `pwd`/config.json:/freqtrade/config.json -it freqtrade
+docker run --rm -v /etc/timezone:/etc/timezone:ro -v `pwd`/config.json:/earthzetaorg/config.json -it earthzetaorg
 ```
 
 ##### MacOS
@@ -133,7 +133,7 @@ docker run --rm -v /etc/timezone:/etc/timezone:ro -v `pwd`/config.json:/freqtrad
 There is known issue in OSX Docker versions after 17.09.1, whereby `/etc/localtime` cannot be shared causing Docker to not start. A work-around for this is to start with the following cmd.
 
 ```bash
-docker run --rm -e TZ=`ls -la /etc/localtime | cut -d/ -f8-9` -v `pwd`/config.json:/freqtrade/config.json -it freqtrade
+docker run --rm -e TZ=`ls -la /etc/localtime | cut -d/ -f8-9` -v `pwd`/config.json:/earthzetaorg/config.json -it earthzetaorg
 ```
 
 More information on this docker issue and work-around can be read [here](https://github.com/docker/for-mac/issues/2396).
@@ -144,23 +144,23 @@ To run a restartable instance in the background (feel free to place your configu
 
 #### Move your config file and database
 
-The following will assume that you place your configuration / database files to `~/.freqtrade`, which is a hidden directory in your home directory. Feel free to use a different directory and replace the directory in the upcomming commands.
+The following will assume that you place your configuration / database files to `~/.earthzetaorg`, which is a hidden directory in your home directory. Feel free to use a different directory and replace the directory in the upcomming commands.
 
 ```bash
-mkdir ~/.freqtrade
-mv config.json ~/.freqtrade
-mv tradesv3.sqlite ~/.freqtrade
+mkdir ~/.earthzetaorg
+mv config.json ~/.earthzetaorg
+mv tradesv3.sqlite ~/.earthzetaorg
 ```
 
 #### Run the docker image
 
 ```bash
 docker run -d \
-  --name freqtrade \
-  -v ~/.freqtrade/config.json:/freqtrade/config.json \
-  -v ~/.freqtrade/user_data/:/freqtrade/user_data \
-  -v ~/.freqtrade/tradesv3.sqlite:/freqtrade/tradesv3.sqlite \
-  freqtrade --db-url sqlite:///tradesv3.sqlite --strategy MyAwesomeStrategy
+  --name earthzetaorg \
+  -v ~/.earthzetaorg/config.json:/earthzetaorg/config.json \
+  -v ~/.earthzetaorg/user_data/:/earthzetaorg/user_data \
+  -v ~/.earthzetaorg/tradesv3.sqlite:/earthzetaorg/tradesv3.sqlite \
+  earthzetaorg --db-url sqlite:///tradesv3.sqlite --strategy MyAwesomeStrategy
 ```
 
 !!! Note
@@ -175,11 +175,11 @@ docker run -d \
 You can use the following commands to monitor and manage your container:
 
 ```bash
-docker logs freqtrade
-docker logs -f freqtrade
-docker restart freqtrade
-docker stop freqtrade
-docker start freqtrade
+docker logs earthzetaorg
+docker logs -f earthzetaorg
+docker restart earthzetaorg
+docker stop earthzetaorg
+docker start earthzetaorg
 ```
 
 For more information on how to operate Docker, please refer to the [official Docker documentation](https://docs.docker.com/).
@@ -190,19 +190,19 @@ For more information on how to operate Docker, please refer to the [official Doc
 ### Backtest with docker
 
 The following assumes that the download/setup of the docker image have been completed successfully.
-Also, backtest-data should be available at `~/.freqtrade/user_data/`.
+Also, backtest-data should be available at `~/.earthzetaorg/user_data/`.
 
 ```bash
 docker run -d \
-  --name freqtrade \
+  --name earthzetaorg \
   -v /etc/localtime:/etc/localtime:ro \
-  -v ~/.freqtrade/config.json:/freqtrade/config.json \
-  -v ~/.freqtrade/tradesv3.sqlite:/freqtrade/tradesv3.sqlite \
-  -v ~/.freqtrade/user_data/:/freqtrade/user_data/ \
-  freqtrade --strategy AwsomelyProfitableStrategy backtesting
+  -v ~/.earthzetaorg/config.json:/earthzetaorg/config.json \
+  -v ~/.earthzetaorg/tradesv3.sqlite:/earthzetaorg/tradesv3.sqlite \
+  -v ~/.earthzetaorg/user_data/:/earthzetaorg/user_data/ \
+  earthzetaorg --strategy AwsomelyProfitableStrategy backtesting
 ```
 
 Head over to the [Backtesting Documentation](backtesting.md) for more details.
 
 !!! Note
-    Additional bot command line parameters can be appended after the image name (`freqtrade` in the above example).
+    Additional bot command line parameters can be appended after the image name (`earthzetaorg` in the above example).

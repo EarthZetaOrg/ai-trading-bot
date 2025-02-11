@@ -11,8 +11,8 @@ from typing import Dict, Any, Callable, List
 from pandas import DataFrame
 from skopt.space import Dimension, Integer, Real
 
-from freqtrade.exchange import timeframe_to_minutes
-from freqtrade.misc import round_dict
+from earthzetaorg.exchange import timeframe_to_minutes
+from earthzetaorg.misc import round_dict
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class IHyperOpt(ABC):
     """
-    Interface for freqtrade hyperopts
+    Interface for earthzetaorg hyperopts
     Defines the mandatory structure must follow any custom hyperopts
 
     Class attributes you can use:
@@ -92,7 +92,7 @@ class IHyperOpt(ABC):
         ranges for parameters which automatically adapts to the
         ticker interval used.
 
-        It's used by Freqtrade by default, if no custom roi_space method is defined.
+        It's used by earthzetaorg by default, if no custom roi_space method is defined.
         """
 
         # Default scaling coefficients for the roi hyperspace. Can be changed
@@ -111,7 +111,7 @@ class IHyperOpt(ABC):
         #   are scaled linearly.
         # * 'roi_p' (limits for the ROI value steps) components are scaled logarithmically.
         #
-        # The scaling is designed so that it maps exactly to the legacy Freqtrade roi_space()
+        # The scaling is designed so that it maps exactly to the legacy earthzetaorg roi_space()
         # method for the 5m ticker interval.
         roi_t_scale = ticker_interval_mins / 5
         roi_p_scale = math.log1p(ticker_interval_mins) / math.log1p(5)

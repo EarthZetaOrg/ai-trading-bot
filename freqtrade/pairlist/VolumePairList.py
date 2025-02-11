@@ -8,8 +8,8 @@ import logging
 from typing import List
 from cachetools import TTLCache, cached
 
-from freqtrade.pairlist.IPairList import IPairList
-from freqtrade import OperationalException
+from earthzetaorg.pairlist.IPairList import IPairList
+from earthzetaorg import OperationalException
 logger = logging.getLogger(__name__)
 
 SORT_VALUES = ['askVolume', 'bidVolume', 'quoteVolume']
@@ -17,8 +17,8 @@ SORT_VALUES = ['askVolume', 'bidVolume', 'quoteVolume']
 
 class VolumePairList(IPairList):
 
-    def __init__(self, freqtrade, config: dict) -> None:
-        super().__init__(freqtrade, config)
+    def __init__(self, earthzetaorg, config: dict) -> None:
+        super().__init__(earthzetaorg, config)
         self._whitelistconf = self._config.get('pairlist', {}).get('config')
         if 'number_assets' not in self._whitelistconf:
             raise OperationalException(
@@ -28,7 +28,7 @@ class VolumePairList(IPairList):
         self._sort_key = self._whitelistconf.get('sort_key', 'quoteVolume')
         self._precision_filter = self._whitelistconf.get('precision_filter', False)
 
-        if not self._freqtrade.exchange.exchange_has('fetchTickers'):
+        if not self._earthzetaorg.exchange.exchange_has('fetchTickers'):
             raise OperationalException(
                 'Exchange does not support dynamic whitelist.'
                 'Please edit your config and restart the bot'
@@ -65,7 +65,7 @@ class VolumePairList(IPairList):
         :return: List of pairs
         """
 
-        tickers = self._freqtrade.exchange.get_tickers()
+        tickers = self._earthzetaorg.exchange.get_tickers()
         # check length so that we make sure that '/' is actually in the string
         tickers = [v for k, v in tickers.items()
                    if (len(k.split('/')) == 2 and k.split('/')[1] == base_currency
@@ -75,15 +75,15 @@ class VolumePairList(IPairList):
         valid_pairs = self._validate_whitelist([s['symbol'] for s in sorted_tickers])
         valid_tickers = [t for t in sorted_tickers if t["symbol"] in valid_pairs]
 
-        if self._freqtrade.strategy.stoploss is not None and self._precision_filter:
+        if self._earthzetaorg.strategy.stoploss is not None and self._precision_filter:
 
-            stop_prices = [self._freqtrade.get_target_bid(t["symbol"], t)
-                           * (1 - abs(self._freqtrade.strategy.stoploss)) for t in valid_tickers]
+            stop_prices = [self._earthzetaorg.get_target_bid(t["symbol"], t)
+                           * (1 - abs(self._earthzetaorg.strategy.stoploss)) for t in valid_tickers]
             rates = [sp * 0.99 for sp in stop_prices]
             logger.debug("\n".join([f"{sp} : {r}" for sp, r in zip(stop_prices[:10], rates[:10])]))
             for i, t in enumerate(valid_tickers):
-                sp = self._freqtrade.exchange.symbol_price_prec(t["symbol"], stop_prices[i])
-                r = self._freqtrade.exchange.symbol_price_prec(t["symbol"], rates[i])
+                sp = self._earthzetaorg.exchange.symbol_price_prec(t["symbol"], stop_prices[i])
+                r = self._earthzetaorg.exchange.symbol_price_prec(t["symbol"], rates[i])
                 logger.debug(f"{t['symbol']} - {sp} : {r}")
                 if sp <= r:
                     logger.info(f"Removed {t['symbol']} from whitelist, "

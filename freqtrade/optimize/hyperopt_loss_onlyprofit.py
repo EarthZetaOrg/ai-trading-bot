@@ -6,7 +6,7 @@ Hyperoptimization.
 """
 from pandas import DataFrame
 
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from earthzetaorg.optimize.hyperopt import IHyperOptLoss
 
 
 # This is assumed to be expected avg profit * expected trade count.
@@ -17,7 +17,7 @@ from freqtrade.optimize.hyperopt import IHyperOptLoss
 #
 # In this implementation it's only used in calculation of the resulting value
 # of the objective function as a normalization coefficient and does not
-# represent any limit for profits as in the Freqtrade legacy default loss function.
+# represent any limit for profits as in the earthzetaorg legacy default loss function.
 EXPECTED_MAX_PROFIT = 3.0
 
 

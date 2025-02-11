@@ -11,16 +11,16 @@ from typing import Any, Dict, List, NamedTuple, Optional
 
 from pandas import DataFrame
 
-from freqtrade import OperationalException
-from freqtrade.configuration import TimeRange
-from freqtrade.data import history
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.exchange import timeframe_to_minutes
-from freqtrade.misc import file_dump_json
-from freqtrade.persistence import Trade
-from freqtrade.resolvers import ExchangeResolver, StrategyResolver
-from freqtrade.state import RunMode
-from freqtrade.strategy.interface import IStrategy, SellType
+from earthzetaorg import OperationalException
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data import history
+from earthzetaorg.data.dataprovider import DataProvider
+from earthzetaorg.exchange import timeframe_to_minutes
+from earthzetaorg.misc import file_dump_json
+from earthzetaorg.persistence import Trade
+from earthzetaorg.resolvers import ExchangeResolver, StrategyResolver
+from earthzetaorg.state import RunMode
+from earthzetaorg.strategy.interface import IStrategy, SellType
 from tabulate import tabulate
 
 logger = logging.getLogger(__name__)

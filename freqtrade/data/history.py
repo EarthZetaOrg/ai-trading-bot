@@ -15,10 +15,10 @@ from typing import Any, Dict, List, Optional, Tuple
 import arrow
 from pandas import DataFrame
 
-from freqtrade import OperationalException, misc
-from freqtrade.configuration import TimeRange
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.exchange import Exchange, timeframe_to_minutes
+from earthzetaorg import OperationalException, misc
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.exchange import Exchange, timeframe_to_minutes
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ def load_pair_history(pair: str,
     else:
         logger.warning(
             f'No history data for pair: "{pair}", interval: {ticker_interval}. '
-            'Use --refresh-pairs-cached option or `freqtrade download-data` '
+            'Use --refresh-pairs-cached option or `earthzetaorg download-data` '
             'script to download the data'
         )
         return None
@@ -235,7 +235,7 @@ def download_pair_history(datadir: Optional[Path],
     exists in a cache. If timerange starts earlier than the data in the cache,
     the full data will be redownloaded
 
-    Based on @Rybolov work: https://github.com/rybolov/freqtrade-data
+    Based on @Rybolov work: https://github.com/rybolov/earthzetaorg-data
 
     :param pair: pair to download
     :param ticker_interval: ticker interval
@@ -285,7 +285,7 @@ def refresh_backtest_ohlcv_data(exchange: Exchange, pairs: List[str], timeframes
                                 erase=False) -> List[str]:
     """
     Refresh stored ohlcv data for backtesting and hyperopt operations.
-    Used by freqtrade download-data
+    Used by earthzetaorg download-data
     :return: Pairs not available
     """
     pairs_not_available = []

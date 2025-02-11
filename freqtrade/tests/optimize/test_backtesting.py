@@ -10,19 +10,19 @@ import pandas as pd
 import pytest
 from arrow import Arrow
 
-from freqtrade import DependencyException, OperationalException, constants
-from freqtrade.configuration import TimeRange
-from freqtrade.data import history
-from freqtrade.data.btanalysis import evaluate_result_multi
-from freqtrade.data.converter import parse_ticker_dataframe
-from freqtrade.data.dataprovider import DataProvider
-from freqtrade.data.history import get_timeframe
-from freqtrade.optimize import setup_configuration, start_backtesting
-from freqtrade.optimize.backtesting import Backtesting
-from freqtrade.state import RunMode
-from freqtrade.strategy.default_strategy import DefaultStrategy
-from freqtrade.strategy.interface import SellType
-from freqtrade.tests.conftest import (get_args, log_has, log_has_re,
+from earthzetaorg import DependencyException, OperationalException, constants
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data import history
+from earthzetaorg.data.btanalysis import evaluate_result_multi
+from earthzetaorg.data.converter import parse_ticker_dataframe
+from earthzetaorg.data.dataprovider import DataProvider
+from earthzetaorg.data.history import get_timeframe
+from earthzetaorg.optimize import setup_configuration, start_backtesting
+from earthzetaorg.optimize.backtesting import Backtesting
+from earthzetaorg.state import RunMode
+from earthzetaorg.strategy.default_strategy import DefaultStrategy
+from earthzetaorg.strategy.interface import SellType
+from earthzetaorg.tests.conftest import (get_args, log_has, log_has_re,
                                       patch_exchange,
                                       patched_configuration_load_config_file)
 
@@ -202,7 +202,7 @@ def test_setup_configuration_without_arguments(mocker, default_conf, caplog) -> 
 def test_setup_bt_configuration_with_arguments(mocker, default_conf, caplog) -> None:
     patched_configuration_load_config_file(mocker, default_conf)
     mocker.patch(
-        'freqtrade.configuration.configuration.create_datadir',
+        'earthzetaorg.configuration.configuration.create_datadir',
         lambda c, x: x
     )
 
@@ -270,9 +270,9 @@ def test_setup_configuration_unlimited_stake_amount(mocker, default_conf, caplog
 
 def test_start(mocker, fee, default_conf, caplog) -> None:
     start_mock = MagicMock()
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     patch_exchange(mocker)
-    mocker.patch('freqtrade.optimize.backtesting.Backtesting.start', start_mock)
+    mocker.patch('earthzetaorg.optimize.backtesting.Backtesting.start', start_mock)
     patched_configuration_load_config_file(mocker, default_conf)
 
     args = [
@@ -282,7 +282,7 @@ def test_start(mocker, fee, default_conf, caplog) -> None:
     ]
     args = get_args(args)
     start_backtesting(args)
-    assert log_has('Starting freqtrade in Backtesting mode', caplog)
+    assert log_has('Starting earthzetaorg in Backtesting mode', caplog)
     assert start_mock.call_count == 1
 
 
@@ -309,7 +309,7 @@ def test_backtesting_init(mocker, default_conf, order_types) -> None:
     """
     default_conf["order_types"] = order_types
     patch_exchange(mocker)
-    get_fee = mocker.patch('freqtrade.exchange.Exchange.get_fee', MagicMock(return_value=0.5))
+    get_fee = mocker.patch('earthzetaorg.exchange.Exchange.get_fee', MagicMock(return_value=0.5))
     backtesting = Backtesting(default_conf)
     assert backtesting.config == default_conf
     assert backtesting.ticker_interval == '5m'
@@ -332,7 +332,7 @@ def test_backtesting_init_no_ticker_interval(mocker, default_conf, caplog) -> No
     default_conf['strategy_list'] = ['DefaultStrategy',
                                      'SampleStrategy']
 
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', MagicMock(return_value=0.5))
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', MagicMock(return_value=0.5))
     with pytest.raises(OperationalException):
         Backtesting(default_conf)
     log_has("Ticker-interval needs to be set in either configuration "
@@ -460,12 +460,12 @@ def test_backtesting_start(default_conf, mocker, caplog) -> None:
     def get_timeframe(input1):
         return Arrow(2017, 11, 14, 21, 17), Arrow(2017, 11, 14, 22, 59)
 
-    mocker.patch('freqtrade.data.history.load_data', mocked_load_data)
-    mocker.patch('freqtrade.data.history.get_timeframe', get_timeframe)
-    mocker.patch('freqtrade.exchange.Exchange.refresh_latest_ohlcv', MagicMock())
+    mocker.patch('earthzetaorg.data.history.load_data', mocked_load_data)
+    mocker.patch('earthzetaorg.data.history.get_timeframe', get_timeframe)
+    mocker.patch('earthzetaorg.exchange.Exchange.refresh_latest_ohlcv', MagicMock())
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.optimize.backtesting.Backtesting',
+        'earthzetaorg.optimize.backtesting.Backtesting',
         backtest=MagicMock(),
         _generate_text_table=MagicMock(return_value='1'),
     )
@@ -493,12 +493,12 @@ def test_backtesting_start_no_data(default_conf, mocker, caplog) -> None:
     def get_timeframe(input1):
         return Arrow(2017, 11, 14, 21, 17), Arrow(2017, 11, 14, 22, 59)
 
-    mocker.patch('freqtrade.data.history.load_data', MagicMock(return_value={}))
-    mocker.patch('freqtrade.data.history.get_timeframe', get_timeframe)
-    mocker.patch('freqtrade.exchange.Exchange.refresh_latest_ohlcv', MagicMock())
+    mocker.patch('earthzetaorg.data.history.load_data', MagicMock(return_value={}))
+    mocker.patch('earthzetaorg.data.history.get_timeframe', get_timeframe)
+    mocker.patch('earthzetaorg.exchange.Exchange.refresh_latest_ohlcv', MagicMock())
     patch_exchange(mocker)
     mocker.patch.multiple(
-        'freqtrade.optimize.backtesting.Backtesting',
+        'earthzetaorg.optimize.backtesting.Backtesting',
         backtest=MagicMock(),
         _generate_text_table=MagicMock(return_value='1'),
     )
@@ -517,7 +517,7 @@ def test_backtesting_start_no_data(default_conf, mocker, caplog) -> None:
 
 
 def test_backtest(default_conf, fee, mocker) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     patch_exchange(mocker)
     backtesting = Backtesting(default_conf)
     pair = 'UNITTEST/BTC'
@@ -571,7 +571,7 @@ def test_backtest(default_conf, fee, mocker) -> None:
 
 
 def test_backtest_1min_ticker_interval(default_conf, fee, mocker) -> None:
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     patch_exchange(mocker)
     backtesting = Backtesting(default_conf)
 
@@ -611,7 +611,7 @@ def test_processed(default_conf, mocker) -> None:
 
 def test_backtest_pricecontours(default_conf, fee, mocker) -> None:
     # TODO: Evaluate usefullness of this, the patterns and buy-signls are unrealistic
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     tests = [['raise', 19], ['lower', 0], ['sine', 35]]
     # We need to enable sell-signal - otherwise it sells on ROI!!
     default_conf['experimental'] = {"use_sell_signal": True}
@@ -651,8 +651,8 @@ def test_backtest_only_sell(mocker, default_conf):
 
 
 def test_backtest_alternate_buy_sell(default_conf, fee, mocker):
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
-    mocker.patch('freqtrade.optimize.backtesting.file_dump_json', MagicMock())
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.optimize.backtesting.file_dump_json', MagicMock())
     backtest_conf = _make_backtest_conf(mocker, conf=default_conf, pair='UNITTEST/BTC')
     # We need to enable sell-signal - otherwise it sells on ROI!!
     default_conf['experimental'] = {"use_sell_signal": True}
@@ -686,7 +686,7 @@ def test_backtest_multi_pair(default_conf, fee, mocker, tres, pair):
         dataframe['sell'] = np.where((dataframe.index + multi - 2) % multi == 0, 1, 0)
         return dataframe
 
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     patch_exchange(mocker)
 
     pairs = ['ADA/BTC', 'DASH/BTC', 'ETH/BTC', 'LTC/BTC', 'NXT/BTC']
@@ -738,9 +738,9 @@ def test_backtest_record(default_conf, fee, mocker):
     names = []
     records = []
     patch_exchange(mocker)
-    mocker.patch('freqtrade.exchange.Exchange.get_fee', fee)
+    mocker.patch('earthzetaorg.exchange.Exchange.get_fee', fee)
     mocker.patch(
-        'freqtrade.optimize.backtesting.file_dump_json',
+        'earthzetaorg.optimize.backtesting.file_dump_json',
         new=lambda n, r: (names.append(n), records.append(r))
     )
 
@@ -816,14 +816,14 @@ def test_backtest_start_timerange(default_conf, mocker, caplog):
     api_mock.fetch_ohlcv = load_pairs
 
     patch_exchange(mocker, api_mock)
-    mocker.patch('freqtrade.optimize.backtesting.Backtesting.backtest', MagicMock())
-    mocker.patch('freqtrade.optimize.backtesting.Backtesting._generate_text_table', MagicMock())
+    mocker.patch('earthzetaorg.optimize.backtesting.Backtesting.backtest', MagicMock())
+    mocker.patch('earthzetaorg.optimize.backtesting.Backtesting._generate_text_table', MagicMock())
     patched_configuration_load_config_file(mocker, default_conf)
 
     args = [
         '--config', 'config.json',
         '--strategy', 'DefaultStrategy',
-        '--datadir', 'freqtrade/tests/testdata',
+        '--datadir', 'earthzetaorg/tests/testdata',
         'backtesting',
         '--ticker-interval', '1m',
         '--timerange', '-100',
@@ -837,7 +837,7 @@ def test_backtest_start_timerange(default_conf, mocker, caplog):
         'Parameter -i/--ticker-interval detected ... Using ticker_interval: 1m ...',
         'Ignoring max_open_trades (--disable-max-market-positions was used) ...',
         'Parameter --timerange detected: -100 ...',
-        'Using data directory: freqtrade/tests/testdata ...',
+        'Using data directory: earthzetaorg/tests/testdata ...',
         'Using stake_currency: BTC ...',
         'Using stake_amount: 0.001 ...',
         'Backtesting with data from 2017-11-14T21:17:00+00:00 '
@@ -859,17 +859,17 @@ def test_backtest_start_multi_strat(default_conf, mocker, caplog):
 
     patch_exchange(mocker, api_mock)
     backtestmock = MagicMock()
-    mocker.patch('freqtrade.optimize.backtesting.Backtesting.backtest', backtestmock)
+    mocker.patch('earthzetaorg.optimize.backtesting.Backtesting.backtest', backtestmock)
     gen_table_mock = MagicMock()
-    mocker.patch('freqtrade.optimize.backtesting.Backtesting._generate_text_table', gen_table_mock)
+    mocker.patch('earthzetaorg.optimize.backtesting.Backtesting._generate_text_table', gen_table_mock)
     gen_strattable_mock = MagicMock()
-    mocker.patch('freqtrade.optimize.backtesting.Backtesting._generate_text_table_strategy',
+    mocker.patch('earthzetaorg.optimize.backtesting.Backtesting._generate_text_table_strategy',
                  gen_strattable_mock)
     patched_configuration_load_config_file(mocker, default_conf)
 
     args = [
         '--config', 'config.json',
-        '--datadir', 'freqtrade/tests/testdata',
+        '--datadir', 'earthzetaorg/tests/testdata',
         'backtesting',
         '--ticker-interval', '1m',
         '--timerange', '-100',
@@ -891,7 +891,7 @@ def test_backtest_start_multi_strat(default_conf, mocker, caplog):
         'Parameter -i/--ticker-interval detected ... Using ticker_interval: 1m ...',
         'Ignoring max_open_trades (--disable-max-market-positions was used) ...',
         'Parameter --timerange detected: -100 ...',
-        'Using data directory: freqtrade/tests/testdata ...',
+        'Using data directory: earthzetaorg/tests/testdata ...',
         'Using stake_currency: BTC ...',
         'Using stake_amount: 0.001 ...',
         'Backtesting with data from 2017-11-14T21:17:00+00:00 '

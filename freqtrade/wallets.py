@@ -3,8 +3,8 @@
 
 import logging
 from typing import Dict, NamedTuple
-from freqtrade.exchange import Exchange
-from freqtrade import constants
+from earthzetaorg.exchange import Exchange
+from earthzetaorg import constants
 
 logger = logging.getLogger(__name__)
 

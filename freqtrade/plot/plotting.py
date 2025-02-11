@@ -4,12 +4,12 @@ from typing import Any, Dict, List
 
 import pandas as pd
 
-from freqtrade.configuration import TimeRange
-from freqtrade.data import history
-from freqtrade.data.btanalysis import (combine_tickers_with_mean,
+from earthzetaorg.configuration import TimeRange
+from earthzetaorg.data import history
+from earthzetaorg.data.btanalysis import (combine_tickers_with_mean,
                                        create_cum_profit,
                                        extract_trades_of_period, load_trades)
-from freqtrade.resolvers import StrategyResolver
+from earthzetaorg.resolvers import StrategyResolver
 
 logger = logging.getLogger(__name__)
 
@@ -278,7 +278,7 @@ def generate_profit_graph(pairs: str, tickers: Dict[str, pd.DataFrame],
                         row_width=[1, 1, 1],
                         vertical_spacing=0.05,
                         subplot_titles=["AVG Close Price", "Combined Profit", "Profit per pair"])
-    fig['layout'].update(title="Freqtrade Profit plot")
+    fig['layout'].update(title="earthzetaorg Profit plot")
     fig['layout']['yaxis1'].update(title='Price')
     fig['layout']['yaxis2'].update(title='Profit')
     fig['layout']['yaxis3'].update(title='Profit')
@@ -301,7 +301,7 @@ def generate_plot_filename(pair, ticker_interval) -> str:
     Generate filenames per pair/ticker_interval to be used for storing plots
     """
     pair_name = pair.replace("/", "_")
-    file_name = 'freqtrade-plot-' + pair_name + '-' + ticker_interval + '.html'
+    file_name = 'earthzetaorg-plot-' + pair_name + '-' + ticker_interval + '.html'
 
     logger.info('Generate plot file for %s', pair)
 
@@ -384,5 +384,5 @@ def plot_profit(config: Dict[str, Any]) -> None:
     # Create an average close price of all the pairs that were involved.
     # this could be useful to gauge the overall market trend
     fig = generate_profit_graph(plot_elements["pairs"], plot_elements["tickers"], trades)
-    store_plot_file(fig, filename='freqtrade-profit-plot.html',
+    store_plot_file(fig, filename='earthzetaorg-profit-plot.html',
                     directory=config['user_data_dir'] / "plot", auto_open=True)

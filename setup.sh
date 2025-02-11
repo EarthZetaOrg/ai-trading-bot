@@ -263,7 +263,7 @@ function install() {
     echo "-------------------------"
     echo "Run the bot !"
     echo "-------------------------"
-    echo "You can now use the bot by executing 'source .env/bin/activate; freqtrade'."
+    echo "You can now use the bot by executing 'source .env/bin/activate; earthzetaorg'."
 }
 
 function plot() {
@@ -277,7 +277,7 @@ ${PYTHON} -m pip install plotly --upgrade
 
 function help() {
     echo "usage:"
-    echo "	-i,--install    Install freqtrade from scratch"
+    echo "	-i,--install    Install earthzetaorg from scratch"
     echo "	-u,--update     Command git pull to update."
     echo "	-r,--reset      Hard reset your develop/master branch."
     echo "	-c,--config     Easy config generator (Will override your existing file)."

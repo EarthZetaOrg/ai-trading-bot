@@ -6,9 +6,9 @@ import arrow
 import pytest
 from sqlalchemy import create_engine
 
-from freqtrade import OperationalException, constants
-from freqtrade.persistence import Trade, clean_dry_run_db, init
-from freqtrade.tests.conftest import log_has
+from earthzetaorg import OperationalException, constants
+from earthzetaorg.persistence import Trade, clean_dry_run_db, init
+from earthzetaorg.tests.conftest import log_has
 
 
 def create_mock_trades(fee):
@@ -64,12 +64,12 @@ def test_init_create_session(default_conf):
 
 def test_init_custom_db_url(default_conf, mocker):
     # Update path to a value other than default, but still in-memory
-    default_conf.update({'db_url': 'sqlite:///tmp/freqtrade2_test.sqlite'})
-    create_engine_mock = mocker.patch('freqtrade.persistence.create_engine', MagicMock())
+    default_conf.update({'db_url': 'sqlite:///tmp/earthzetaorg2_test.sqlite'})
+    create_engine_mock = mocker.patch('earthzetaorg.persistence.create_engine', MagicMock())
 
     init(default_conf['db_url'], default_conf['dry_run'])
     assert create_engine_mock.call_count == 1
-    assert create_engine_mock.mock_calls[0][1][0] == 'sqlite:///tmp/freqtrade2_test.sqlite'
+    assert create_engine_mock.mock_calls[0][1][0] == 'sqlite:///tmp/earthzetaorg2_test.sqlite'
 
 
 def test_init_invalid_db_url(default_conf):
@@ -83,7 +83,7 @@ def test_init_prod_db(default_conf, mocker):
     default_conf.update({'dry_run': False})
     default_conf.update({'db_url': constants.DEFAULT_DB_PROD_URL})
 
-    create_engine_mock = mocker.patch('freqtrade.persistence.create_engine', MagicMock())
+    create_engine_mock = mocker.patch('earthzetaorg.persistence.create_engine', MagicMock())
 
     init(default_conf['db_url'], default_conf['dry_run'])
     assert create_engine_mock.call_count == 1
@@ -94,7 +94,7 @@ def test_init_dryrun_db(default_conf, mocker):
     default_conf.update({'dry_run': True})
     default_conf.update({'db_url': constants.DEFAULT_DB_DRYRUN_URL})
 
-    create_engine_mock = mocker.patch('freqtrade.persistence.create_engine', MagicMock())
+    create_engine_mock = mocker.patch('earthzetaorg.persistence.create_engine', MagicMock())
 
     init(default_conf['db_url'], default_conf['dry_run'])
     assert create_engine_mock.call_count == 1
@@ -457,7 +457,7 @@ def test_migrate_old(mocker, default_conf, fee):
                                      amount=amount
                                      )
     engine = create_engine('sqlite://')
-    mocker.patch('freqtrade.persistence.create_engine', lambda *args, **kwargs: engine)
+    mocker.patch('earthzetaorg.persistence.create_engine', lambda *args, **kwargs: engine)
 
     # Create table using the old format
     engine.execute(create_table_old)
@@ -523,7 +523,7 @@ def test_migrate_new(mocker, default_conf, fee, caplog):
                                      amount=amount
                                      )
     engine = create_engine('sqlite://')
-    mocker.patch('freqtrade.persistence.create_engine', lambda *args, **kwargs: engine)
+    mocker.patch('earthzetaorg.persistence.create_engine', lambda *args, **kwargs: engine)
 
     # Create table using the old format
     engine.execute(create_table_old)
@@ -597,7 +597,7 @@ def test_migrate_mid_state(mocker, default_conf, fee, caplog):
                                      amount=amount
                                      )
     engine = create_engine('sqlite://')
-    mocker.patch('freqtrade.persistence.create_engine', lambda *args, **kwargs: engine)
+    mocker.patch('earthzetaorg.persistence.create_engine', lambda *args, **kwargs: engine)
 
     # Create table using the old format
     engine.execute(create_table_old)
