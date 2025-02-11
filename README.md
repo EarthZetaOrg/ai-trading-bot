@@ -2,6 +2,8 @@
 
 This is a trial version of a crypto trading bot written in Python. It is designed to support all major exchanges and be controlled via Telegram. It contains backtesting, plotting and money management tools as well as strategy optimization by machine learning.
 
+![freqtrade-screenshot](https://github.com/user-attachments/assets/c43f59eb-156e-4dfa-ab00-89901e4499b2)
+
 ## Exchange marketplaces supported
 
 - [X] [Bittrex](https://bittrex.com/)
