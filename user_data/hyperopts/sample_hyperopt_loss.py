@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pandas import DataFrame
 
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from zetatrade.optimize.hyperopt import IHyperOptLoss
 
 # Define some constants:
 

@@ -9,8 +9,8 @@ import talib.abstract as ta
 from pandas import DataFrame
 from skopt.space import Categorical, Dimension, Integer, Real
 
-import freqtrade.vendor.qtpylib.indicators as qtpylib
-from freqtrade.optimize.hyperopt_interface import IHyperOpt
+import zetatrade.vendor.qtpylib.indicators as qtpylib
+from zetatrade.optimize.hyperopt_interface import IHyperOpt
 
 
 class SampleHyperOpts(IHyperOpt):

@@ -1,12 +1,12 @@
 
 # --- Do not remove these libs ---
-from freqtrade.strategy.interface import IStrategy
+from zetatrade.strategy.interface import IStrategy
 from pandas import DataFrame
 # --------------------------------
 
 # Add your lib to import here
 import talib.abstract as ta
-import freqtrade.vendor.qtpylib.indicators as qtpylib
+import zetatrade.vendor.qtpylib.indicators as qtpylib
 import numpy  # noqa
 
 
